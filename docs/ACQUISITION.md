@@ -194,4 +194,7 @@ counts. The source profile,
 raw responses, and generated assets remain ignored pending dataset-specific
 source-terms confirmation and release review; the published ECan data
 agreement findings and attribution/freshness requirements are in
-`docs/METHODOLOGY.md`.
+`docs/METHODOLOGY.md`. The consolidated current terms position, endpoint
+inventory, exact unresolved redistribution question, and local release check
+are in [`docs/RELEASE_READINESS.md`](RELEASE_READINESS.md). Public endpoint
+access is not treated as permission to redistribute legacy Hilltop responses.

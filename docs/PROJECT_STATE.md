@@ -51,7 +51,7 @@ Verification here distinguishes documented decisions from executable evidence; t
 - Python package metadata and source-independent version `0.1.0` contracts exist for source, station, parameter, observation, aggregate, trend, and asset-manifest records.
 - A synthetic fixture validates source provenance, normalized observation fields, censored/null preservation, referential integrity, and manifest counts.
 - A Vite/React/TypeScript frontend now loads the ignored versioned runtime shell and parameter-partitioned observation assets when prepared, with an explicit synthetic-fixture fallback, and coordinates parameter/window/station controls across the MapLibre map, selected-site series, full-width observation inspection, summaries, coverage, interval comparison, filtered CSV export, and quality/provenance views. The local view has a compact owner-facing product shell, coverage-led Total Nitrogen/SQ35874 default, verified ECan polygon geometry, readable linear chart axes and discrete-observation cues, neutral trend direction styling, concise expandable row detail, responsive layout, explicit empty/censored/indeterminate states, and browser/unit verification. `web/package-lock.json` is checked in.
-- Quality gates pass: thirty-three Python `unittest` tests, fixture validation, Python compilation, frontend strict typecheck, four frontend unit tests, frontend production build, fourteen Playwright/axe browser checks, all-site source acquisition, site-membership audit, analytical asset generation, viability audit, source-manifest integrity, and deterministic asset rebuild checks on 2026-09-13.
+- Quality gates pass: thirty-six Python `unittest` tests, fixture validation, Python compilation, frontend strict typecheck, four frontend unit tests, frontend production build, fifteen Playwright/axe browser checks, local release-readiness checks, all-site source acquisition, site-membership audit, analytical asset generation, viability audit, source-manifest integrity, and deterministic asset rebuild checks on 2026-09-13.
 - A bounded live Hilltop profile verified 12 real observations for `SQ20104`/Dissolved Reactive Phosphorus; no production dataset is committed.
 - The normal bounded three-parameter profile joined 10 in-bound sites and retrieved 243 observations; 9 sites had data, 194 observations were numeric, and 49 were left-censored. Two Canterbury Bight marine name-screened records were excluded by the polygon.
 - The earlier neutral nine-parameter candidate profiles retrieved 644 observations for 2024 and 8,644 observations for 2007–2024; these were the evidence used for the owner-approved eight-parameter scope. pH covered only 5 sites, ended in 2013, and had no reported unit.
@@ -62,7 +62,7 @@ Verification here distinguishes documented decisions from executable evidence; t
 
 ## Not Implemented or Not Evidenced
 
-- Dataset-specific confirmation for the legacy Hilltop route, rate-limit agreement, attribution/freshness implementation, and public redistribution decision. ECan's published data-agreement terms are now documented as a local-processing basis, not release approval.
+- Dataset-specific confirmation for the legacy Hilltop route, rate-limit agreement, and public redistribution decision. ECan's published data-agreement terms are documented as a local-processing basis, not release approval; the application now carries the official attribution/source links and `tools/check_release_readiness.py` verifies local freshness/metadata and untracked generated outputs.
 - Complete catchment observation-level coverage and production-scale profile.
 - Full raw snapshot/cache and public production asset publication. The current response manifest records identity only; raw response bodies remain local/ephemeral.
 - Censor-aware ROS summaries and censor-aware Mann–Kendall/Akritas–Theil–Sen trends. The current documented fallback suppresses affected statistics and emits indeterminate trends.
@@ -89,10 +89,10 @@ The local production-shaped workflow is implemented against ignored generated as
 
 ## Current Test and Validation State
 
-- **Automated tests:** thirty-three focused `unittest` tests pass with `python3 -m unittest discover -s tests -v`.
+- **Automated tests:** thirty-six focused `unittest` tests pass with `python3 -m unittest discover -s tests -v`.
 - **Linting/formatting:** no configuration or successful project run evidenced.
 - **Python static/type checks:** no Python project or configuration evidenced.
-- **Frontend type check/build:** `cd web && npm ci && npm run typecheck && npm run test:unit && npm run build` passes. The final UI polish build keeps MapLibre in a separate lazy chunk: initial JS is about 259.36 kB (79.61 kB gzip), MapLibre is about 1.02 MB (276.18 kB gzip), and CSS is about 13.81 kB (3.60 kB gzip).
+- **Frontend type check/build:** `cd web && npm ci && npm run typecheck && npm run test:unit && npm run build` passes. The release-readiness build keeps MapLibre in a separate lazy chunk: initial JS is about 259.79 kB (79.77 kB gzip), MapLibre is about 1.02 MB (276.18 kB gzip), and CSS is about 13.86 kB (3.61 kB gzip).
 - **Data validation:** source inventory/catalog validation is evidenced by the live audit; parser and contract validation is evidenced by fixtures plus a bounded live Hilltop profile; complete production observation coverage remains unverified.
 - **Scientific validation:** the conservative numeric-only summary and uncensored Theil–Sen/Kendall fallback are unit-tested against an independently calculated pairwise Theil–Sen fixture; the viability report audits all trend reasons. Censor-aware ROS/Mann–Kendall methods remain unimplemented and should not be implied.
 - **Visual/accessibility/responsive validation:** Playwright full-page screenshots were inspected at 1440×900, 1024×768, and 390×844 viewport sizes after the final UI polish. The 15-test browser suite found no application console errors, page errors, failed requests, horizontal overflow, or serious/critical axe violations; it explicitly filters only the known Chromium/WebGL MapLibre compositor diagnostic. Core default, interval comparison, parameter/window/station/map, determinate/indeterminate trend, export, no-data, censored, fallback, error, Data notes, keyboard, and chart-inspection flows are asserted.
@@ -107,7 +107,7 @@ No hosting provider, deployment configuration, production URL, or successful dep
 
 ## Major Blockers and Decision Boundaries
 
-The owner has selected Ashburton–Hakatere and approved the parameter/time scope. The bounded acquisition, ECan polygon membership, normalization, quality-semantics audit, coverage diagnostics, conservative summaries, trends, local runtime asset loading, MapLibre geography, filtered export, and browser-verified React integration are implemented. Complete catchment observation coverage, exact source-term approval, and public publication remain open; local production-shaped asset loading is verified.
+The owner has selected Ashburton–Hakatere and approved the parameter/time scope. The bounded acquisition, ECan polygon membership, normalization, quality-semantics audit, coverage diagnostics, conservative summaries, trends, local runtime asset loading, MapLibre geography, filtered export, and browser-verified React integration are implemented. Complete catchment observation coverage, exact source-term approval, and public publication remain open; local production-shaped asset loading is verified. Release-readiness review is complete enough to define the exact unresolved route-specific permission question and local safeguards.
 
 Implementation beyond feasibility is gated by:
 
@@ -119,4 +119,4 @@ Credentials or private access should not be assumed; sources must remain public/
 
 ## Logical Current Development Frontier
 
-Priority 0 is complete as a feasibility screen, Priority 1 is complete as a tested foundation, the approved bounded Priority 2/3 analytical implementation plus quality-semantics review is complete, and the local functional MVP is complete with verified MapLibre geography, partitioned runtime data, filtered export, and browser-tested transparency/accessibility behavior. The final local UI polish is complete; the next frontier is **public-release readiness**, especially the licensing/data-distribution path, freshness/attribution implementation, and executable release checks; complete observation coverage and public deployment remain separate gates.
+Priority 0 is complete as a feasibility screen, Priority 1 is complete as a tested foundation, the approved bounded Priority 2/3 analytical implementation plus quality-semantics review is complete, and the local functional MVP plus final UI polish is complete with verified MapLibre geography, partitioned runtime data, filtered export, official attribution/source links, and browser-tested transparency/accessibility behavior. Release-readiness evidence and local safeguards are now implemented; the next frontier is an owner-facing decision on route-specific public distribution terms, followed by complete coverage/release checks and only then deployment.

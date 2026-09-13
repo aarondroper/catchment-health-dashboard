@@ -187,4 +187,7 @@ data current or remove it, and CC BY 4.0 unless specifically stated otherwise.
 These terms do not explicitly prohibit local processing. Dataset-specific
 confirmation for the legacy Hilltop response route, attribution/freshness
 implementation, and any public raw-response redistribution remain release
-gates.
+gates. The exact source inventory and release decision boundary are maintained
+in [`docs/RELEASE_READINESS.md`](RELEASE_READINESS.md); the local application
+uses the official attribution wording and source links but does not imply that
+public observation or CSV redistribution has been approved.

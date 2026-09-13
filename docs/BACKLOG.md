@@ -251,7 +251,7 @@ The local dashboard uses the versioned 2.0.0 runtime shell and parameter
 partitions, preserves source and analytical meaning through typed decoding, and
 exports the active station/all-site context as deterministic UTF-8 CSV. The
 local MapLibre view displays the audited ECan polygon and 19 in-bound sites.
-Four frontend unit tests and twelve Playwright/Chromium browser tests pass,
+Four frontend unit tests and fifteen Playwright/Chromium browser tests pass,
 including real-data loading, coordinated parameter/window/station/map flows,
 censored and indeterminate states, export, fallback/error behavior, keyboard
 access, axe checks, performance timing, and responsive overflow checks. Full-
@@ -261,7 +261,7 @@ is about 1.26 MB raw/82 kB gzip; shell plus initial E. coli detail is about
 
 ## Priority 5.5 — Owner-Facing Review and Public-Release Readiness
 
-**Status:** UI polish complete; release-readiness work in progress
+**Status:** Local UI and release-readiness work complete; public distribution decision required
 
 ### Objective
 
@@ -294,8 +294,20 @@ full-width bounded inspection panel. Cross-site summaries use a sorted
 median/IQR interval plot with exact values behind an accessible disclosure;
 neutral trend directions do not use health-signalling colors. Four frontend
 unit tests and fifteen browser tests pass, and screenshots at 1440×900,
-1024×768, and 390×844 were inspected. The remaining work is public-release
-readiness, not more local feature scope.
+1024×768, and 390×844 were inspected. The remaining work is source-specific
+public distribution approval, not more local feature scope.
+
+### Release-readiness outcome
+
+Official ECan terms and the exact source inventory are documented in
+`docs/RELEASE_READINESS.md`. Attribution/source links and freshness/build
+metadata are present in the local application, and
+`tools/check_release_readiness.py` verifies that local generated outputs are
+not tracked. The general ECan terms are not sufficient evidence that the exact
+legacy Hilltop observation route and exact ArcGIS catchment layer may be
+publicly redistributed as normalized assets or filtered CSV. The next release
+decision is therefore owner-facing written confirmation or a source change;
+local dashboard development remains unblocked.
 
 ### Acceptance criteria
 

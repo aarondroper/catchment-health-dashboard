@@ -174,6 +174,7 @@ test("keeps detailed technical context behind Data notes", async ({ page }) => {
   await expect(notes).toContainText("published_unflagged");
   await expect(notes).toContainText("analytical version");
   await expect(notes).toContainText("public observation redistribution remain release gates");
+  await expect(notes).toContainText("This work uses data sourced from Environment Canterbury.");
 });
 
 test("has no serious accessibility violations in the real-data view", async ({ page }) => {
