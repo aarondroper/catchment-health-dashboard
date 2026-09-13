@@ -86,13 +86,15 @@ export async function loadObservationPartition(
   return observations;
 }
 
-export async function loadAnalyticalAsset(): Promise<AnalyticalAsset> {
+export async function loadAnalyticalAsset(initialParameterId?: string): Promise<AnalyticalAsset> {
   const startedAt = typeof performance === "undefined" ? null : performance.now();
   const shell = await getJson<AnalyticalAsset>(LOCAL_ASSET_PATH);
   if (shell.contractVersion !== "2.0.0" || !shell.observationPartitions || !shell.runtimeData) {
     throw new Error("Analytical asset does not provide runtime contract 2.0.0");
   }
-  const firstParameter = shell.parameters.find((item) => item.selectionStatus === "core") ?? shell.parameters[0];
+  const firstParameter = shell.parameters.find((item) => item.parameterId === initialParameterId)
+    ?? shell.parameters.find((item) => item.selectionStatus === "core")
+    ?? shell.parameters[0];
   if (!firstParameter) throw new Error("Analytical asset has no parameters");
   const observations = await loadObservationPartition(shell, firstParameter.parameterId);
   if (startedAt !== null) performance.measure("dashboard-runtime-ready", { start: startedAt });

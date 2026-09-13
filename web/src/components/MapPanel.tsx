@@ -1,12 +1,11 @@
 import type { GeoJSONSource, Map, Marker, StyleSpecification } from "maplibre-gl";
 import { useEffect, useRef, useState } from "react";
-import type { CatchmentGeometry, AnalyticalWindow, Station } from "../contracts";
+import type { CatchmentGeometry, Station } from "../contracts";
 
 type MapPanelProps = {
   stations: readonly Station[];
   selectedStationId: string;
-  parameterId: string;
-  window: AnalyticalWindow;
+  selectedStationName: string;
   catchmentGeometry: CatchmentGeometry | null;
   hasData: (stationId: string) => boolean;
   onSelectStation: (stationId: string) => void;
@@ -54,7 +53,7 @@ function stationFeatureCollection(stations: readonly Station[], hasData: (statio
   };
 }
 
-export function MapPanel({ stations, selectedStationId, parameterId, window, catchmentGeometry, hasData, onSelectStation }: MapPanelProps) {
+export function MapPanel({ stations, selectedStationId, selectedStationName, catchmentGeometry, hasData, onSelectStation }: MapPanelProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const mapRef = useRef<Map | null>(null);
   const markersRef = useRef<Marker[]>([]);
@@ -145,8 +144,9 @@ export function MapPanel({ stations, selectedStationId, parameterId, window, cat
       element.type = "button";
       element.className = `map-marker ${available ? "map-marker-available" : "map-marker-unavailable"} ${selected ? "map-marker-selected" : ""}`;
       element.dataset.stationId = station.stationId;
-      element.title = `${station.name}: ${available ? "data available" : "no selected parameter data"}`;
-      element.setAttribute("aria-label", `${station.name}, ${available ? "data available" : "no selected parameter data"}`);
+      const stationText = station.name === station.stationId ? `Monitoring station ${station.stationId}` : `${station.name} (${station.stationId})`;
+      element.title = `${stationText}: ${available ? "data available" : "no selected parameter data"}`;
+      element.setAttribute("aria-label", `${stationText}, ${available ? "data available" : "no selected parameter data"}`);
       element.setAttribute("aria-pressed", String(selected));
       element.addEventListener("click", () => onSelectRef.current(station.stationId));
       return new MarkerConstructor({ element, anchor: "center", offset: markerOffset(station, index, stations) }).setLngLat([station.longitude, station.latitude]).addTo(map);
@@ -163,6 +163,7 @@ export function MapPanel({ stations, selectedStationId, parameterId, window, cat
         <div>
           <p className="eyebrow">Spatial context</p>
           <h2 id="map-title">Catchment map</h2>
+          <p className="panel-intro map-selection">Selected: {selectedStationName}</p>
         </div>
         <span className="status-chip">{stations.length} sites</span>
       </div>
@@ -172,10 +173,10 @@ export function MapPanel({ stations, selectedStationId, parameterId, window, cat
           <div className="map-label map-label-one">Ashburton River</div>
           <div className="map-label map-label-two">Ashburton–Hakatere</div>
           <div className="map-legend"><span><i className="legend-dot legend-dot-active" /> Selected parameter data</span><span><i className="legend-dot legend-dot-empty" /> No selected parameter data</span></div>
-          <p className="map-note">Local MapLibre view of {stations.length} in-bound monitoring sites. Showing {parameterId.replaceAll("_", " ")} · {window.replaceAll("_", " ")}.</p>
+          <p className="map-note">{stations.length} monitoring sites · coral markers have data for this selection.</p>
         </div>
       </div>
-      <p className="technical-note">Boundary: {catchmentGeometry ? "ECan Ashburton River major-catchment polygon · WGS84" : "boundary unavailable in fixture"}. No third-party basemap or remote tiles are requested.</p>
+      <p className="technical-note">{catchmentGeometry ? "Ashburton River catchment boundary · local WGS84 geometry" : "Catchment boundary unavailable in development sample"}. Site selection is available through the controls and map markers.</p>
     </section>
   );
 }

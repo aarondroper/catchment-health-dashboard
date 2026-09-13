@@ -8,12 +8,12 @@ async function openDashboard(page: Page) {
   const assetResponse = page.waitForResponse((response) => response.url().endsWith(assetPath));
   await page.goto("/");
   expect((await assetResponse).status()).toBe(200);
-  await expect(page.getByRole("heading", { name: "Ashburton–Hakatere catchment" })).toBeVisible();
-  await expect(page.getByText(/^Build /)).toBeVisible();
-  await expect(page.getByText("Fixture fallback")).toHaveCount(0);
+  await expect(page.getByRole("heading", { name: "Water-quality monitoring evidence" })).toBeVisible();
+  await expect(page.getByText("Local data loaded")).toBeVisible();
+  await expect(page.getByText("Development sample")).toHaveCount(0);
   await expect(page.locator(".maplibregl-canvas")).toHaveCount(1);
   await expect(page.locator(".map-marker")).toHaveCount(19);
-  await expect(page.getByText(/Boundary: ECan Ashburton River major-catchment polygon/)).toBeVisible();
+  await expect(page.getByText(/Ashburton River catchment boundary/)).toBeVisible();
 }
 
 test("loads the real asset and exposes the production site network", async ({ page }) => {
@@ -30,38 +30,48 @@ test("loads the real asset and exposes the production site network", async ({ pa
   page.on("requestfailed", (request) => failedRequests.push(`${request.method()} ${request.url()}`));
   await openDashboard(page);
   await expect(page.locator(".map-marker")).toHaveCount(19);
-  await expect(page.getByText("19", { exact: true })).toBeVisible();
-  await expect(page.getByText(/Local processing only; public release remains gated/)).toBeVisible();
+  await expect(page.getByRole("region", { name: "Dataset overview" }).getByText("19", { exact: true })).toBeVisible();
+  await expect(page.getByText(/Sampled monitoring/)).toBeVisible();
   expect(consoleErrors).toEqual([]);
   expect(consoleWarnings).toEqual([]);
   expect(pageErrors).toEqual([]);
   expect(failedRequests).toEqual([]);
 });
 
-test("coordinates parameter and time-window changes", async ({ page }) => {
+test("lands on a representative coverage-led default", async ({ page }) => {
+  await openDashboard(page);
+  await expect(page.getByRole("combobox", { name: "Parameter" })).toHaveValue("total_nitrogen");
+  await expect(page.getByRole("combobox", { name: "Monitoring site" })).toHaveValue("SQ35874");
+  await expect(page.getByRole("heading", { name: "Water-quality monitoring evidence" })).toBeVisible();
+  await expect(page.getByRole("region", { name: "Selected site evidence" }).getByText("0.82 mg/L", { exact: true })).toBeVisible();
+  await expect(page.getByRole("region", { name: "Selected site evidence" }).getByText("increasing", { exact: true })).toBeVisible();
+  await expect(page.getByText(/Linear scale; all eligible numeric values are shown/)).toBeVisible();
+});
+
+test("coordinates parameter and time-period changes", async ({ page }) => {
   await openDashboard(page);
   const parameter = page.getByRole("combobox", { name: "Parameter" });
-  const window = page.getByRole("combobox", { name: "Time window" });
+  const window = page.getByRole("combobox", { name: "Time period" });
   await parameter.selectOption("nitrate_n_nitrite_n");
   await expect(parameter).toHaveValue("nitrate_n_nitrite_n");
-  await expect(page.locator(".selection-summary")).toContainText("Nitrate-N Nitrite-N · Primary · 2015–2024");
-  await expect(page.getByText(/Showing nitrate n nitrite n · primary 2015 2024/)).toBeVisible();
-  await expect(page.getByRole("table", { name: /Selected observations/ })).toBeVisible();
-  await expect(page.locator(".insight-grid .headline-value").first()).toHaveText("0.9 mg/L");
+  await expect(page.getByRole("heading", { name: "Nitrate-N Nitrite-N" })).toBeVisible();
+  await expect(page.locator(".selection-summary")).toContainText("2015–2024");
+  await expect(page.getByRole("table", { name: /Recorded observations/ })).toBeVisible();
+  await expect(page.locator(".insight-grid .headline-value").first()).toHaveText("0.71 mg/L");
   await window.selectOption("recent_2020_2024");
   await expect(window).toHaveValue("recent_2020_2024");
-  await expect(page.locator(".selection-summary")).toContainText("Nitrate-N Nitrite-N · Recent · 2020–2024");
-  await expect(page.getByText(/Showing nitrate n nitrite n · recent 2020 2024/)).toBeVisible();
-  await expect(page.locator(".insight-grid .headline-value").first()).toHaveText("0.875 mg/L");
-  await expect(page.getByText(/Sampled coverage describes/)).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Nitrate-N Nitrite-N" })).toBeVisible();
+  await expect(page.locator(".selection-summary")).toContainText("2020–2024 recent");
+  await expect(page.locator(".insight-grid .headline-value").first()).toHaveText("0.79 mg/L");
+  await expect(page.getByText(/Recorded visits describe monitoring coverage/)).toBeVisible();
 });
 
 test("coordinates station control and map selection, including no-data state", async ({ page }) => {
   await openDashboard(page);
-  const station = page.getByRole("combobox", { name: "Station" });
+  const station = page.getByRole("combobox", { name: "Monitoring site" });
   const emptyPin = page.locator(".map-marker-unavailable").first();
   await emptyPin.click();
-  await expect(page.getByText("No observations are available for this parameter and station in the selected window.")).toBeVisible();
+  await expect(page.getByText("No observations are available for this parameter and station in the selected period.")).toBeVisible();
   const selectedId = await emptyPin.getAttribute("data-station-id");
   expect(selectedId).toBeTruthy();
   await expect(station).toHaveValue(selectedId!);
@@ -70,35 +80,35 @@ test("coordinates station control and map selection, including no-data state", a
 
 test("keeps censored observations and indeterminate reasons explicit", async ({ page }) => {
   await openDashboard(page);
-  await page.getByRole("combobox", { name: "Station" }).selectOption("SQ20104");
-  await expect(page.getByRole("table", { name: /Selected observations/ })).toContainText(/Censored/);
-  await expect(page.getByText(/Trend indeterminate:/)).toBeVisible();
+  await page.getByRole("combobox", { name: "Parameter" }).selectOption("e_coli");
+  await page.getByRole("combobox", { name: "Monitoring site" }).selectOption("SQ20104");
+  await expect(page.getByRole("table", { name: /Recorded observations/ })).toContainText(/Censored/);
+  await expect(page.getByText(/No trend estimate is shown because/)).toBeVisible();
   await expect(page.getByText(/Censored values are not substituted/)).toBeVisible();
 });
 
 test("shows a supported neutral trend when the selected series meets the rules", async ({ page }) => {
   await openDashboard(page);
   await page.getByRole("combobox", { name: "Parameter" }).selectOption("turbidity");
-  await page.getByRole("combobox", { name: "Station" }).selectOption("SQ20106");
+  await page.getByRole("combobox", { name: "Monitoring site" }).selectOption("SQ20106");
   await expect(page.getByText("increasing", { exact: true })).toBeVisible();
-  await expect(page.getByText(/This is a neutral direction label/)).toBeVisible();
+  await expect(page.getByText(/This is not an improvement/)).toBeVisible();
 });
 
 test("reports a clear fixture fallback when the local asset fails", async ({ page }) => {
   await page.route(`**${assetPath}`, (route) => route.fulfill({ status: 404, body: "missing" }));
   await page.goto("/");
-  await expect(page.getByText(/Production-shaped local asset not found/)).toBeVisible();
-  await expect(page.getByText("Fixture fallback")).toBeVisible();
-  await expect(page.getByText(/checked-in development fixture/)).toBeVisible();
+  await expect(page.getByText(/Local analytical data is unavailable/)).toBeVisible();
+  await expect(page.getByLabel("Data loading status")).toHaveText(/Development sample/);
 });
 
 test("exports selected and all-site filtered records as deterministic UTF-8 CSV", async ({ page }) => {
   await openDashboard(page);
   const scope = page.getByRole("combobox", { name: "Export scope" });
   const downloadPromise = page.waitForEvent("download");
-  await page.getByRole("button", { name: "Download CSV" }).click();
+  await page.getByRole("button", { name: "Export CSV" }).click();
   const selectedDownload = await downloadPromise;
-  expect(selectedDownload.suggestedFilename()).toMatch(/ashburton-hakatere-catchment_e-coli_primary-2015-2024_station-/);
+  expect(selectedDownload.suggestedFilename()).toMatch(/ashburton-hakatere-catchment_total-nitrogen_primary-2015-2024_station-sq35874/);
   const selectedPath = await selectedDownload.path();
   const selectedCsv = await readFile(selectedPath!, "utf8");
   expect(selectedCsv).toContain("station_name,source_station_id,parameter,timestamp");
@@ -107,13 +117,13 @@ test("exports selected and all-site filtered records as deterministic UTF-8 CSV"
 
   await scope.selectOption("all_sites");
   const allDownloadPromise = page.waitForEvent("download");
-  await page.getByRole("button", { name: "Download CSV" }).click();
+  await page.getByRole("button", { name: "Export CSV" }).click();
   const allDownload = await allDownloadPromise;
   expect(allDownload.suggestedFilename()).toContain("_all-sites.csv");
   const allPath = await allDownload.path();
   const allCsv = await readFile(allPath!, "utf8");
   expect(allCsv.trimEnd().split("\r\n").length).toBeGreaterThan(selectedRows);
-  expect(allCsv).toContain("E. coli");
+  expect(allCsv).toContain("Total Nitrogen");
   await scope.selectOption("station");
 });
 
@@ -122,17 +132,17 @@ test("exports a deliberate header-only file for a no-data station", async ({ pag
   const emptyPin = page.locator(".map-marker-unavailable").first();
   await emptyPin.click();
   const downloadPromise = page.waitForEvent("download");
-  await page.getByRole("button", { name: "Download CSV" }).click();
+  await page.getByRole("button", { name: "Export CSV" }).click();
   const download = await downloadPromise;
   const path = await download.path();
   const csv = await readFile(path!, "utf8");
   expect(csv.trimEnd().split("\r\n")).toHaveLength(1);
-  await expect(page.getByText(/0 records exported as/)).toBeVisible();
+  await expect(page.getByText(/0 records exported/)).toBeVisible();
 });
 
 test("keeps the station alternative keyboard-operable", async ({ page }) => {
   await openDashboard(page);
-  const station = page.getByRole("combobox", { name: "Station" });
+  const station = page.getByRole("combobox", { name: "Monitoring site" });
   const initialStation = await station.inputValue();
   await station.focus();
   await station.press("ArrowDown");
@@ -142,6 +152,16 @@ test("keeps the station alternative keyboard-operable", async ({ page }) => {
   await marker.focus();
   await marker.press("Enter");
   await expect(station).toHaveValue(markerId!);
+});
+
+test("keeps detailed technical context behind Data notes", async ({ page }) => {
+  await openDashboard(page);
+  const notes = page.getByTestId("data-notes");
+  await expect(notes).not.toHaveAttribute("open", "");
+  await notes.locator("summary").click();
+  await expect(notes).toContainText("published_unflagged");
+  await expect(notes).toContainText("analytical version");
+  await expect(notes).toContainText("public observation redistribution remain release gates");
 });
 
 test("has no serious accessibility violations in the real-data view", async ({ page }) => {

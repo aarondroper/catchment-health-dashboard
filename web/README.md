@@ -10,10 +10,13 @@ dependency.
 
 Prerequisite: Node.js 22 or newer and npm.
 
-The observed-history view uses typed inline SVG plus an HTML table. Numeric
-eligible observations are plotted; censored, missing, and excluded records
-remain inspectable in the scrollable detail table. This is a rendering choice,
-not an analytical methodology decision.
+The owner-review landing view defaults to Total Nitrogen at monitoring station
+`SQ35874` for 2015–2024 because that selection has broad site coverage and a
+supported summary/trend without being chosen for an extreme result. The
+observed-history view uses a labelled linear SVG scale plus an HTML table.
+Numeric eligible observations are plotted; censored, missing, and excluded
+records remain inspectable in the legend, expandable row details, and CSV
+export. These are rendering choices, not analytical methodology decisions.
 
 From this directory:
 

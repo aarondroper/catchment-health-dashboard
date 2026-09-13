@@ -280,6 +280,20 @@ release path without weakening the analytical or licensing guardrails.
 - Any final visual corrections required by review, without expanding analytical
   scope absent a demonstrated correctness defect.
 
+### Local refinement exit evidence
+
+The owner-review preparation slice is implemented locally without analytical or
+licensing changes. The hero is compact, controls and export sit in a primary
+workspace bar, map/history/selected-site evidence are visible early, technical
+details are consolidated under Data notes, and the default is Total Nitrogen at
+`SQ35874` for 2015–2024 based on coverage and supported output. The chart now
+uses a labelled linear scale with gridlines, dated observation context, pointer
+titles, and a keyboard inspection list. The table shows concise fields with
+expandable source detail. Four frontend unit tests and fourteen browser tests
+pass, and screenshots at 1440×900, 1024×768, and 390×844 were inspected. The
+remaining work is owner feedback and public-release readiness, not more local
+feature scope.
+
 ### Acceptance criteria
 
 - Owner-facing visual decisions are recorded before public release.
