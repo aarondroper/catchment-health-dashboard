@@ -8,7 +8,7 @@ This document distinguishes three states:
 - **Intended:** accepted direction but not yet implemented.
 - **Unresolved:** requires feasibility evidence, an implementation choice, or an owner decision.
 
-As audited on 2026-09-13, the checkout contains no application or data-pipeline implementation. The architecture below is therefore predominantly intended. `docs/PROJECT_STATE.md` is authoritative for what currently exists and has been verified.
+As audited on 2026-09-13, the checkout contains a dependency-free source-feasibility audit and compact profiling report, but no application or normalized observation pipeline. The architecture below is therefore predominantly intended. `docs/PROJECT_STATE.md` is authoritative for what currently exists and has been verified.
 
 ## System Context
 
@@ -31,7 +31,8 @@ The browser should not query remote environmental APIs for routine interactions.
 
 - Project intent and constraints are defined by the governance documentation.
 - Agent workflow, backlog, decision record, and quality gates are defined under `AGENTS.md` and `docs/`.
-- Empty active/completed plan directories exist under `docs/plans/`; each currently contains only `.gitkeep`.
+- Active/completed plan directories exist under `docs/plans/`; the active directory contains `.gitkeep` and the completed directory contains `.gitkeep` plus the archived feasibility plan.
+- A read-only feasibility audit verifies public ECan ArcGIS station/flow inventory and ECan Hilltop WFS site/measurement catalog access. See `docs/feasibility/SOURCE_AUDIT.md`.
 
 ### Not yet evidenced
 
@@ -66,7 +67,7 @@ Responsibilities:
 - capture source retrieval time, licensing/attribution metadata, and source identifiers;
 - fail explicitly on unexpected schema or incomplete retrieval.
 
-The primary candidate provider is Environment Canterbury. Exact endpoints, access mechanisms, licensing, and historical coverage are unresolved and must be audited before production adapters are designed. National New Zealand sources may supplement regional data only when justified and compatible.
+The primary candidate provider is Environment Canterbury. Its public ArcGIS station/flow layers and legacy Hilltop WFS/catalog are verified feasibility candidates, while the production observation route, licensing, and historical completeness remain unresolved and must be reviewed before production adapters are designed. National New Zealand sources may supplement regional data only when justified and compatible.
 
 ### 2. Raw acquisition cache or source snapshots
 
@@ -159,7 +160,7 @@ Internal identifiers must be stable and source identifiers must be retained. Uni
 
 ## APIs and Runtime Boundaries
 
-- **External acquisition APIs/services:** build-time only by default; exact services unresolved.
+- **External acquisition APIs/services:** build-time only by default. ECan ArcGIS and legacy Hilltop catalog access are verified feasibility candidates; the exact production route remains unresolved.
 - **Internal runtime API:** none intended for MVP.
 - **Static assets:** the frontend's primary data interface; their schemas require explicit versioning and validation.
 - **Export:** derived locally from the current filtered, normalized dataset or from a prebuilt equivalent; exported columns and units must be clear.

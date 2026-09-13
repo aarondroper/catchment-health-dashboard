@@ -2,7 +2,7 @@
 
 These gates define the evidence an agent must consider before declaring a work unit or milestone complete. Apply only the gates relevant to the change, but do not omit an applicable gate silently. Record commands, results, skipped checks, and environmental limitations in the completed execution plan or handoff.
 
-As audited on 2026-09-13, no project commands are defined: this checkout has no Python or frontend project, dependency manifest, test runner, formatter/linter, type checker, build script, CI configuration, or data command. Until Priority 1 establishes canonical commands, the executable baseline for this repository is limited to file inventory and documentation inspection (for example, `rg --files` and `sed`/`nl` review). Record project checks as unavailable rather than inventing commands; use repository-defined commands once they exist.
+As audited on 2026-09-13, no canonical application commands are defined: this checkout has no dependency manifest, frontend project, formatter/linter, type checker, build script, CI configuration, or normalized-data command. A dependency-free feasibility audit and focused standard-library test runner now exist. Until Priority 1 establishes canonical commands, the executable baseline is the audit-specific `python3 -m unittest discover -s tests -v` and `python3 tools/feasibility_audit.py --output docs/feasibility/audit-report.json`, plus file inventory and documentation inspection. Record unavailable project checks rather than inventing commands; use repository-defined commands once they exist.
 
 ### Current documentation-only baseline
 

@@ -4,6 +4,8 @@ This is the prioritized remaining-work roadmap. Milestones describe outcomes, de
 
 ## Priority 0 — Canterbury Source and Catchment Feasibility
 
+**Status:** Audit complete; owner selection pending.
+
 ### Objective
 
 Establish whether authoritative public data can support a credible dashboard and identify the strongest contained Canterbury catchment options.
@@ -33,7 +35,7 @@ Establish whether authoritative public data can support a credible dashboard and
 
 ### Exit decision
 
-Owner selects the catchment and core parameter direction, or the project revisits Canterbury only if evidence shows it is genuinely unsuitable.
+Owner selects the catchment and core parameter direction, or the project revisits Canterbury only if evidence shows it is genuinely unsuitable. The completed screening evidence is in `docs/feasibility/SOURCE_AUDIT.md` and `docs/feasibility/audit-report.json`. The audit recommends Ashburton–Hakatere as the strongest quantitative screen, with Waimakariri and Ashley–Rakahuri as smaller alternatives, subject to polygon and observation-level checks.
 
 ## Priority 1 — Repository and Contract Foundation
 
@@ -48,7 +50,7 @@ Create a minimal, reproducible codebase and stable contracts for the selected da
 - Source, normalized, analytical, and asset-manifest schema definitions with versioning strategy.
 - Configuration for study area, source retrieval, paths, and build metadata.
 - Data-directory and git-ignore policy separating source cache, test fixtures, generated assets, and deployable artifacts.
-- Usable version-control metadata so status, diff review, and coherent commits work; the current checkout contains an empty `.git/` directory.
+- Usable version-control metadata so status, diff review, and coherent commits work; this checkout currently has valid git metadata.
 - Baseline lint, format, type-check, test, and build automation, preferably reflected in CI.
 
 ### Dependencies
