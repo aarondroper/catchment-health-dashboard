@@ -48,6 +48,17 @@ test("lands on a representative coverage-led default", async ({ page }) => {
   await expect(page.getByText(/Linear scale; all eligible numeric values are shown/)).toBeVisible();
 });
 
+test("presents comparison values as a sorted interval plot and keeps inspection later", async ({ page }) => {
+  await openDashboard(page);
+  await expect(page.locator(".dashboard-grid .observation-table-wrap")).toHaveCount(0);
+  await expect(page.locator(".comparison-plot")).toBeVisible();
+  await expect(page.locator(".comparison-row").first()).toBeVisible();
+  await expect(page.locator(".comparison-row-selected")).toHaveCount(1);
+  await expect(page.getByText(/Sites are ordered from lowest to highest median/)).toBeVisible();
+  await page.getByText("Inspect exact site values").click();
+  await expect(page.locator(".comparison-details .comparison-table")).toBeVisible();
+});
+
 test("coordinates parameter and time-period changes", async ({ page }) => {
   await openDashboard(page);
   const parameter = page.getByRole("combobox", { name: "Parameter" });
@@ -93,6 +104,7 @@ test("shows a supported neutral trend when the selected series meets the rules",
   await page.getByRole("combobox", { name: "Monitoring site" }).selectOption("SQ20106");
   await expect(page.getByText("increasing", { exact: true })).toBeVisible();
   await expect(page.getByText(/This is not an improvement/)).toBeVisible();
+  await expect(page.locator(".trend-value")).toHaveCSS("color", "rgb(16, 42, 67)");
 });
 
 test("reports a clear fixture fallback when the local asset fails", async ({ page }) => {

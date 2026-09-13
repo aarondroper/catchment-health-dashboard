@@ -13,21 +13,7 @@ function chartNumber(value: number): string {
   return value.toLocaleString(undefined, { maximumFractionDigits: Math.abs(value) >= 100 ? 0 : Math.abs(value) >= 1 ? 2 : 3 });
 }
 
-function observationStatus(observation: Observation): string {
-  if (!observation.analysisEligible) return `Excluded — ${observation.qualityDisposition.replaceAll("_", " ")}`;
-  if (observation.valueKind === "censored") return "Censored — reporting limit retained";
-  if (observation.valueKind === "missing") return "Missing — not treated as zero";
-  return "Observed numeric";
-}
-
-function qualityLabel(observation: Observation): string {
-  if (observation.qualityDisposition === "published_unflagged") return "Published · no source code";
-  if (observation.qualityDisposition === "retained_good_quality") return "Quality coded · good";
-  if (observation.qualityDisposition === "retained_fair_quality") return "Quality coded · fair";
-  return observation.qualityDisposition.replaceAll("_", " ");
-}
-
-/** Accessible SVG series; the table remains the authoritative detail route. */
+/** Accessible SVG series; the later observation panel remains the authoritative detail route. */
 export function SeriesChart({ observations, unit, stationName, parameterName, loading = false }: SeriesChartProps) {
   const [inspectedPoint, setInspectedPoint] = useState<string | null>(null);
   const numeric = observations.filter((observation) => observation.value !== null && observation.analysisEligible);
@@ -87,22 +73,6 @@ export function SeriesChart({ observations, unit, stationName, parameterName, lo
       </svg>}
       <div className="chart-legend" aria-label="Chart record legend"><span><i className="legend-dot legend-dot-active" /> Eligible numeric</span><span><i className="legend-marker-censored" /> {censoredCount} censored retained in table</span><span>{nonNumericCount} missing or excluded</span></div>
       {numeric.length > 0 && <details className="chart-inspection"><summary>Inspect numeric points with keyboard</summary><div className="point-list">{numeric.map((observation) => <button key={observation.observationId} type="button" onFocus={() => setInspectedPoint(`${observation.observedAt.slice(0, 10)} · ${chartNumber(observation.value ?? 0)} ${unit ?? ""}`)} onClick={() => setInspectedPoint(`${observation.observedAt.slice(0, 10)} · ${chartNumber(observation.value ?? 0)} ${unit ?? ""}`)}>{observation.observedAt.slice(0, 10)} · {chartNumber(observation.value ?? 0)} {unit ?? ""}</button>)}</div>{inspectedPoint && <p className="point-status" role="status" aria-live="polite">Selected point: {inspectedPoint}</p>}</details>}
-      <div className="observation-table-wrap" tabIndex={0} role="region" aria-label="Selected observation detail">
-        <table className="observation-table compact-observation-table">
-          <caption>Recorded observations · expand a row for source detail</caption>
-          <thead><tr><th scope="col">Date</th><th scope="col">Reported result{unit ? ` (${unit})` : ""}</th><th scope="col">Quality/status</th><th scope="col">Record state</th></tr></thead>
-          <tbody>
-            {observations.map((observation) => (
-              <tr key={observation.observationId}>
-                <td>{observation.observedAt.slice(0, 10)}</td>
-                <td>{observation.resultText ?? observation.value ?? "Missing"}</td>
-                <td>{qualityLabel(observation)}</td>
-                <td><details><summary>{observationStatus(observation)}</summary><div className="row-details"><span>Original: {observation.originalValue ?? observation.resultText ?? "missing"} {observation.originalUnit ?? ""}</span><span>Reporting limit: {observation.censorLimit ?? "not supplied"}</span><span>Source ID: <code>{observation.sourceRecordId}</code></span><span>Retrieved: {observation.sourceRetrievedAt}</span></div></details></td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
     </section>
   );
 }

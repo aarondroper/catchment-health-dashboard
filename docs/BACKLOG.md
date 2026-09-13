@@ -261,7 +261,7 @@ is about 1.26 MB raw/82 kB gzip; shell plus initial E. coli detail is about
 
 ## Priority 5.5 — Owner-Facing Review and Public-Release Readiness
 
-**Status:** Next frontier
+**Status:** UI polish complete; release-readiness work in progress
 
 ### Objective
 
@@ -282,17 +282,20 @@ release path without weakening the analytical or licensing guardrails.
 
 ### Local refinement exit evidence
 
-The owner-review preparation slice is implemented locally without analytical or
-licensing changes. The hero is compact, controls and export sit in a primary
-workspace bar, map/history/selected-site evidence are visible early, technical
-details are consolidated under Data notes, and the default is Total Nitrogen at
-`SQ35874` for 2015–2024 based on coverage and supported output. The chart now
-uses a labelled linear scale with gridlines, dated observation context, pointer
-titles, and a keyboard inspection list. The table shows concise fields with
-expandable source detail. Four frontend unit tests and fourteen browser tests
-pass, and screenshots at 1440×900, 1024×768, and 390×844 were inspected. The
-remaining work is owner feedback and public-release readiness, not more local
-feature scope.
+The accepted owner-facing visual direction is implemented locally without
+analytical or licensing changes. The hero is compact, controls and export sit
+in a primary workspace bar, map/history/selected-site evidence are visible
+early, technical details are consolidated under Data notes, and the default is
+Total Nitrogen at `SQ35874` for 2015–2024 based on coverage and supported
+output. The chart uses a labelled linear scale with gridlines, dated
+observation context, pointer titles, and a keyboard inspection list. The
+observation table is decoupled from the map/chart row and appears as a later
+full-width bounded inspection panel. Cross-site summaries use a sorted
+median/IQR interval plot with exact values behind an accessible disclosure;
+neutral trend directions do not use health-signalling colors. Four frontend
+unit tests and fifteen browser tests pass, and screenshots at 1440×900,
+1024×768, and 390×844 were inspected. The remaining work is public-release
+readiness, not more local feature scope.
 
 ### Acceptance criteria
 
