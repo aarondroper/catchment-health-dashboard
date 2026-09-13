@@ -1,0 +1,22 @@
+{
+  "study_area_id": "ashburton_hakatere",
+  "display_name": "Ashburton–Hakatere catchment",
+  "selection_status": "owner_selected_direction",
+  "geography_status": "authoritative_polygon_membership_pending",
+  "candidate_parameters_status": "pending_observation_profile_and_owner_review",
+  "candidate_parameters": [
+    "E. coli",
+    "Nitrate-N Nitrite-N",
+    "Dissolved Reactive Phosphorus",
+    "Total Nitrogen",
+    "Total Phosphorus",
+    "Turbidity",
+    "pH",
+    "Dissolved Oxygen",
+    "Water Temperature (Field)"
+  ],
+  "analysis_window": null,
+  "flow_status": "contextual_inclusion_pending_station_match",
+  "source_route": "ecan_hilltop_catalog_and_public_arcgis_candidates",
+  "provenance_policy": "retain_provider_ids_units_timestamps_quality_and_censoring_fields"
+}

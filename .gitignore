@@ -1,6 +1,8 @@
 __pycache__/
 *.py[cod]
 .venv/
+node_modules/
+.vite/
 build/
 dist/
 data/raw/

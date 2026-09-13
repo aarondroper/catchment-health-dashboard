@@ -1,0 +1,9 @@
+{
+  "contract_version": "0.1.0",
+  "manifest_version": "0.1.0",
+  "processing_method_version": null,
+  "source_cache_dir": "data/cache",
+  "raw_data_dir": "data/raw",
+  "prepared_asset_dir": "web/public/data",
+  "fixture_path": "tests/fixtures/minimal_asset.json"
+}

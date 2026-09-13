@@ -2,7 +2,16 @@
 
 These gates define the evidence an agent must consider before declaring a work unit or milestone complete. Apply only the gates relevant to the change, but do not omit an applicable gate silently. Record commands, results, skipped checks, and environmental limitations in the completed execution plan or handoff.
 
-As audited on 2026-09-13, no canonical application commands are defined: this checkout has no dependency manifest, frontend project, formatter/linter, type checker, build script, CI configuration, or normalized-data command. A dependency-free feasibility audit and focused standard-library test runner now exist. Until Priority 1 establishes canonical commands, the executable baseline is the audit-specific `python3 -m unittest discover -s tests -v` and `python3 tools/feasibility_audit.py --output docs/feasibility/audit-report.json`, plus file inventory and documentation inspection. Record unavailable project checks rather than inventing commands; use repository-defined commands once they exist.
+As audited on 2026-09-13, Priority 1 now defines Python fixture/test commands and frontend install, typecheck, and build commands. No project formatter/linter, Python static/type checker, CI workflow, production data build, or UI automation is configured yet. Record unavailable project checks rather than inventing commands; use repository-defined commands once they exist.
+
+Current executable foundation gates are:
+
+- `python3 -m unittest discover -s tests -v`
+- `python3 tools/validate_fixture.py tests/fixtures/minimal_asset.json`
+- `cd web && npm ci && npm run typecheck && npm run build`
+- `python3 -m py_compile catchment_dashboard/*.py tools/*.py tests/*.py`
+
+The frontend lockfile is `web/package-lock.json`; `node_modules/` and build output are ignored. The fixture is synthetic and does not validate production source completeness or analytical meaning.
 
 ### Current documentation-only baseline
 

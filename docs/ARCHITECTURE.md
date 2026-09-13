@@ -8,7 +8,7 @@ This document distinguishes three states:
 - **Intended:** accepted direction but not yet implemented.
 - **Unresolved:** requires feasibility evidence, an implementation choice, or an owner decision.
 
-As audited on 2026-09-13, the checkout contains a dependency-free source-feasibility audit and compact profiling report, but no application or normalized observation pipeline. The architecture below is therefore predominantly intended. `docs/PROJECT_STATE.md` is authoritative for what currently exists and has been verified.
+As audited on 2026-09-13, the checkout contains a dependency-free source-feasibility audit, versioned contract foundation, synthetic fixture path, and React/TypeScript/Vite shell. It does not yet contain source adapters, normalized production observations, or analytical processing. `docs/PROJECT_STATE.md` is authoritative for what currently exists and has been verified.
 
 ## System Context
 
@@ -31,14 +31,17 @@ The browser should not query remote environmental APIs for routine interactions.
 
 - Project intent and constraints are defined by the governance documentation.
 - Agent workflow, backlog, decision record, and quality gates are defined under `AGENTS.md` and `docs/`.
-- Active/completed plan directories exist under `docs/plans/`; the active directory contains `.gitkeep` and the completed directory contains `.gitkeep` plus the archived feasibility plan.
+- Active/completed plan directories exist under `docs/plans/`; completed plans include the feasibility audit and repository foundation plans.
 - A read-only feasibility audit verifies public ECan ArcGIS station/flow inventory and ECan Hilltop WFS site/measurement catalog access. See `docs/feasibility/SOURCE_AUDIT.md`.
+- `catchment_dashboard/contracts.py` defines version `0.1.0` source, station, parameter, observation, aggregate, trend, and asset-manifest boundaries. `docs/CONTRACTS.md` is the contract reference.
+- `config/study_area.json` records Ashburton–Hakatere as the owner-selected direction while leaving polygon membership, parameters, and analytical semantics pending.
+- `web/` contains a Vite/React/TypeScript shell, a MapLibre-ready type boundary, and a typed inline-SVG chart spike backed only by synthetic fixture data. `web/package-lock.json` provides a reproducible frontend install.
 
 ### Not yet evidenced
 
-- Python package, source adapters, schemas, analytical code, or generated data.
-- React/TypeScript application or MapLibre integration.
-- Tests, lint/type/build configuration, CI, data manifest, deployment configuration, or live deployment.
+- Source adapters, production observation schemas/data, analytical calculations, generated application assets, or CI.
+- A runtime MapLibre map with verified geometry/tiles; the current MapLibre dependency is a prepared boundary only.
+- Frontend interaction tests, configured lint/format tooling, deployment configuration, or live deployment.
 
 Do not infer these components from the intended design.
 
@@ -46,12 +49,12 @@ Do not infer these components from the intended design.
 
 | Area | Intended direction | Status / boundary |
 | --- | --- | --- |
-| Processing | Python with pandas and, where spatial operations require it, GeoPandas | Intended; exact versions and package layout unresolved |
+| Processing | Python package with standard-library contract validation; pandas/GeoPandas remain candidates for source and spatial work | Contract foundation existing; processing dependencies unresolved |
 | Columnar data | PyArrow/Parquet where beneficial | Intended preference; validate against browser delivery strategy |
 | Local analytical query | DuckDB | Optional development decision based on data volume and transformations |
-| Frontend | React + TypeScript | Accepted direction; build framework/tooling unresolved |
-| Mapping | MapLibre GL JS through an appropriate React integration | Accepted direction |
-| Charts | ECharts, Observable Plot, Vega-Lite, or another mature typed option | Development decision after interaction/accessibility spike |
+| Frontend | React + TypeScript + Vite | Foundation existing; coordinated state and production assets unresolved |
+| Mapping | MapLibre GL JS boundary in `web/src/map/maplibre.ts` | Dependency/type boundary existing; style, sources, geometry, and runtime initialization unresolved |
+| Charts | Typed inline SVG plus HTML table for the initial spike | Technical spike selected; production chart interactions remain unresolved |
 | Runtime assets | JSON, GeoJSON, Parquet/Arrow-derived assets, or a justified combination | Data contracts unresolved |
 | Runtime database | None by default | PostGIS/backend requires demonstrated need and architecture review |
 | Hosting | Static/free or extremely low-cost service | Provider unresolved |
@@ -142,7 +145,7 @@ Map, charts, table, and summaries must consume the same filter semantics. A sele
 
 ## Conceptual Data Model
 
-Exact schemas will be versioned after source discovery. The minimum conceptual entities are:
+The version `0.1.0` foundation schemas are documented in `docs/CONTRACTS.md` and implemented in `catchment_dashboard/contracts.py`. They preserve the conceptual entities below without adopting analytical semantics:
 
 | Entity | Key fields / purpose |
 | --- | --- |

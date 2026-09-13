@@ -1,0 +1,76 @@
+{
+  "contract_version": "0.1.0",
+  "source": {
+    "provider": "fixture",
+    "dataset": "minimal-observation-fixture",
+    "endpoint": "https://example.invalid/fixture",
+    "retrieved_at": "2026-09-13T00:00:00Z",
+    "source_record_id": "fixture-source-1",
+    "source_version": "fixture-v1",
+    "license": "synthetic-test-only"
+  },
+  "station": {
+    "station_id": "station-ash-001",
+    "source_station_id": "SQ-FIXTURE-001",
+    "name": "Ashburton River test station",
+    "latitude": -43.9,
+    "longitude": 171.75,
+    "coordinate_reference_system": "EPSG:4326",
+    "station_type": "surface_water",
+    "catchment_id": "ashburton_hakatere"
+  },
+  "parameter": {
+    "parameter_id": "nitrate_nitrite",
+    "display_name": "Nitrate-N Nitrite-N",
+    "source_aliases": ["Nitrate-N Nitrite-N", "Nitrate Nitrogen"],
+    "canonical_unit": null,
+    "selection_status": "candidate_pending_owner_review"
+  },
+  "observations": [
+    {
+      "observation_id": "obs-001",
+      "station_id": "station-ash-001",
+      "parameter_id": "nitrate_nitrite",
+      "observed_at": "2024-01-15T10:00:00+12:00",
+      "value": 0.42,
+      "result_text": "0.42",
+      "original_unit": "g/m3",
+      "canonical_unit": null,
+      "quality_flag": null,
+      "censoring": null
+    },
+    {
+      "observation_id": "obs-002",
+      "station_id": "station-ash-001",
+      "parameter_id": "nitrate_nitrite",
+      "observed_at": "2024-02-15T10:00:00+12:00",
+      "value": null,
+      "result_text": "<0.01",
+      "original_unit": "g/m3",
+      "canonical_unit": null,
+      "quality_flag": "reported_censored_fixture",
+      "censoring": "left_censored"
+    }
+  ],
+  "manifest": {
+    "manifest_version": "0.1.0",
+    "build_id": "fixture-build-1",
+    "generated_at": "2026-09-13T00:00:00Z",
+    "study_area_id": "ashburton_hakatere",
+    "study_area_name": "Ashburton–Hakatere catchment",
+    "contract_version": "0.1.0",
+    "counts": {
+      "stations": 1,
+      "parameters": 1,
+      "observations": 2
+    },
+    "assets": [
+      {
+        "path": "fixture.json",
+        "kind": "test_fixture",
+        "sha256": "not-a-production-checksum"
+      }
+    ],
+    "warnings": ["synthetic-test-only"]
+  }
+}

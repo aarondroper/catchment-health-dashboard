@@ -1,0 +1,43 @@
+# Data contracts and repository foundation
+
+**Contract version:** `0.1.0`
+**Study-area direction:** `ashburton_hakatere` (owner-selected; authoritative polygon pending)
+
+The contract layer is intentionally source-independent. Provider-specific fields are handled by future adapters and are represented in stable records through `source` provenance and retained original-value fields.
+
+## Entities
+
+| Entity | Required meaning | Important fields |
+| --- | --- | --- |
+| `SourceRef` | Traceability for every retained record | provider, dataset, endpoint, retrieved-at, source record ID, optional source version/license |
+| `StationRecord` | Stable monitoring location | internal/source IDs, name, WGS84 coordinates, CRS, station type, optional catchment ID, source |
+| `ParameterRecord` | Canonical parameter candidate | internal ID, display name, source aliases, optional canonical unit, selection status, source |
+| `ObservationRecord` | One source observation without interpretation | station, parameter, ISO timestamp, nullable numeric value, original result text/unit, optional canonical unit, quality flag, censoring, source |
+| `AggregateRecord` | Method-tagged derived period result | scope/station/parameter, period, statistic, nullable value, observation count, coverage, method/version |
+| `TrendRecord` | Method-tagged derived period comparison | scope/station/parameter, period, nullable estimate/uncertainty, significance text, coverage, method/version |
+| `AssetManifest` | Build and asset lineage | manifest/build/contract versions, study area, source refs, counts, asset metadata, warnings |
+
+Aggregate and trend records are structural boundaries only. The foundation does not select an aggregation interval, trend estimator, threshold, direction label, or composite score.
+
+## Invariants enforced now
+
+- IDs, names, endpoints, source IDs, and timestamps are non-empty and structurally valid.
+- Station coordinates are within WGS84 bounds.
+- Observation values are finite numbers or null; null values require preserved `result_text` so missing/censored values cannot become zero by accident.
+- Original units, quality flags, and censoring fields are retained even when empty.
+- Fixture references resolve station and parameter IDs consistently.
+- Aggregate and trend periods are ordered, numeric outputs are finite or null, and coverage is an explicit fraction when present.
+- Manifest counts are non-negative integers and every source reference is validated.
+
+The current validator checks structure and referential integrity only. It does not decide whether a source quality flag is acceptable, convert units, resolve censored values, or infer catchment membership.
+
+## Commands
+
+From the repository root:
+
+```text
+python3 -m unittest discover -s tests -v
+python3 tools/validate_fixture.py tests/fixtures/minimal_asset.json
+```
+
+The frontend commands are documented in `web/README.md` after the scaffold is installed. Raw/cache directories and generated reports are ignored by `.gitignore`; the checked-in fixture is explicitly synthetic and test-only.

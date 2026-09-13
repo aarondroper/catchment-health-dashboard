@@ -4,7 +4,7 @@ This is the prioritized remaining-work roadmap. Milestones describe outcomes, de
 
 ## Priority 0 — Canterbury Source and Catchment Feasibility
 
-**Status:** Audit complete; owner selection pending.
+**Status:** Audit complete; Ashburton–Hakatere selected by owner on 2026-09-13.
 
 ### Objective
 
@@ -35,9 +35,11 @@ Establish whether authoritative public data can support a credible dashboard and
 
 ### Exit decision
 
-Owner selects the catchment and core parameter direction, or the project revisits Canterbury only if evidence shows it is genuinely unsuitable. The completed screening evidence is in `docs/feasibility/SOURCE_AUDIT.md` and `docs/feasibility/audit-report.json`. The audit recommends Ashburton–Hakatere as the strongest quantitative screen, with Waimakariri and Ashley–Rakahuri as smaller alternatives, subject to polygon and observation-level checks.
+Owner selected Ashburton–Hakatere as the catchment direction. The completed screening evidence is in `docs/feasibility/SOURCE_AUDIT.md` and `docs/feasibility/audit-report.json`. Polygon membership, core parameter direction, and observation-level checks remain open before Priority 2 acquisition semantics are finalized.
 
 ## Priority 1 — Repository and Contract Foundation
+
+**Status:** Complete; foundation plan archived at `docs/plans/completed/2026-09-13-repository-contract-foundation.md`.
 
 ### Objective
 
@@ -66,6 +68,10 @@ Create a minimal, reproducible codebase and stable contracts for the selected da
 - No large raw or generated datasets are inadvertently tracked.
 - `git status`, diff review, and history inspection work in the development checkout, or the remaining environment limitation is recorded for the owner.
 - The charting choice supports coordinated interaction, responsiveness, TypeScript use, and accessibility expectations.
+
+### Exit evidence
+
+The repository now contains a Python package and versioned contracts, a synthetic cross-boundary fixture, Ashburton–Hakatere configuration, a Vite/React/TypeScript shell, a MapLibre-ready boundary, an inline-SVG/table chart spike, and a checked-in npm lockfile. Nine Python tests, fixture validation, strict TypeScript checking, production build, and Python compilation passed on 2026-09-13. Formatter/linter, Python static/type, CI, UI/accessibility automation, and production-data checks remain unavailable or out of scope until later work units add them.
 
 ## Priority 2 — Acquisition, Normalization, and Data Quality
 
