@@ -2,7 +2,7 @@
 
 These gates define the evidence an agent must consider before declaring a work unit or milestone complete. Apply only the gates relevant to the change, but do not omit an applicable gate silently. Record commands, results, skipped checks, and environmental limitations in the completed execution plan or handoff.
 
-As audited on 2026-09-13, Priority 1 now defines Python fixture/test commands and frontend install, typecheck, and build commands. No project formatter/linter, Python static/type checker, CI workflow, production data build, or UI automation is configured yet. Record unavailable project checks rather than inventing commands; use repository-defined commands once they exist.
+As audited on 2026-09-13, Priority 2 now also defines dependency-free ECan geometry parsing and membership tests alongside the Python fixture/test commands and frontend install, typecheck, and build commands. No project formatter/linter, Python static/type checker, CI workflow, production data build, or UI automation is configured yet. Record unavailable project checks rather than inventing commands; use repository-defined commands once they exist.
 
 Current executable foundation gates are:
 

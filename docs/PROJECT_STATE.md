@@ -1,13 +1,13 @@
 # Project State
 
 **As of:** 2026-09-13  
-**Authoritative status:** Ashburton–Hakatere selected; Priority 2 acquisition slice in progress
+**Authoritative status:** Ashburton–Hakatere selected; bounded spatially validated acquisition slice complete; Priority 2 normalization remains in progress
 
 This file is the factual snapshot of repository capability. It is not a progress diary. Update it whenever implementation, verification, blockers, or the development frontier materially changes.
 
 ## Evidence Basis
 
-This state was reconciled against the current checkout, live public-source audit, and foundation quality gates on 2026-09-13. The checkout contains governance documentation, feasibility tooling, versioned contract definitions, a synthetic fixture path, and a frontend shell. It still contains no production observation dataset, analytical build, or deployment.
+This state was reconciled against the current checkout, live public-source audit, bounded ECan/Hilltop acquisition and geometry checks, and repository quality gates on 2026-09-13. The checkout contains governance documentation, feasibility tooling, versioned contract definitions, bounded source adapters, a synthetic fixture path, and a frontend shell. It still contains no production observation dataset, analytical build, or deployment.
 
 Accordingly, statements about the intended product remain planned unless implementation and validation evidence is listed below.
 
@@ -15,7 +15,7 @@ Accordingly, statements about the intended product remain planned unless impleme
 
 - The project is defined as a self-directed **Catchment Health Dashboard** and portfolio/consulting showcase.
 - The accepted geographic direction is one contained catchment or closely related river system in Canterbury, New Zealand.
-- The owner selected Ashburton–Hakatere on 2026-09-13 as the study-area direction; authoritative polygon membership remains to be implemented and validated.
+- The owner selected Ashburton–Hakatere on 2026-09-13 as the study-area direction. ECan's `Ashburton River` major-catchment polygon (`CatchmentGroup=688`) is now the verified membership boundary for the bounded acquisition slice; it is not treated as a regulatory or water-zone boundary.
 - The target experience is a professional environmental analytical dashboard with coordinated map, chart, summary, table, and filter behavior.
 - The intended implementation direction is a reproducible Python build pipeline feeding a static or nearly static React/TypeScript application with MapLibre.
 - The scope, non-goals, constraints, decision boundaries, prioritized milestones, architecture intent, and quality expectations are documented in `docs/`.
@@ -23,6 +23,7 @@ Accordingly, statements about the intended product remain planned unless impleme
 - A live Priority 0 audit verified complete retrieval for the profiled ECan ArcGIS station/flow layers and ECan Hilltop site/measurement catalogs; results and limitations are documented in `docs/feasibility/SOURCE_AUDIT.md` and `docs/feasibility/audit-report.json`.
 - The Priority 1 foundation is implemented in `catchment_dashboard/`, `config/`, `tests/fixtures/`, `tools/validate_fixture.py`, and `web/`; contract details are documented in `docs/CONTRACTS.md` and the completed plan.
 - The Priority 2 acquisition slice is implemented in `catchment_dashboard/ecan_hilltop.py` and `tools/acquire_observations.py`; its source boundary and limitations are documented in `docs/ACQUISITION.md`.
+- The spatial membership slice is implemented in `catchment_dashboard/ecan_geometry.py`; it validates a complete ECan GeoJSON boundary response and filters out-of-bound Hilltop sites before observations are retrieved.
 
 Verification here means these decisions and requirements are present in the supplied context and governance documents—not that product functionality exists.
 
@@ -45,15 +46,16 @@ Verification here means these decisions and requirements are present in the supp
 - Python package metadata and source-independent version `0.1.0` contracts exist for source, station, parameter, observation, aggregate, trend, and asset-manifest records.
 - A synthetic fixture validates source provenance, normalized observation fields, censored/null preservation, referential integrity, and manifest counts.
 - A Vite/React/TypeScript frontend shell exists with Ashburton–Hakatere copy, disabled pending controls, MapLibre-ready options boundary, and accessible inline-SVG/table chart spike. `web/package-lock.json` is checked in.
-- Quality gates pass: sixteen Python `unittest` tests, fixture validation, Python compilation, frontend strict typecheck, and frontend production build on 2026-09-13.
+- Quality gates pass: twenty-one Python `unittest` tests, fixture validation, Python compilation, frontend strict typecheck, and frontend production build on 2026-09-13.
 - A bounded live Hilltop profile verified 12 real observations for `SQ20104`/Dissolved Reactive Phosphorus; no production dataset is committed.
-- The normal bounded three-parameter profile joined 10 provisional sites and retrieved 195 observations; 9 sites had data, 160 observations were numeric, and 35 were left-censored.
+- The normal bounded three-parameter profile joined 10 in-bound sites and retrieved 243 observations; 9 sites had data, 194 observations were numeric, and 49 were left-censored. Two Canterbury Bight marine name-screened records were excluded by the polygon.
+- A neutral nine-parameter candidate profile inside the same boundary retrieved 644 observations across 8 parameters at 9 sites; pH had metadata matches but no observations in the 2024 window. This informs, but does not make, the final parameter decision.
 
 ## Not Implemented or Not Evidenced
 
 - Final parameter set or primary temporal window.
 - Final licensing approval, rate-limit agreement, and redistribution decision. Public endpoints, schemas, station counts, catalog coverage, and inventory-level flow availability are now partially verified; see the audit limitations.
-- Authoritative polygon-based catchment membership and complete observation-level coverage profile.
+- Complete observation-level coverage profile.
 - Final four-to-six water-quality parameters or primary temporal window.
 - Production-scale data acquisition/cache, full normalization, quality-control reporting, aggregation, trend, or asset-build code.
 - Adopted handling of censored values, quality flags, duplicates, units, or time zones.
@@ -67,11 +69,11 @@ Verification here means these decisions and requirements are present in the supp
 
 ## Partially Implemented
 
-The foundation preview and bounded acquisition profile are implemented, but this is not a production dashboard: the visible web observations are synthetic, controls are intentionally disabled, the map does not load remote tiles, and live profile site membership is still provisional.
+The foundation preview and bounded acquisition profile are implemented, but this is not a production dashboard: the visible web observations are synthetic, controls are intentionally disabled, and the map does not load remote tiles. The profile's site membership is spatially validated against the configured ECan major-catchment polygon, while the site-to-Hilltop coordinate join and observation coverage remain bounded.
 
 ## Known Limitations and Risks
 
-- Ashburton–Hakatere is selected as the working catchment direction; exact polygon membership and suitability at observation level remain to be validated.
+- Ashburton–Hakatere is selected as the working catchment direction; the verified ECan major-catchment boundary covers the bounded profile, while complete observation coverage and final suitability remain to be validated.
 - Environment Canterbury provides verified public station/flow inventory and legacy Hilltop catalog access for the audit, but the production observation route, licensing, and redistribution terms remain unresolved.
 - Source records may contain irregular sampling, inconsistent analyte names or units, quality flags, censored values, duplicates, schema changes, and incomplete coverage.
 - Inventory-level flow matching is promising; a selected catchment still needs a defensible gauge-to-monitoring relationship.
@@ -82,7 +84,7 @@ The foundation preview and bounded acquisition profile are implemented, but this
 
 ## Current Test and Validation State
 
-- **Automated tests:** sixteen focused `unittest` tests pass with `python3 -m unittest discover -s tests -v`.
+- **Automated tests:** twenty-one focused `unittest` tests pass with `python3 -m unittest discover -s tests -v`.
 - **Linting/formatting:** no configuration or successful project run evidenced.
 - **Python static/type checks:** no Python project or configuration evidenced.
 - **Frontend type check/build:** `cd web && npm run typecheck` and `npm run build` pass; no runtime map or production asset flow is evidenced.
@@ -100,11 +102,11 @@ No hosting provider, deployment configuration, production URL, or successful dep
 
 ## Major Blockers and Decision Boundaries
 
-The owner has selected Ashburton–Hakatere as the working catchment direction. Priority 2 acquisition and observation-quality profiling are in progress; final parameters and analytical semantics remain owner decisions.
+The owner has selected Ashburton–Hakatere as the working catchment direction. The bounded acquisition and ECan polygon membership slice is complete; Priority 2 observation normalization and quality profiling remain in progress, and final parameters and analytical semantics remain owner decisions.
 
 Implementation beyond feasibility is gated by:
 
-1. Polygon and observation evidence for the selected Ashburton–Hakatere scope.
+1. Complete observation evidence for the selected Ashburton–Hakatere scope.
 2. Owner selection of the core parameter direction after observation profiling.
 3. Owner review of consequential analytical methodology, including trend interpretation and any threshold/status semantics.
 4. Owner review of the major dashboard composition once the data's actual strengths and limitations are known.
@@ -113,4 +115,4 @@ Credentials or private access should not be assumed; sources must remain public/
 
 ## Logical Current Development Frontier
 
-Priority 0 is complete as a feasibility screen and Priority 1 is complete as a tested foundation. The current frontier is **Priority 2: Acquisition, Normalization, and Data Quality**, with a bounded ECan/Hilltop adapter and live profile now in progress. Authoritative polygon membership, complete observation acquisition, final parameter selection, quality/unit semantics, and analytical methods remain future work and are not silently selected.
+Priority 0 is complete as a feasibility screen and Priority 1 is complete as a tested foundation. The current frontier is **Priority 2: Acquisition, Normalization, and Data Quality**, with bounded ECan/Hilltop acquisition and ECan polygon membership verified for the profile. Complete observation acquisition, final parameter selection, quality/unit semantics, and analytical methods remain future work and are not silently selected.

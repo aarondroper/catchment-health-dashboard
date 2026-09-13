@@ -1,0 +1,23 @@
+{
+  "type": "FeatureCollection",
+  "features": [
+    {
+      "type": "Feature",
+      "id": 267,
+      "properties": {
+        "OBJECTID": 267,
+        "CatchmentGroup": "688",
+        "CatchmentGroupName": "Ashburton River",
+        "AREA_HA": 167845.92827637,
+        "MODIFIEDDATE": 1496880000000
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [[0, 0], [10, 0], [10, 10], [0, 10], [0, 0]],
+          [[4, 4], [6, 4], [6, 6], [4, 6], [4, 4]]
+        ]
+      }
+    }
+  ]
+}

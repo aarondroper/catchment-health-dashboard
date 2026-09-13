@@ -2,7 +2,18 @@
   "study_area_id": "ashburton_hakatere",
   "display_name": "Ashburton–Hakatere catchment",
   "selection_status": "owner_selected_direction",
-  "geography_status": "authoritative_polygon_membership_pending",
+  "geography_status": "authoritative_ecan_major_catchment_polygon_verified",
+  "boundary_source": {
+    "provider": "Environment Canterbury",
+    "layer": "Public/Hydrology/MapServer/0",
+    "layer_name": "Major Catchment Boundaries",
+    "catchment_group": "688",
+    "catchment_name": "Ashburton River",
+    "source_crs": "EPSG:2193",
+    "coordinate_crs": "EPSG:4326",
+    "membership_method": "point_in_authoritative_polygon_inclusive_boundary",
+    "endpoint": "https://gis.ecan.govt.nz/arcgis/rest/services/Public/Hydrology/MapServer/0"
+  },
   "candidate_parameters_status": "pending_observation_profile_and_owner_review",
   "profile_parameters": [
     "Dissolved Reactive Phosphorus",

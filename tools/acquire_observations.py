@@ -16,6 +16,11 @@ if str(REPOSITORY_ROOT) not in sys.path:
     sys.path.insert(0, str(REPOSITORY_ROOT))
 
 from catchment_dashboard.contracts import validate_observation
+from catchment_dashboard.ecan_geometry import (
+    arcgis_catchment_url,
+    filter_sites_to_boundary,
+    parse_catchment_boundary,
+)
 from catchment_dashboard.ecan_hilltop import (
     HILLTOP_ENDPOINT,
     arcgis_candidate_url,
@@ -52,6 +57,8 @@ def acquire_profile(
     retrieved_at = utc_now()
     station_endpoint = arcgis_candidate_url()
     source_endpoints: list[str] = []
+    boundary = None
+    excluded_sites: list[dict[str, str | None]] = []
     if site_ids:
         provisional_sites = [
             ProvisionalSite(
@@ -72,13 +79,21 @@ def acquire_profile(
         sites = parse_site_list(fetch_bytes(site_list_endpoint, timeout=60))
         source_endpoints.append(site_list_endpoint)
         provisional_sites = provisional_site_join(stations, sites)
+        boundary_endpoint = arcgis_catchment_url()
+        boundary = parse_catchment_boundary(
+            fetch_bytes(boundary_endpoint, timeout=60),
+            source_endpoint=boundary_endpoint,
+        )
+        source_endpoints.append(boundary_endpoint)
+        provisional_sites, excluded_sites = filter_sites_to_boundary(provisional_sites, boundary)
     if not provisional_sites:
-        raise RuntimeError("no provisional Ashburton site joins were found")
+        raise RuntimeError("no in-bound Ashburton site joins were found")
     selected_sites = provisional_sites[:max_sites]
 
     observations = []
     parse_counts: Counter[str] = Counter()
-    unavailable: set[str] = set()
+    matched_parameters: set[str] = set()
+    observed_parameters: set[str] = set()
     for site in selected_sites:
         metadata_endpoint = hilltop_url(request="MeasurementList", site=site.site_id)
         metadata = parse_measurement_metadata(
@@ -89,8 +104,8 @@ def acquire_profile(
         for requested in parameters:
             match = by_name.get(requested.casefold())
             if match is None:
-                unavailable.add(requested)
                 continue
+            matched_parameters.add(requested.casefold())
             observation_endpoint = hilltop_url(
                 request="GetData",
                 site=site.site_id,
@@ -114,7 +129,21 @@ def acquire_profile(
             for row in rows:
                 validate_observation(row)
             observations.extend(rows)
+            if rows:
+                observed_parameters.add(requested.casefold())
             parse_counts.update(counts)
+
+    unavailable = [
+        requested
+        for requested in parameters
+        if requested.casefold() not in matched_parameters
+    ]
+    parameters_without_observations = [
+        requested
+        for requested in parameters
+        if requested.casefold() in matched_parameters
+        and requested.casefold() not in observed_parameters
+    ]
 
     result = profile_to_dict(
         retrieved_at=retrieved_at,
@@ -122,8 +151,11 @@ def acquire_profile(
         observations=observations,
         parse_counts=parse_counts,
         requested_parameters=parameters,
-        unavailable_parameters=sorted(unavailable),
+        unavailable_parameters=unavailable,
+        parameters_without_observations=parameters_without_observations,
         source_endpoints=source_endpoints,
+        boundary=boundary,
+        excluded_sites=excluded_sites,
     )
     output.parent.mkdir(parents=True, exist_ok=True)
     output.write_text(json.dumps(result, indent=2, sort_keys=True) + "\n", encoding="utf-8")

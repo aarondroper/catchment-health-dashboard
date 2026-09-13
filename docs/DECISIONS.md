@@ -100,8 +100,8 @@ This log preserves consequential decisions that constrain future work. It does n
 
 ## D-013 — Select Ashburton–Hakatere as the study-area direction
 
-- **Status:** Accepted by owner on 2026-09-13; final polygon and parameter set pending
+- **Status:** Accepted by owner on 2026-09-13; bounded ECan membership boundary verified; final parameter set pending
 - **Decision:** Use the Ashburton–Hakatere catchment as the selected study-area direction for repository foundation and subsequent source/geometry validation.
 - **Evidence:** The Priority 0 audit found the strongest quantitative screening profile for this candidate: 37 name-screened ECan surface stations, 10 coordinate-linked Hilltop sites, 458 measurement entries, 72 parameters present at two or more linked sites, and 8 name-matched flow sites. These are screening measures, not authoritative polygon membership.
 - **Alternatives considered:** Waimakariri and Ashley–Rakahuri as smaller alternatives; revisiting Canterbury.
-- **Consequences:** Ashburton–Hakatere becomes the working configuration scope. Polygon membership, final four-to-six parameters, primary analysis window, quality/unit rules, flow pairing, trends, thresholds, and status semantics still require evidence and owner review. The audit recommendation and limitations remain in `docs/feasibility/SOURCE_AUDIT.md`.
+- **Consequences:** Ashburton–Hakatere becomes the working configuration scope. The bounded acquisition uses ECan's `Ashburton River` major-catchment polygon (`CatchmentGroup=688`) for membership; this is a hydrological source boundary, not a regulatory or water-zone claim. Final four-to-six parameters, primary analysis window, quality/unit rules, flow pairing, trends, thresholds, and status semantics still require evidence and owner review. The audit recommendation and limitations remain in `docs/feasibility/SOURCE_AUDIT.md`.

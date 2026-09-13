@@ -4,6 +4,12 @@ from datetime import datetime, timezone
 from pathlib import Path
 
 from catchment_dashboard.contracts import validate_observation
+from catchment_dashboard.ecan_geometry import (
+    AcquisitionError as GeometryAcquisitionError,
+    arcgis_catchment_url,
+    filter_sites_to_boundary,
+    parse_catchment_boundary,
+)
 from catchment_dashboard.ecan_hilltop import (
     AcquisitionError,
     arcgis_candidate_url,
@@ -14,6 +20,7 @@ from catchment_dashboard.ecan_hilltop import (
     parse_site_list,
     parse_arcgis_candidates,
     provisional_site_join,
+    ProvisionalSite,
 )
 
 
@@ -56,7 +63,7 @@ class EcanHilltopTests(unittest.TestCase):
         for row in rows:
             validate_observation(row)
 
-    def test_malformed_or_empty_observation_response_fails(self):
+    def test_unexpected_observation_error_response_fails(self):
         source = build_source_ref(
             endpoint="http://example.invalid/get-data",
             source_record_id="source-1",
@@ -64,12 +71,44 @@ class EcanHilltopTests(unittest.TestCase):
         )
         with self.assertRaises(AcquisitionError):
             parse_observations(
-                b"<Hilltop><Error>No data</Error></Hilltop>",
+                b"<Hilltop><Error>Malformed request</Error></Hilltop>",
                 site_id="SQ20104",
                 measurement_name="pH",
                 original_unit=None,
                 source=source,
             )
+
+    def test_data_free_hilltop_response_is_explicitly_unavailable(self):
+        source = build_source_ref(
+            endpoint="http://example.invalid/get-data",
+            source_record_id="SQ20104/pH",
+            retrieved_at="2026-09-13T00:00:00+00:00",
+        )
+        rows, counts = parse_observations(
+            b"<Hilltop><Agency>ECan</Agency></Hilltop>",
+            site_id="SQ20104",
+            measurement_name="pH",
+            original_unit=None,
+            source=source,
+        )
+        self.assertEqual(rows, [])
+        self.assertEqual(counts, {"no_observations": 1})
+
+    def test_hilltop_no_data_error_is_explicitly_unavailable(self):
+        source = build_source_ref(
+            endpoint="http://example.invalid/get-data",
+            source_record_id="SQ20106/pH",
+            retrieved_at="2026-09-13T00:00:00+00:00",
+        )
+        rows, counts = parse_observations(
+            b"<Hilltop><Error>No data from 1-Jan-2024 to 31-Dec-2024</Error></Hilltop>",
+            site_id="SQ20106",
+            measurement_name="pH",
+            original_unit=None,
+            source=source,
+        )
+        self.assertEqual(rows, [])
+        self.assertEqual(counts, {"no_observations": 1})
 
     def test_site_join_is_explicitly_provisional(self):
         stations = [{
@@ -107,6 +146,48 @@ class EcanHilltopTests(unittest.TestCase):
         payload = json.dumps({"features": [{"attributes": {"SITE_ID": "SQ20104"}}], "exceededTransferLimit": True}).encode()
         with self.assertRaises(AcquisitionError):
             parse_arcgis_candidates(payload)
+
+    def test_catchment_boundary_parser_preserves_source_metadata(self):
+        payload = (ROOT / "fixtures/arcgis_ashburton_boundary.geojson").read_bytes()
+        boundary = parse_catchment_boundary(
+            payload,
+            source_endpoint=arcgis_catchment_url(),
+        )
+        self.assertEqual(boundary.catchment_name, "Ashburton River")
+        self.assertEqual(boundary.source_object_id, "267")
+        self.assertEqual(boundary.source_crs, "EPSG:2193")
+        self.assertEqual(boundary.coordinate_crs, "EPSG:4326")
+        self.assertTrue(boundary.contains(longitude=1, latitude=1))
+        self.assertTrue(boundary.contains(longitude=0, latitude=5))
+        self.assertFalse(boundary.contains(longitude=5, latitude=5))
+        self.assertTrue(boundary.contains(longitude=20, latitude=20) is False)
+
+    def test_catchment_boundary_parser_supports_multipolygon_and_rejects_incomplete(self):
+        payload = json.dumps({
+            "type": "FeatureCollection",
+            "features": [{
+                "properties": {"CatchmentGroup": "688", "CatchmentGroupName": "Ashburton River", "OBJECTID": 1},
+                "geometry": {"type": "MultiPolygon", "coordinates": [[[[0, 0], [1, 0], [1, 1], [0, 1], [0, 0]]]]},
+            }],
+        }).encode()
+        boundary = parse_catchment_boundary(payload, source_endpoint="https://example.invalid/boundary")
+        self.assertTrue(boundary.contains(longitude=0.5, latitude=0.5))
+        with self.assertRaises(GeometryAcquisitionError):
+            parse_catchment_boundary(b'{"type":"FeatureCollection","features":[]}', source_endpoint="x")
+        with self.assertRaises(GeometryAcquisitionError):
+            parse_catchment_boundary(payload.replace(b'"MultiPolygon"', b'"LineString"'), source_endpoint="x")
+
+    def test_filter_sites_excludes_outside_and_marks_in_bound_sites(self):
+        payload = (ROOT / "fixtures/arcgis_ashburton_boundary.geojson").read_bytes()
+        boundary = parse_catchment_boundary(payload, source_endpoint="boundary")
+        sites = [
+            ProvisionalSite("inside", "river", "inside", 1, 1, 0, "screening"),
+            ProvisionalSite("marine", "bight", "marine", 20, 20, 0, "screening"),
+        ]
+        included, excluded = filter_sites_to_boundary(sites, boundary)
+        self.assertEqual([site.site_id for site in included], ["inside"])
+        self.assertEqual(included[0].membership_basis, "authoritative_ecan_major_catchment_polygon")
+        self.assertEqual(excluded[0]["site_id"], "marine")
 
 
 if __name__ == "__main__":

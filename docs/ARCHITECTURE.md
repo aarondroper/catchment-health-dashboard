@@ -8,7 +8,7 @@ This document distinguishes three states:
 - **Intended:** accepted direction but not yet implemented.
 - **Unresolved:** requires feasibility evidence, an implementation choice, or an owner decision.
 
-As audited on 2026-09-13, the checkout contains a dependency-free source-feasibility audit, versioned contract foundation, synthetic fixture path, and React/TypeScript/Vite shell. It does not yet contain source adapters, normalized production observations, or analytical processing. `docs/PROJECT_STATE.md` is authoritative for what currently exists and has been verified.
+As audited on 2026-09-13, the checkout contains a dependency-free source-feasibility audit, versioned contract foundation, bounded ECan/Hilltop acquisition adapters, a validated ECan catchment-boundary membership slice, synthetic fixture path, and React/TypeScript/Vite shell. It does not yet contain normalized production observations or analytical processing. `docs/PROJECT_STATE.md` is authoritative for what currently exists and has been verified.
 
 ## System Context
 
@@ -34,8 +34,8 @@ The browser should not query remote environmental APIs for routine interactions.
 - Active/completed plan directories exist under `docs/plans/`; completed plans include the feasibility audit and repository foundation plans.
 - A read-only feasibility audit verifies public ECan ArcGIS station/flow inventory and ECan Hilltop WFS site/measurement catalog access. See `docs/feasibility/SOURCE_AUDIT.md`.
 - `catchment_dashboard/contracts.py` defines version `0.1.0` source, station, parameter, observation, aggregate, trend, and asset-manifest boundaries. `docs/CONTRACTS.md` is the contract reference.
-- `catchment_dashboard/ecan_hilltop.py` and `tools/acquire_observations.py` provide a bounded, count-checked ECan/Hilltop acquisition and profiling boundary; full source snapshotting and production normalization are not yet implemented.
-- `config/study_area.json` records Ashburton–Hakatere as the owner-selected direction while leaving polygon membership, parameters, and analytical semantics pending.
+- `catchment_dashboard/ecan_hilltop.py`, `catchment_dashboard/ecan_geometry.py`, and `tools/acquire_observations.py` provide a bounded, count-checked ECan/Hilltop acquisition and ECan major-catchment membership boundary; full source snapshotting and production normalization are not yet implemented.
+- `config/study_area.json` records Ashburton–Hakatere as the owner-selected direction and the verified ECan `Ashburton River` major-catchment boundary while leaving parameters and analytical semantics pending.
 - `web/` contains a Vite/React/TypeScript shell, a MapLibre-ready type boundary, and a typed inline-SVG chart spike backed only by synthetic fixture data. `web/package-lock.json` provides a reproducible frontend install.
 
 ### Not yet evidenced

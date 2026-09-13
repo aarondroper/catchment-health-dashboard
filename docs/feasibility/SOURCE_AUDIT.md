@@ -19,6 +19,7 @@ The live run retrieved all records reported by the endpoints for the requested s
 | Source | Evidence retrieved | Relevant contract evidence |
 | --- | ---: | --- |
 | [ECan surface-water ArcGIS layer](https://gis.ecan.govt.nz/arcgis/rest/services/Public/WaterQualityandMonitoring/MapServer/0) | 6,266 / 6,266 features | Point stations; `SITE_ID`, `SITE_NAME`, source/type, NZTM2000 coordinates, source link; max page 1,000; JSON/GeoJSON/PBF advertised |
+| [ECan major-catchment ArcGIS layer](https://gis.ecan.govt.nz/arcgis/rest/services/Public/Hydrology/MapServer/0) | 1 / 1 feature for `CatchmentGroup=688` | Single `Ashburton River` polygon; source CRS EPSG:2193; source object `267`; reported area 167,845.9283 ha; GeoJSON output requested in EPSG:4326 |
 | [ECan historical flow-site ArcGIS layer](https://gis.ecan.govt.nz/arcgis/rest/services/Public/WaterQualityandMonitoring/MapServer/6) | 185 / 185 features | Site name/number, telemetered flag, gauging count, first/last gauging, NZTM2000 coordinates |
 | [ECan Hilltop site list](http://wateruse.ecan.govt.nz/wqlawa.hts?Service=Hilltop&Request=SiteList&Location=LatLong) | 552 sites | Hilltop XML site identifiers and WGS84 coordinates |
 | [ECan Hilltop WFS measurement list](http://wateruse.ecan.govt.nz/wqlawa.hts?Service=WFS&Request=GetFeature&TypeName=MeasurementList) | 16,425 site/measurement entries | WFS 1.1.0 XML; `Site`, `Measurement`, `From`, `To` date bounds |
@@ -57,7 +58,7 @@ Recommended owner-review shortlist:
 1. Ashburton–Hakatere for maximum profiled data depth and flow context.
 2. Waimakariri or Ashley–Rakahuri as smaller alternatives if geographic coherence and a tighter station network are preferred.
 
-Before implementation proceeds, the owner must select the exact catchment and parameter direction after polygon-based membership and observation-level profiling. No catchment, final parameters, trend estimator, threshold, status label, or causal interpretation has been adopted here. A plausible provisional analysis window is 2007–2024 because several common parameters span that period at some linked sites; completeness and sampling density must be measured from observations first.
+Before final analytical implementation proceeds, the owner must review the bounded polygon membership result and select the final parameter direction after observation-level profiling. No final parameters, trend estimator, threshold, status label, or causal interpretation has been adopted here. A plausible provisional analysis window is 2007–2024 because several common parameters span that period at some linked sites; completeness and sampling density must be measured from observations first.
 
 ## Constraints, limitations, and next work
 
@@ -68,4 +69,4 @@ Before implementation proceeds, the owner must select the exact catchment and pa
 - The audit did not approve redistribution terms. Before release, review [ECan API terms](https://apidevelopers.ecan.govt.nz/terms), ECan water-quality terms linked from the publication page, and the license metadata for any LAWA or ArcGIS derivative.
 - The endpoint can be slow or change. The tool fails on incomplete pages or source errors rather than treating partial retrieval as complete.
 
-The owner selected Ashburton–Hakatere and the Priority 1 contract foundation is complete. Priority 2 now performs the polygon join and bounded observation-level acquisition/profile against the selected source route. The current adapter and live-profile evidence are documented in `docs/ACQUISITION.md`.
+The owner selected Ashburton–Hakatere and the Priority 1 contract foundation is complete. Priority 2 now performs the polygon join and bounded observation-level acquisition/profile against the selected source route. ECan's public [Major Catchment Boundaries layer](https://gis.ecan.govt.nz/arcgis/rest/services/Public/Hydrology/MapServer/0), filtered to `CatchmentGroup=688` (`Ashburton River`), is the verified hydrological membership boundary for the bounded profile; it is not treated as a regulatory or water-zone boundary. The current adapter and live-profile evidence are documented in `docs/ACQUISITION.md`.

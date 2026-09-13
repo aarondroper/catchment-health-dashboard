@@ -1,7 +1,7 @@
 # Data contracts and repository foundation
 
 **Contract version:** `0.1.0`
-**Study-area direction:** `ashburton_hakatere` (owner-selected; authoritative polygon pending)
+**Study-area direction:** `ashburton_hakatere` (owner-selected; bounded membership uses the verified ECan `Ashburton River` major-catchment polygon)
 
 The contract layer is intentionally source-independent. Provider-specific fields are handled by future adapters and are represented in stable records through `source` provenance and retained original-value fields.
 
@@ -29,7 +29,7 @@ Aggregate and trend records are structural boundaries only. The foundation does 
 - Aggregate and trend periods are ordered, numeric outputs are finite or null, and coverage is an explicit fraction when present.
 - Manifest counts are non-negative integers and every source reference is validated.
 
-The current validator checks structure and referential integrity only. It does not decide whether a source quality flag is acceptable, convert units, resolve censored values, or infer catchment membership.
+The current validator checks structure and referential integrity only. The bounded acquisition slice validates site membership against the configured ECan polygon, but the contract layer does not decide whether a source quality flag is acceptable, convert units, resolve censored values, or infer broader catchment semantics.
 
 ## Commands
 

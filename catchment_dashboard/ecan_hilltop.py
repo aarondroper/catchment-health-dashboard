@@ -297,13 +297,18 @@ def parse_observations(
     root = _parse_xml(xml_bytes)
     errors = [element.text.strip() for element in root.iter() if _local_name(element.tag) == "Error" and element.text]
     if errors:
+        if all(error.casefold().startswith("no data") for error in errors):
+            return [], {"no_observations": 1}
         raise AcquisitionError(f"Hilltop observation error for {site_id}/{measurement_name}: {errors[0]}")
     measurement = next(
         (element for element in root.iter() if _local_name(element.tag) == "Measurement"),
         None,
     )
     if measurement is None:
-        raise AcquisitionError(f"Hilltop response has no Measurement for {site_id}/{measurement_name}")
+        # Hilltop returns a valid, data-free <Hilltop> response for some
+        # site/parameter/date combinations. Keep that absence explicit rather
+        # than treating it as a numeric zero or aborting a multi-site profile.
+        return [], {"no_observations": 1}
     data = next((element for element in measurement if _local_name(element.tag) == "Data"), None)
     if data is None:
         raise AcquisitionError(f"Hilltop response has no Data for {site_id}/{measurement_name}")
@@ -476,23 +481,45 @@ def profile_to_dict(
     requested_parameters: list[str],
     unavailable_parameters: list[str],
     source_endpoints: list[str],
+    parameters_without_observations: list[str] | None = None,
+    boundary: Any | None = None,
+    excluded_sites: list[dict[str, str | None]] | None = None,
 ) -> dict[str, Any]:
+    boundary_metadata = None
+    membership_status = "provisional_coordinate_and_name_screening_not_authoritative_polygon"
+    if boundary is not None:
+        boundary_metadata = {
+            "source_endpoint": boundary.source_endpoint,
+            "source_layer": boundary.source_endpoint.split("/query?", 1)[0],
+            "source_object_id": boundary.source_object_id,
+            "catchment_group": boundary.catchment_group,
+            "catchment_name": boundary.catchment_name,
+            "area_ha": boundary.area_ha,
+            "geometry_type": boundary.geometry_type,
+            "source_crs": boundary.source_crs,
+            "coordinate_crs": boundary.coordinate_crs,
+            "modified_date_epoch_ms": boundary.modified_date_epoch_ms,
+        }
+        membership_status = "authoritative_ecan_major_catchment_polygon"
     return {
         "schema_version": ADAPTER_VERSION,
         "contract_version": CONTRACT_VERSION,
         "retrieved_at": retrieved_at,
         "study_area_id": "ashburton_hakatere",
         "status": "observation_profile_only",
-        "membership_status": "provisional_coordinate_and_name_screening_not_authoritative_polygon",
+        "membership_status": membership_status,
+        "catchment_boundary": boundary_metadata,
+        "excluded_sites": excluded_sites or [],
         "requested_parameters": requested_parameters,
         "unavailable_parameters": unavailable_parameters,
+        "parameters_without_observations": parameters_without_observations or [],
         "provisional_sites": [asdict(site) for site in sites],
         "summary": summarize_observations(observations, parse_counts),
         "sample_observations": [asdict(row) for row in observations[:10]],
         "source_endpoints": source_endpoints,
         "limitations": [
             "Profile uses bounded requested parameters and sites; it is not a complete catchment dataset.",
-            "No polygon membership, unit conversion, quality exclusion, duplicate collapse, or censored-value substitution was applied.",
+            "Unit conversion, quality exclusion, duplicate collapse, or censored-value substitution was not applied.",
             "Hilltop timestamps are preserved as supplied; timezone interpretation remains a later source-quality decision.",
             "Final parameters, analysis window, and analytical methods remain pending observation review and owner decision.",
         ],
