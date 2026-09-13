@@ -25,6 +25,7 @@ Accordingly, statements about the intended product remain planned unless impleme
 - The Priority 2 acquisition slice is implemented in `catchment_dashboard/ecan_hilltop.py` and `tools/acquire_observations.py`; its source boundary and limitations are documented in `docs/ACQUISITION.md`.
 - The spatial membership slice is implemented in `catchment_dashboard/ecan_geometry.py`; it validates a complete ECan GeoJSON boundary response and filters out-of-bound Hilltop sites before observations are retrieved.
 - The bounded profile now emits deterministic site/parameter quality summaries; valid Hilltop no-data responses remain explicit rather than being converted to zeros or treated as fatal transport errors.
+- Each successful bounded acquisition response now has a SHA-256/byte-count source manifest entry; raw payload caching remains intentionally unimplemented pending licensing and freshness decisions.
 
 Verification here means these decisions and requirements are present in the supplied context and governance documents—not that product functionality exists.
 
@@ -59,7 +60,7 @@ Verification here means these decisions and requirements are present in the supp
 - Final licensing approval, rate-limit agreement, and redistribution decision. Public endpoints, schemas, station counts, catalog coverage, and inventory-level flow availability are now partially verified; see the audit limitations.
 - Complete catchment observation-level coverage and production-scale profile.
 - Final four-to-six water-quality parameters or primary temporal window.
-- Production-scale data acquisition/cache, full normalization, quality-control reporting, aggregation, trend, or asset-build code.
+- Production-scale data acquisition/cache, full normalization, quality-control reporting, aggregation, trend, or asset-build code. Bounded response manifests exist, but they are not a raw snapshot cache.
 - Adopted handling of censored values, quality flags, duplicates, units, or time zones.
 - Adopted analytical aggregation, comparison, trend, direction-label, or threshold methodology.
 - Prepared monitoring, spatial, summary, trend, flow, or manifest assets.
@@ -96,7 +97,7 @@ The foundation preview and bounded acquisition profile are implemented, but this
 - **Deployment verification:** no deployment evidenced.
 - **Repository baseline:** file inventory, required-document checks, audit tests, live audit, contract validation, Python compilation, frontend typecheck, and frontend build completed; formatter/linter, CI, production-data, visual, accessibility, and deployment gates remain unavailable or not yet applicable.
 - **Live audit:** `python3 tools/feasibility_audit.py --output docs/feasibility/audit-report.json` completed on 2026-09-13 and retrieved 6,266/6,266 surface features, 185/185 flow features, 552 Hilltop sites, and 16,425 Hilltop measurement entries; 45 coordinate-linked candidate sites were probed for units and sampling metadata.
-- **Git state:** valid repository on `main`; the latest completed commit is `Build repository contract foundation`; the foundation milestone is committed.
+- **Git state:** valid repository on `main`; the latest completed commit is `Add source response manifests`; the working tree was clean at the last inspection.
 
 ## Current Deployment State
 

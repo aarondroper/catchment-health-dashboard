@@ -25,7 +25,6 @@ from catchment_dashboard.ecan_hilltop import (
     HILLTOP_ENDPOINT,
     arcgis_candidate_url,
     build_source_ref,
-    fetch_bytes,
     hilltop_url,
     fetch_arcgis_candidates,
     parse_measurement_metadata,
@@ -34,6 +33,7 @@ from catchment_dashboard.ecan_hilltop import (
     profile_to_dict,
     ProvisionalSite,
     provisional_site_join,
+    RecordingFetcher,
     utc_now,
 )
 
@@ -55,6 +55,7 @@ def acquire_profile(
     site_ids: list[str] | None = None,
 ) -> dict[str, object]:
     retrieved_at = utc_now()
+    fetcher = RecordingFetcher()
     station_endpoint = arcgis_candidate_url()
     source_endpoints: list[str] = []
     boundary = None
@@ -73,15 +74,16 @@ def acquire_profile(
             for site_id in sorted(set(site_ids))
         ]
     else:
+        source_endpoints.append(arcgis_candidate_url(count_only=True))
         source_endpoints.append(station_endpoint)
-        stations = fetch_arcgis_candidates()
+        stations = fetch_arcgis_candidates(fetcher)
         site_list_endpoint = f"{HILLTOP_ENDPOINT}?Service=Hilltop&Request=SiteList&Location=LatLong"
-        sites = parse_site_list(fetch_bytes(site_list_endpoint, timeout=60))
+        sites = parse_site_list(fetcher(site_list_endpoint, timeout=60))
         source_endpoints.append(site_list_endpoint)
         provisional_sites = provisional_site_join(stations, sites)
         boundary_endpoint = arcgis_catchment_url()
         boundary = parse_catchment_boundary(
-            fetch_bytes(boundary_endpoint, timeout=60),
+            fetcher(boundary_endpoint, timeout=60),
             source_endpoint=boundary_endpoint,
         )
         source_endpoints.append(boundary_endpoint)
@@ -97,7 +99,7 @@ def acquire_profile(
     for site in selected_sites:
         metadata_endpoint = hilltop_url(request="MeasurementList", site=site.site_id)
         metadata = parse_measurement_metadata(
-            fetch_bytes(metadata_endpoint, timeout=60), site_id=site.site_id
+            fetcher(metadata_endpoint, timeout=60), site_id=site.site_id
         )
         source_endpoints.append(metadata_endpoint)
         by_name = {row.measurement_name.casefold(): row for row in metadata}
@@ -120,7 +122,7 @@ def acquire_profile(
                 retrieved_at=retrieved_at,
             )
             rows, counts = parse_observations(
-                fetch_bytes(observation_endpoint, timeout=60),
+                fetcher(observation_endpoint, timeout=60),
                 site_id=site.site_id,
                 measurement_name=match.measurement_name,
                 original_unit=match.units,
@@ -153,6 +155,7 @@ def acquire_profile(
         requested_parameters=parameters,
         unavailable_parameters=unavailable,
         parameters_without_observations=parameters_without_observations,
+        source_manifest=fetcher.responses,
         source_endpoints=source_endpoints,
         boundary=boundary,
         excluded_sites=excluded_sites,

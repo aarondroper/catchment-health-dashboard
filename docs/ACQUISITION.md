@@ -6,6 +6,8 @@
 - Hilltop site-list and per-site measurement metadata parsing;
 - Hilltop `GetData` observation parsing with source timestamps, original units, numeric values, censored result text, quality codes, and explicit missing/non-numeric states;
 - deterministic profile summaries by parameter and site/parameter, including observation counts, numeric/null counts, units, censoring categories, and quality-code presence;
+- a response manifest containing the exact successful request endpoints,
+  retrieval timestamps, byte counts, and SHA-256 digests;
 - a provisional nearest-coordinate join to name-screened ECan stations followed
   by point-in-polygon membership against ECan's major-catchment boundary;
 - compact ignored output under `reports/generated/`.
@@ -31,6 +33,16 @@ python3 tools/acquire_observations.py \
 ```
 
 Explicit-site mode labels membership as `explicit_site_id_not_spatially_validated`; it must not be used to claim catchment membership.
+
+## Source-response manifest
+
+Each successful request in a profile is recorded in `source_manifest`,
+including the ArcGIS count and feature queries, Hilltop site list, boundary,
+measurement metadata, and observation responses. `source_endpoints` retains
+the same request list for compatibility. The manifest records response
+identity and size only; raw response bodies are not written or committed, and
+no stale-cache reuse policy is implied while redistribution terms remain under
+review.
 
 ## Verified spatial boundary
 

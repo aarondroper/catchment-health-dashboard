@@ -12,11 +12,11 @@ This log preserves consequential decisions that constrain future work. It does n
 
 ## D-002 — Use Canterbury, New Zealand as the geographic direction
 
-- **Status:** Accepted, with exact catchment pending
-- **Decision:** Focus source feasibility on Canterbury and ultimately select one contained catchment or closely related river system.
+- **Status:** Accepted; Ashburton–Hakatere selected under D-013
+- **Decision:** Focus source feasibility on Canterbury and use one contained catchment or closely related river system; Ashburton–Hakatere is the selected working scope.
 - **Rationale:** Canterbury diversifies the portfolio geographically and appears to offer a promising public freshwater-data ecosystem while allowing a coherent study area.
 - **Alternatives considered:** An English Environment Agency catchment; nationwide or all-Canterbury coverage.
-- **Consequences:** UK sources should not replace Canterbury merely for convenience. A change of region requires evidence that Canterbury is genuinely unsuitable and owner review. Exact catchment selection remains an owner decision after feasibility analysis.
+- **Consequences:** UK sources should not replace Canterbury merely for convenience. A change of region or material catchment scope requires evidence and owner review. Final parameters, time window, quality rules, and analytical semantics remain open.
 
 ## D-003 — Limit the core to approximately four to six water-quality parameters
 

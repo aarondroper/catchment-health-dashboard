@@ -21,7 +21,9 @@ from catchment_dashboard.ecan_hilltop import (
     parse_arcgis_candidates,
     provisional_site_join,
     ProvisionalSite,
+    RecordingFetcher,
     summarize_observations,
+    profile_to_dict,
 )
 
 
@@ -117,6 +119,31 @@ class EcanHilltopTests(unittest.TestCase):
         )
         self.assertEqual(rows, [])
         self.assertEqual(counts, {"no_observations": 1})
+
+    def test_recording_fetcher_and_profile_manifest_capture_response_identity(self):
+        def fake_fetch(url, *, timeout):
+            self.assertEqual(timeout, 30)
+            return b"fixture-response"
+
+        fetcher = RecordingFetcher(fake_fetch)
+        self.assertEqual(fetcher("https://example.invalid/source", timeout=30), b"fixture-response")
+        response = fetcher.responses[0]
+        self.assertEqual(response.byte_count, len(b"fixture-response"))
+        self.assertEqual(
+            response.sha256,
+            "12311451b4ff4ad5ddafc06cb525565c2b77c7b7cf7ace7de61b19899823a614",
+        )
+        profile = profile_to_dict(
+            retrieved_at="2026-09-13T00:00:00+00:00",
+            sites=[],
+            observations=[],
+            parse_counts={},
+            requested_parameters=[],
+            unavailable_parameters=[],
+            source_endpoints=[response.endpoint],
+            source_manifest=fetcher.responses,
+        )
+        self.assertEqual(profile["source_manifest"][0]["endpoint"], response.endpoint)
 
     def test_site_join_is_explicitly_provisional(self):
         stations = [{

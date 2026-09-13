@@ -4,10 +4,10 @@
 
 - **Name:** Catchment Health Dashboard
 - **Type:** Self-directed portfolio and consulting showcase project
-- **Geographic direction:** One contained catchment or closely related river system in Canterbury, New Zealand
-- **Lifecycle stage:** Pre-development project definition and data-feasibility planning
+- **Geographic direction:** Ashburton–Hakatere, represented for bounded acquisition by Environment Canterbury's Ashburton River major-catchment boundary
+- **Lifecycle stage:** Acquisition, normalization, and analytical-method preparation
 
-The exact catchment has not been selected. Canterbury is the accepted geographic direction, subject to a source-feasibility audit and an owner decision based on the evidence.
+Ashburton–Hakatere is the owner-selected working catchment following the Canterbury source-feasibility audit. Its bounded acquisition membership uses the verified ECan Ashburton River major-catchment polygon; final parameters, analysis window, and analytical semantics remain subject to owner review.
 
 ## Purpose
 
@@ -122,7 +122,7 @@ The MVP will not include accounts, user-created dashboards, arbitrary uploads or
 - Do not commit unnecessarily large raw or generated datasets.
 - Keep the project small enough to finish and suitable for iterative agentic development.
 - Do not overstate environmental condition, trend certainty, causation, regulatory meaning, completeness, or sampling continuity.
-- Obtain owner review before finalizing the catchment, core parameter set, trend interpretation language, applicable thresholds, any composite indicator, or the major dashboard composition.
+- Obtain owner review before finalizing the core parameter set, primary analysis window, trend interpretation language, applicable thresholds, any composite indicator, or the major dashboard composition. The working catchment direction is already selected; any material geography change still requires owner review.
 
 ## Success Definition
 
@@ -146,4 +146,3 @@ Success additionally requires that:
 - Approximately four to six comparable parameters and a useful five-to-ten-year window will survive the source audit.
 
 These are working assumptions, not statements of verified repository capability or source availability.
-

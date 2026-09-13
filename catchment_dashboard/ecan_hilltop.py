@@ -8,6 +8,7 @@ assert authoritative catchment membership.
 from __future__ import annotations
 
 import json
+import hashlib
 import math
 import re
 import time
@@ -84,6 +85,36 @@ def fetch_bytes(url: str, *, timeout: int = 60, retries: int = 3) -> bytes:
             if attempt + 1 < retries:
                 time.sleep(0.5 * (2**attempt))
     raise AcquisitionError(f"failed after {retries} attempts: {url}: {last_error}")
+
+
+@dataclass(frozen=True)
+class SourceResponse:
+    """Lineage metadata for one successfully retrieved source response."""
+
+    endpoint: str
+    retrieved_at: str
+    byte_count: int
+    sha256: str
+
+
+class RecordingFetcher:
+    """Fetch public responses while recording content lineage metadata."""
+
+    def __init__(self, fetcher: Callable[..., bytes] = fetch_bytes):
+        self._fetcher = fetcher
+        self.responses: list[SourceResponse] = []
+
+    def __call__(self, url: str, *, timeout: int = 60) -> bytes:
+        body = self._fetcher(url, timeout=timeout)
+        self.responses.append(
+            SourceResponse(
+                endpoint=url,
+                retrieved_at=utc_now(),
+                byte_count=len(body),
+                sha256=hashlib.sha256(body).hexdigest(),
+            )
+        )
+        return body
 
 
 def _local_name(tag: str) -> str:
@@ -518,6 +549,7 @@ def profile_to_dict(
     parameters_without_observations: list[str] | None = None,
     boundary: Any | None = None,
     excluded_sites: list[dict[str, str | None]] | None = None,
+    source_manifest: Iterable[SourceResponse] | None = None,
 ) -> dict[str, Any]:
     boundary_metadata = None
     membership_status = "provisional_coordinate_and_name_screening_not_authoritative_polygon"
@@ -551,6 +583,7 @@ def profile_to_dict(
         "summary": summarize_observations(observations, parse_counts),
         "sample_observations": [asdict(row) for row in observations[:10]],
         "source_endpoints": source_endpoints,
+        "source_manifest": [asdict(response) for response in source_manifest or ()],
         "limitations": [
             "Profile uses bounded requested parameters and sites; it is not a complete catchment dataset.",
             "Unit conversion, quality exclusion, duplicate collapse, or censored-value substitution was not applied.",
