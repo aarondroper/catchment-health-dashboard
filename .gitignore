@@ -9,3 +9,6 @@ data/raw/
 data/cache/
 reports/generated/
 web/public/data/
+web/playwright-report/
+web/test-results/
+web/screenshots/

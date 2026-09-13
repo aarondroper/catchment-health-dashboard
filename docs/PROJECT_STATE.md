@@ -30,7 +30,7 @@ Accordingly, statements about the intended product remain planned unless impleme
 - `NormalizedObservationRecord` contract version `1.0.0` and `ashburton-analytical-v3-published-unflagged` builders preserve original values/units/result text/timestamps/quality-field representation/censoring/provenance while adding explicit unit, quality, value, and duplicate dispositions. The primary policy includes missing quality fields as `published_unflagged`; strict remains a sensitivity mode.
 - The approved eight-parameter long-window run retrieved 10,426 observations at 15 data-producing sites from all 19 coordinate-bearing Hilltop sites inside the verified polygon. Local assets contain 324 coverage records, 1,830 summaries, 324 trend records, and a manifest with checksums; generated outputs are ignored.
 
-Verification here means these decisions and requirements are present in the supplied context and governance documents—not that product functionality exists.
+Verification here distinguishes documented decisions from executable evidence; the local dashboard capability claims below are backed by the recorded typecheck, build, and browser runs.
 
 ## Implemented
 
@@ -50,8 +50,8 @@ Verification here means these decisions and requirements are present in the supp
 - `.gitignore` separates Python caches, environments, raw/cache data, and generated reports from tracked source.
 - Python package metadata and source-independent version `0.1.0` contracts exist for source, station, parameter, observation, aggregate, trend, and asset-manifest records.
 - A synthetic fixture validates source provenance, normalized observation fields, censored/null preservation, referential integrity, and manifest counts.
-- A Vite/React/TypeScript frontend now loads the ignored local application asset when prepared, with an explicit fixture fallback, and coordinates parameter/window/station controls across the map, selected-site series/table, summaries, coverage, comparison, and quality/provenance views. `web/package-lock.json` is checked in.
-- Quality gates pass: thirty-three Python `unittest` tests, fixture validation, Python compilation, frontend strict typecheck, frontend production build, all-site source acquisition, site-membership audit, analytical asset generation, viability audit, source-manifest integrity, and deterministic asset rebuild checks on 2026-09-13.
+- A Vite/React/TypeScript frontend now loads the ignored local application asset when prepared, with an explicit fixture fallback, and coordinates parameter/window/station controls across the map, selected-site series/table, summaries, coverage, comparison, and quality/provenance views. The local view has a restrained product shell, responsive layout, coordinate-based station schematic, explicit empty/censored/indeterminate states, accessible detail regions, and a browser verification suite. `web/package-lock.json` is checked in.
+- Quality gates pass: thirty-three Python `unittest` tests, fixture validation, Python compilation, frontend strict typecheck, frontend production build, Playwright/axe browser checks, all-site source acquisition, site-membership audit, analytical asset generation, viability audit, source-manifest integrity, and deterministic asset rebuild checks on 2026-09-13.
 - A bounded live Hilltop profile verified 12 real observations for `SQ20104`/Dissolved Reactive Phosphorus; no production dataset is committed.
 - The normal bounded three-parameter profile joined 10 in-bound sites and retrieved 243 observations; 9 sites had data, 194 observations were numeric, and 49 were left-censored. Two Canterbury Bight marine name-screened records were excluded by the polygon.
 - The earlier neutral nine-parameter candidate profiles retrieved 644 observations for 2024 and 8,644 observations for 2007–2024; these were the evidence used for the owner-approved eight-parameter scope. pH covered only 5 sites, ended in 2013, and had no reported unit.
@@ -69,7 +69,6 @@ Verification here means these decisions and requirements are present in the supp
 - Prepared station geometry and flow assets for the production application; the current analytical assets are observation/coverage/summary/trend JSON only.
 - Runtime MapLibre geometry/tiles, filtered export, and public observation assets.
 - Frontend component tests, Python formatter/linter/static checks, CI, and observation-level source fixtures.
-- Formal screenshot/browser visual verification, accessibility automation, and performance measurements.
 - Deployment configuration, hosting selection, deployed application, monitoring, or live verification.
 - Public portfolio repository, screenshots, or case-study material.
 
@@ -83,10 +82,10 @@ The local production-shaped workflow is implemented against ignored generated as
 - Environment Canterbury provides verified public station/flow inventory and legacy Hilltop catalog access for the audit, but the production observation route, licensing, and redistribution terms remain unresolved.
 - Source records may contain irregular sampling, inconsistent analyte names or units, quality flags, censored values, duplicates, schema changes, and incomplete coverage.
 - Inventory-level flow matching is promising; a selected catchment still needs a defensible gauge-to-monitoring relationship.
-- Static delivery is preferred but unproven against the eventual record count and payload sizes.
+- Static delivery is preferred and locally verified for the current payload; eventual production partitioning remains guided by the measured 10.47 MB observation asset and unresolved public delivery terms.
 - The adopted published-unflagged policy improves exploratory coverage, but censoring and irregular sampling still leave 283 of 324 trend records indeterminate; this is surfaced rather than relaxed.
 - Regulatory thresholds and directional terms such as “improving” or “declining” may be inapplicable or parameter-specific.
-- No project formatter/linter, Python static/type checker, CI workflow, production data build, or UI automation exists yet. Foundation test, fixture-validation, compilation, typecheck, and build commands are documented and verified.
+- No project formatter/linter, Python static/type checker, or CI workflow exists yet. Foundation test, fixture-validation, compilation, typecheck, build, and browser-verification commands are documented and verified.
 
 ## Current Test and Validation State
 
@@ -96,9 +95,9 @@ The local production-shaped workflow is implemented against ignored generated as
 - **Frontend type check/build:** `cd web && npm ci && npm run typecheck && npm run build` passes; Vite runtime HTTP delivery of the local app and ignored analytical asset is verified, while a runtime MapLibre map is not.
 - **Data validation:** source inventory/catalog validation is evidenced by the live audit; parser and contract validation is evidenced by fixtures plus a bounded live Hilltop profile; complete production observation coverage remains unverified.
 - **Scientific validation:** the conservative numeric-only summary and uncensored Theil–Sen/Kendall fallback are unit-tested against an independently calculated pairwise Theil–Sen fixture; the viability report audits all trend reasons. Censor-aware ROS/Mann–Kendall methods remain unimplemented and should not be implied.
-- **Visual/accessibility/responsive validation:** frontend build and typecheck pass; browser screenshot review and automated accessibility checks are not configured/evidenced yet.
+- **Visual/accessibility/responsive validation:** Playwright screenshots were inspected at 1440×900, 1024×768, and 390×844; the browser suite found no horizontal overflow, browser console/page/network errors, or serious/critical axe violations. Core parameter/window/station/map, no-data, censored, indeterminate, fallback, and error flows are asserted.
 - **Deployment verification:** no deployment evidenced.
-- **Repository baseline:** file inventory, required-document checks, audit tests, live audit, contract validation, Python compilation, frontend typecheck, and frontend build completed; formatter/linter, CI, production-data, visual, accessibility, and deployment gates remain unavailable or not yet applicable.
+- **Repository baseline:** file inventory, required-document checks, audit tests, live audit, contract validation, Python compilation, frontend typecheck, frontend build, browser interaction/accessibility checks, responsive screenshot inspection, and local asset timing measurement completed; formatter/linter, CI, production-data, and deployment gates remain unavailable or not yet applicable.
 - **Live audit:** `python3 tools/feasibility_audit.py --output docs/feasibility/audit-report.json` completed on 2026-09-13 and retrieved 6,266/6,266 surface features, 185/185 flow features, 552 Hilltop sites, and 16,425 Hilltop measurement entries; 45 coordinate-linked candidate sites were probed for units and sampling metadata.
 - **Git state:** valid repository on `main`; the current milestone includes tracked policy, asset-materialization, dashboard, test, and governance changes, while generated observations/assets remain ignored.
 
@@ -120,4 +119,4 @@ Credentials or private access should not be assumed; sources must remain public/
 
 ## Logical Current Development Frontier
 
-Priority 0 is complete as a feasibility screen, Priority 1 is complete as a tested foundation, the approved bounded Priority 2/3 analytical implementation plus quality-semantics review is complete, and the production-shaped local React dashboard integration is implemented. The next frontier is **deliberate UX/UI refinement and visual verification**, with runtime geometry, complete-catchment coverage, source-term/release-gate resolution, and public observation publication still explicitly separate gates.
+Priority 0 is complete as a feasibility screen, Priority 1 is complete as a tested foundation, the approved bounded Priority 2/3 analytical implementation plus quality-semantics review is complete, and the production-shaped local React dashboard with browser-verified UX/UI refinement is implemented locally. The next frontier is **transparency and inspectability**—filtered export, deeper detail/accessibility hardening, and measured performance follow-up—with runtime geometry, complete-catchment coverage, source-term/release-gate resolution, and public observation publication still explicitly separate gates.

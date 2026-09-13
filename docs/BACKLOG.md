@@ -150,7 +150,7 @@ the UI labels unsupported summaries/trends rather than relaxing the rules.
 
 ## Priority 4 — Core Coordinated Dashboard
 
-**Status:** Complete for the local production-shaped milestone; runtime geometry, browser visual review, component tests, export, and public observation delivery remain later work.
+**Status:** Complete for the local production-shaped milestone; runtime geometry, export, and public observation delivery remain later work.
 
 ### Objective
 
@@ -173,9 +173,11 @@ fallback. Parameter, window, station, and map-pin selections share state
 across the map, series/table, summaries, coverage, comparison, and quality
 context. The generated app asset contains 10,426 observations, 10,280
 eligible observations, 19 stations, 1,830 summaries, and 324 trend records;
-17 primary-window trends are reported and 91 are indeterminate. Typecheck and
-production build pass. Browser screenshot review and component automation are
-not configured yet.
+17 primary-window trends are reported and 91 are indeterminate. Typecheck,
+production build, and the focused browser suite pass. Browser verification
+confirmed the real asset, coordinated controls, no-data/censored/indeterminate
+states, fallback/error behavior, responsive overflow, and the absence of
+serious/critical accessibility violations at 1440×900, 1024×768, and 390×844.
 
 ### Acceptance criteria
 
@@ -187,7 +189,7 @@ not configured yet.
 
 ## Priority 4.5 — UX/UI Refinement and Visual Verification
 
-**Status:** Next frontier
+**Status:** Complete for the local milestone; plan archived at `docs/plans/completed/2026-09-13-browser-verified-dashboard-refinement.md`.
 
 ### Objective
 
@@ -203,7 +205,20 @@ expanding analytical scope.
 - Measure realistic local asset load and interaction behavior.
 - Keep source-term and public-data release gates unchanged.
 
+### Exit evidence
+
+Playwright/Chromium and axe-core verification were added under `web/`. Eight
+browser tests pass against the prepared local asset, including parameter,
+window, station, map-pin, no-data, censored, indeterminate, fallback/error,
+accessibility, asset timing, and responsive screenshot checks. The dashboard
+was visually inspected at 1440×900, 1024×768, and 390×844 with no horizontal
+overflow. The local asset is 10,473,514 bytes; the static bundle remains small
+relative to that payload. Runtime MapLibre geometry/tiles, export, and public
+observation delivery remain outside this milestone.
+
 ## Priority 5 — Transparency, Export, Responsiveness, and Accessibility
+
+**Status:** Next frontier
 
 ### Objective
 

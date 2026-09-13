@@ -19,13 +19,13 @@ export function SeriesChart({ observations, unit }: SeriesChartProps) {
     <section className="panel chart-panel" aria-labelledby="series-title">
       <div className="panel-heading">
         <div>
-          <p className="eyebrow">Analytical view spike</p>
+          <p className="eyebrow">Observed history</p>
           <h2 id="series-title">Selected-site series</h2>
         </div>
         <span className="unit-label">{unit ?? "unit pending"}</span>
       </div>
       <p className="panel-intro">Eligible numeric observations are plotted; censored, missing, and excluded results remain in the table and are never substituted into the line.</p>
-      {observations.length === 0 && <p className="empty-state" role="status">No observations are present in this local fixture for the selected parameter and station.</p>}
+      {observations.length === 0 && <p className="empty-state" role="status">No observations are available for this parameter and station in the selected window.</p>}
       {observations.length > 0 && numeric.length === 0 && <p className="empty-state" role="status">No eligible numeric observations are available to plot; inspect the retained table for censored or excluded records.</p>}
       <svg className="series-chart" viewBox="0 0 420 200" role="img" aria-labelledby="chart-title chart-desc">
         <title id="chart-title">Selected observation series</title>
@@ -41,6 +41,7 @@ export function SeriesChart({ observations, unit }: SeriesChartProps) {
         <text x="40" y="188" className="chart-label">{observations[0]?.observedAt.slice(0, 10)}</text>
         <text x="300" y="188" className="chart-label">{observations.at(-1)?.observedAt.slice(0, 10)}</text>
       </svg>
+      <div className="observation-table-wrap" tabIndex={0} role="region" aria-label="Selected observation detail">
       <table className="observation-table">
         <caption>Selected observations — source representation retained</caption>
         <thead><tr><th scope="col">Date</th><th scope="col">Result</th><th scope="col">Quality</th><th scope="col">Limit</th><th scope="col">Record state</th><th scope="col">Source ID</th></tr></thead>
@@ -57,6 +58,7 @@ export function SeriesChart({ observations, unit }: SeriesChartProps) {
           ))}
         </tbody>
       </table>
+      </div>
     </section>
   );
 }

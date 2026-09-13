@@ -44,7 +44,7 @@ def prepare_assets(analytical_dir: Path, site_audit: Path, output: Path) -> dict
             "unit": spec["unit"],
             "selectionStatus": spec["selection"],
         }
-        for parameter_id, spec in sorted(PARAMETER_SPECS.items())
+        for parameter_id, spec in PARAMETER_SPECS.items()
         if parameter_id not in {"water_temperature"}
     ]
     observations = []

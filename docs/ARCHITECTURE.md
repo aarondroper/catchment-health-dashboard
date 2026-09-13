@@ -37,13 +37,13 @@ The browser should not query remote environmental APIs for routine interactions.
 - `catchment_dashboard/ecan_hilltop.py`, `catchment_dashboard/ecan_geometry.py`, and `tools/acquire_observations.py` provide bounded, count-checked ECan/Hilltop acquisition, ECan major-catchment membership, quality summaries, successful-response manifests, and optional full source-preserving profile output.
 - `catchment_dashboard/analytics.py` and `tools/build_analytical_assets.py` implement versioned normalization, quality/unit/censoring/duplicate dispositions, coverage diagnostics, conservative summaries/trends, and ignored application-ready JSON assets.
 - `config/study_area.json` records the owner-approved Ashburton–Hakatere parameter and time scope and the verified ECan `Ashburton River` major-catchment boundary.
-- `web/` contains a Vite/React/TypeScript dashboard shell, a MapLibre-ready map boundary, coordinated parameter/window/station state, typed inline-SVG and tabular analytical views, and a local ignored application-asset loader. The loader reads `web/public/data/ashburton/dashboard.json` when the developer has prepared it and falls back to a checked-in synthetic fixture with an explicit warning. `web/package-lock.json` provides a reproducible frontend install.
+- `web/` contains a Vite/React/TypeScript dashboard shell, a coordinate-based local station map, coordinated parameter/window/station state, typed inline-SVG and tabular analytical views, responsive/accessibility styling, and a local ignored application-asset loader. The loader reads `web/public/data/ashburton/dashboard.json` when the developer has prepared it and falls back to a checked-in synthetic fixture with an explicit warning. `web/package-lock.json` and the Playwright configuration provide reproducible frontend/browser verification.
 
 ### Not yet evidenced
 
 - Publicly redistributable production assets, licensed source snapshots, complete catchment observation coverage, and CI.
 - A runtime MapLibre map with verified geometry/tiles; the current MapLibre dependency is a prepared boundary only.
-- Frontend interaction tests, configured lint/format tooling, deployment configuration, or live deployment.
+- Configured lint/format tooling, deployment configuration, or live deployment.
 
 Do not infer these components from the intended design.
 
@@ -55,8 +55,8 @@ Do not infer these components from the intended design.
 | Columnar data | PyArrow/Parquet where beneficial | Intended preference; validate against browser delivery strategy |
 | Local analytical query | DuckDB | Optional development decision based on data volume and transformations |
 | Frontend | React + TypeScript + Vite | Coordinated local dashboard views and ignored application asset loading implemented; public observation delivery unresolved |
-| Mapping | MapLibre GL JS boundary in `web/src/map/maplibre.ts` | Dependency/type boundary existing; style, sources, geometry, and runtime initialization unresolved |
-| Charts | Typed inline SVG plus HTML table for the initial spike | Technical spike selected; production chart interactions remain unresolved |
+| Mapping | Coordinate-based local station schematic; MapLibre boundary remains available in `web/src/map/maplibre.ts` | Local visual workflow implemented and browser-verified without remote tiles; licensed runtime geometry/tiles unresolved |
+| Charts | Typed inline SVG plus HTML table | Observed-history chart/table and coordinated filtering implemented; richer charting remains optional |
 | Runtime assets | JSON, GeoJSON, Parquet/Arrow-derived assets, or a justified combination | Ignored local JSON application asset implemented; public observation delivery unresolved |
 | Runtime database | None by default | PostGIS/backend requires demonstrated need and architecture review |
 | Hosting | Static/free or extremely low-cost service | Provider unresolved |
