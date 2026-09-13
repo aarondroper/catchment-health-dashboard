@@ -129,6 +129,16 @@ def _child_text(element: ET.Element, name: str) -> str | None:
     return None
 
 
+def _child_text_with_presence(element: ET.Element, name: str) -> tuple[str | None, bool]:
+    """Return normalized text plus whether the named child was supplied."""
+
+    for child in element:
+        if _local_name(child.tag) == name:
+            text = (child.text or "").strip()
+            return text or None, True
+    return None, False
+
+
 def _parse_xml(xml_bytes: bytes) -> ET.Element:
     try:
         return ET.fromstring(xml_bytes)
@@ -355,7 +365,9 @@ def parse_observations(
             continue
         raw_value = _child_text(row, "Value")
         value, censoring, result_text = _parse_value(raw_value)
-        quality_flag = _child_text(row, "QualityCode")
+        quality_flag, quality_present = _child_text_with_presence(row, "QualityCode")
+        quality_representation = "blank_field" if quality_present and quality_flag is None else "nonempty_code" if quality_present else "missing_field"
+        counts[f"quality_representation_{quality_representation}"] += 1
         observed_key = f"{site_id}/{measurement_name}/{observed_at}"
         if observed_key in observed_keys:
             counts["duplicates"] += 1
@@ -386,6 +398,7 @@ def parse_observations(
                     source_version=source.source_version,
                     license=source.license,
                 ),
+                quality_representation=quality_representation,
             )
         )
     if not records and not counts["rejected_missing_timestamp"]:
@@ -482,6 +495,7 @@ def build_source_ref(*, endpoint: str, source_record_id: str, retrieved_at: str)
 def summarize_observations(observations: Iterable[ObservationRecord], parse_counts: Counter[str]) -> dict[str, Any]:
     rows = list(observations)
     quality_flags = Counter(row.quality_flag for row in rows if row.quality_flag is not None)
+    quality_representations = Counter(row.quality_representation or ("nonempty_code" if row.quality_flag else "legacy_unspecified") for row in rows)
     by_parameter: dict[str, dict[str, Any]] = {}
     by_site_parameter: dict[tuple[str, str], dict[str, Any]] = {}
     for parameter_id in sorted({row.parameter_id for row in rows}):
@@ -542,6 +556,7 @@ def summarize_observations(observations: Iterable[ObservationRecord], parse_coun
         "site_parameter_profiles": site_parameter_profiles,
         "parse_counts": dict(parse_counts),
         "quality_flag_counts": dict(sorted(quality_flags.items())),
+        "quality_representation_counts": dict(sorted(quality_representations.items())),
     }
 
 

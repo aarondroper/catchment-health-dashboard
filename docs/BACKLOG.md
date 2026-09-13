@@ -75,7 +75,7 @@ The repository now contains a Python package and versioned contracts, a syntheti
 
 ## Priority 2 — Acquisition, Normalization, and Data Quality
 
-**Status:** Substantially complete for the approved bounded profile; complete-catchment acquisition, source-term approval, and production publication remain open. Plans archived at `docs/plans/completed/2026-09-13-ashburton-observation-acquisition.md`, `docs/plans/completed/2026-09-13-ashburton-spatial-membership.md`, and the analytical implementation plan after milestone completion.
+**Status:** Complete for the approved bounded profile and refreshed quality-semantics review; complete-catchment acquisition, source-term approval, and production publication remain open. Plans are archived under `docs/plans/completed/`.
 
 ### Objective
 
@@ -106,11 +106,11 @@ Build a reliable pipeline from authoritative public sources to validated normali
 
 ### Bounded slice evidence
 
-The ECan/Hilltop adapter now performs a count-checked candidate station query, authoritative polygon membership, measurement metadata parsing, source-preserving observation parsing, deterministic site/parameter quality summaries, and successful-response manifests. The owner-approved eight-parameter 2007–2024 polygon-based run retrieved 10,426 observations at 15 data-producing sites from 19 in-bound catalog sites. Normalization and asset generation produced explicit quality/unit/censoring/duplicate dispositions, 324 coverage records, 1,830 summaries, and 324 indeterminate trend records. Numeric, left-censored, quality-coded, duplicate, missing, malformed, geometry, no-data, and incomplete-response behavior is covered by 29 Python tests. Source-term approval, public asset publication, and censor-aware trend implementation remain open.
+The ECan/Hilltop adapter now performs a count-checked candidate station query, authoritative polygon membership, measurement metadata parsing, source-preserving observation parsing, deterministic site/parameter quality summaries, and successful-response manifests. The owner-approved eight-parameter 2007–2024 polygon-based run retrieved 10,426 observations at 15 data-producing sites from 19 in-bound catalog sites. Normalization and asset generation produced explicit raw quality-representation, quality/unit/censoring/duplicate dispositions, 324 coverage records, 1,830 summaries, and 324 trend records. The focused quality-semantics review verified 9,434 missing quality elements, 992 nonempty quality codes, strict eligibility of 846 rows, and complete trend indeterminacy reasons. Thirty-three Python tests plus fixture, compilation, acquisition, deterministic-build, and viability-report checks pass. Source-term approval, public asset publication, and censor-aware trend implementation remain open.
 
 ## Priority 3 — Analytical Methodology and Derived Assets
 
-**Status:** In progress; conservative first analytical assets implemented for the bounded approved profile
+**Status:** Complete for the approved bounded profile; quality-semantics review retained the conservative production policy and documented the diagnostic unflagged alternative. Local React integration is next.
 
 ### Objective
 
@@ -139,7 +139,18 @@ Adopt defensible summaries and trends, then generate compact application-ready a
 - Repeated builds from identical inputs produce equivalent outputs apart from explicitly volatile metadata.
 - Asset sizes and load strategy are measured and compatible with the static architecture.
 
+### Exit evidence
+
+The completed plan `docs/plans/completed/2026-09-13-analytical-viability-review.md`
+records the source evidence, quality-field contract, alternative-policy audit,
+trend-reason taxonomy, independent Theil–Sen fixture, and regenerated ignored
+assets. Strict assets are scientifically usable for observed-history and
+coverage/distribution views but do not support a general trend view; the UI
+must label unsupported summaries/trends rather than relax the rules.
+
 ## Priority 4 — Core Coordinated Dashboard
+
+**Status:** In progress; local fixture-backed analytical contract integration is implemented and verified. Production asset loading, runtime map, real-data visual review, and component tests remain.
 
 ### Objective
 

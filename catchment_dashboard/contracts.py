@@ -71,6 +71,7 @@ class ObservationRecord:
     quality_flag: str | None
     censoring: str | None
     source: SourceRef
+    quality_representation: str | None = None
 
 
 @dataclass(frozen=True)
@@ -96,6 +97,7 @@ class NormalizedObservationRecord:
     censoring: str | None
     censor_limit: float | None
     quality_flag: str | None
+    quality_representation: str
     quality_disposition: str
     value_kind: str
     duplicate_group_id: str
@@ -221,6 +223,7 @@ def validate_observation(observation: ObservationRecord) -> None:
         "canonical_unit",
         "quality_flag",
         "censoring",
+        "quality_representation",
     ):
         _optional_text(getattr(observation, name), f"observation.{name}")
     validate_source(observation.source)
@@ -235,6 +238,7 @@ def validate_normalized_observation(observation: NormalizedObservationRecord) ->
         "station_id",
         "parameter_id",
         "parameter_name",
+        "quality_representation",
         "quality_disposition",
         "value_kind",
         "duplicate_group_id",

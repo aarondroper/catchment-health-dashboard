@@ -1,6 +1,6 @@
 # Analytical methodology
 
-**Method version:** `ashburton-analytical-v1`
+**Method version:** `ashburton-analytical-v2-quality-semantics`
 **Scope:** Ashburton–Hakatere, selected ECan/Hilltop monitoring sites
 **Status:** Implemented and locally validated; release remains gated by source terms and complete-catchment coverage review
 
@@ -30,11 +30,13 @@ eligible counts by station, parameter, and window.
 The acquisition boundary is Environment Canterbury's public Hilltop water
 quality service. The provider's [water-quality data page](https://www.ecan.govt.nz/data/water-quality-data)
 describes public result access and notes that results may lag sampling while
-quality checks are completed. The [NEMS quality-code schema](https://www.lawa.org.nz/downloads/technical-reports/quality-code-schema.pdf)
+quality checks are completed. The [NEMS quality-code schema](https://www.lawa.org.nz/media/16580/nems-quality-code-schema-2013-06-1-.pdf)
 defines the cross-source meanings used here: 100 missing, 200 no quality/non-
 verified, 300 synthetic, 400 poor quality, 500 fair quality, and 600 good
-quality. The [LAWA state methodology](https://www.lawa.org.nz/downloads/technical-reports/state-of-the-environment-water-quality-technical-report.pdf)
-also documents removal of missing/compromised records for its own reporting.
+quality. The [LAWA/Hilltop quality-code implementation example](https://www.lawa.org.nz/media/18255/implementing-qualcodes-tdc-for-lawa.pdf)
+defines the same parent codes and explicitly reports data without a quality
+code as a distinct category. It also states that imported telemetered data may
+remain QC200 until checked, processed, and archived.
 
 The project does not claim that NEMS is a complete ECan child-code map. In the
 inspected public ECan/Hilltop documentation, an ECan-specific mapping for all
@@ -43,8 +45,15 @@ possible child codes was not found. Therefore:
 - 500 and 600 are retained as eligible quality dispositions;
 - 300, 400, and the documented compromised child codes 403, 404, and 450 are
   retained in the normalized record but excluded from primary eligibility;
-- 200, unknown codes, and absent quality codes are retained with
-  `unresolved_quality` and excluded from primary eligibility;
+-  200 and unfamiliar nonempty codes are retained with `unresolved_quality`
+  and excluded from primary eligibility;
+-  a missing `<QualityCode>` child is retained as `missing_field` and a
+  supplied empty child as `blank_field`; both normalize to
+  `missing_quality_field` under the strict production policy and are excluded
+  from primary eligibility;
+-  the source documentation does not establish that omitted quality means
+  good, accepted, or unqualified data. A separate `unflagged_usable` scenario
+  is implemented for diagnostic comparison only, not production publication;
 - no source row is deleted by normalization.
 
 This conservative treatment means a record can be present in raw and
@@ -102,6 +111,31 @@ parameters and sparse quality-coded eligible subsets, so the generated trend
 assets are presently indeterminate. This is an evidence result, not a defect
 to be hidden by relaxing the rules.
 
+## Quality-semantics viability review
+
+The raw parser now distinguishes missing, blank, and nonempty quality-field
+representations and records parser failures separately. In the refreshed
+10,426-row profile there were 9,434 `missing_field` rows and 992
+`nonempty_code` rows; no blank quality elements, unfamiliar nonempty codes, or
+quality parse failures were observed. The nonempty codes were 774 `600`, 72
+`500`, and 146 `400`. The ignored report
+`reports/generated/ashburton-viability-review.json` contains frequency tables
+by representation, disposition, parameter, site, year, and inclusion status,
+plus scenario-level coverage and summary comparisons.
+
+The strict build has 846 eligible observations, 208 usable summaries across
+annual and window records, and no determinate trends. The diagnostic
+unflagged build has 10,280 eligible observations, 1,296 usable summaries, 66
+structurally trend-eligible primary series, and 17 determinate primary trends.
+It changes 154 shared reported medians; no shared reported slope comparison
+is available because strict trends are all indeterminate. Core primary summary
+coverage under strict rules is useful but uneven: dissolved oxygen reports at
+9 sites, total nitrogen at 8, E. coli/turbidity at 6 each, nitrate and DRP at
+6 each, with DRP reporting only one usable primary summary. The dashboard
+should therefore emphasize observed history, distributions, seasonal/coverage
+context, and explicitly unavailable results; a trend view should show only
+supported results and indeterminate reasons.
+
 ## Reproducible build
 
 The local, ignored build sequence is:
@@ -122,6 +156,9 @@ python3 tools/acquire_observations.py --max-sites 19 \
 python3 tools/build_analytical_assets.py \
   --profile reports/generated/ashburton-analytical-profile-2007-2024-all-sites.json \
   --output-dir reports/generated/ashburton-analytical-assets-all-sites
+python3 tools/audit_analytical_viability.py \
+  --profile reports/generated/ashburton-analytical-profile-2007-2024-all-sites.json \
+  --output reports/generated/ashburton-viability-review.json
 ```
 
 The generated asset directory contains normalized observations, coverage,

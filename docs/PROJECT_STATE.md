@@ -1,13 +1,13 @@
 # Project State
 
-**As of:** 2026-09-13  
-**Authoritative status:** Ashburton–Hakatere analytical normalization and first asset build implemented for the bounded approved profile; complete-catchment coverage and source-term release gate remain open
+**As of:** 2026-09-13
+**Authoritative status:** Ashburton–Hakatere quality-semantics viability review, deterministic analytical asset regeneration, and local React contract integration verified; production asset loading, source-term release, and complete observation coverage remain open
 
 This file is the factual snapshot of repository capability. It is not a progress diary. Update it whenever implementation, verification, blockers, or the development frontier materially changes.
 
 ## Evidence Basis
 
-This state was reconciled against the current checkout, live public-source audit, bounded ECan/Hilltop acquisition and geometry checks, the approved 2007–2024 local analytical build, and repository quality gates on 2026-09-13. Generated source profiles and analytical assets remain ignored local outputs; no raw or derived production dataset is committed or deployed.
+This state was reconciled against the current checkout, live public-source audit, refreshed ECan/Hilltop acquisition and geometry checks, the approved 2007–2024 local analytical build, the quality-semantics viability report, and repository quality gates on 2026-09-13. Generated source profiles and analytical assets remain ignored local outputs; no raw or derived production dataset is committed or deployed.
 
 Accordingly, statements about the intended product remain planned unless implementation and validation evidence is listed below.
 
@@ -27,7 +27,7 @@ Accordingly, statements about the intended product remain planned unless impleme
 - The bounded profile now emits deterministic site/parameter quality summaries; valid Hilltop no-data responses remain explicit rather than being converted to zeros or treated as fatal transport errors.
 - Each successful bounded acquisition response now has a SHA-256/byte-count source manifest entry; raw payload caching remains intentionally unimplemented pending licensing and freshness decisions.
 - The owner-approved analytical scope is configured: six core parameters, Total Phosphorus and Water Temperature as secondary, pH excluded, 2007–2024 history, 2015–2024 primary window, and 2020–2024 recent window.
-- `NormalizedObservationRecord` contract version `1.0.0` and `ashburton-analytical-v1` builders preserve original values/units/result text/timestamps/quality/censoring/provenance while adding explicit unit, quality, value, and duplicate dispositions.
+- `NormalizedObservationRecord` contract version `1.0.0` and `ashburton-analytical-v2-quality-semantics` builders preserve original values/units/result text/timestamps/quality-field representation/censoring/provenance while adding explicit unit, quality, value, and duplicate dispositions.
 - The approved eight-parameter long-window run retrieved 10,426 observations at 15 data-producing sites from all 19 coordinate-bearing Hilltop sites inside the verified polygon. Local assets contain 324 coverage records, 1,830 summaries, 324 trend records, and a manifest with checksums; generated outputs are ignored.
 
 Verification here means these decisions and requirements are present in the supplied context and governance documents—not that product functionality exists.
@@ -50,13 +50,15 @@ Verification here means these decisions and requirements are present in the supp
 - `.gitignore` separates Python caches, environments, raw/cache data, and generated reports from tracked source.
 - Python package metadata and source-independent version `0.1.0` contracts exist for source, station, parameter, observation, aggregate, trend, and asset-manifest records.
 - A synthetic fixture validates source provenance, normalized observation fields, censored/null preservation, referential integrity, and manifest counts.
-- A Vite/React/TypeScript frontend shell exists with Ashburton–Hakatere copy, disabled pending controls, MapLibre-ready options boundary, and accessible inline-SVG/table chart spike. `web/package-lock.json` is checked in.
-- Quality gates pass: twenty-nine Python `unittest` tests, fixture validation, Python compilation, frontend strict typecheck, frontend production build, all-site source acquisition, site-membership audit, analytical asset generation, source-manifest integrity, and deterministic asset rebuild checks on 2026-09-13.
+- A Vite/React/TypeScript frontend now has typed analytical asset contracts, fixture-backed parameter/window/station controls, explicit summary/trend indeterminate states, and an accessible inline-SVG/table series view. Production observation assets remain outside the bundle. `web/package-lock.json` is checked in.
+- Quality gates pass: thirty-three Python `unittest` tests, fixture validation, Python compilation, frontend strict typecheck, frontend production build, all-site source acquisition, site-membership audit, analytical asset generation, viability audit, source-manifest integrity, and deterministic asset rebuild checks on 2026-09-13.
 - A bounded live Hilltop profile verified 12 real observations for `SQ20104`/Dissolved Reactive Phosphorus; no production dataset is committed.
 - The normal bounded three-parameter profile joined 10 in-bound sites and retrieved 243 observations; 9 sites had data, 194 observations were numeric, and 49 were left-censored. Two Canterbury Bight marine name-screened records were excluded by the polygon.
 - The earlier neutral nine-parameter candidate profiles retrieved 644 observations for 2024 and 8,644 observations for 2007–2024; these were the evidence used for the owner-approved eight-parameter scope. pH covered only 5 sites, ended in 2013, and had no reported unit.
-- The selected long-window run contained 9,478 numeric, 933 left-censored, and 15 right-censored results. Quality disposition counts were 774 retained good, 72 retained fair, 146 documented poor/compromised, and 9,434 unresolved/absent quality; unresolved rows remain in normalized assets but are not primary-eligible.
-- All 324 selected-site trend rows are currently indeterminate under the adopted minimums and censoring rule; no false directional claim is emitted.
+- The selected long-window run contained 9,478 numeric, 933 left-censored, and 15 right-censored results. Raw quality representations were 9,434 `missing_field` and 992 `nonempty_code`; nonempty values were 774 `600`, 72 `500`, and 146 `400`, with no blank elements or quality parser failures.
+- The strict production policy now distinguishes raw quality representation from normalized disposition: 9,434 `missing_quality_field`, 146 excluded poor, 72 retained fair, and 774 retained good. It yields 846 primary-eligible observations, 208 usable summaries, and all 324 trends indeterminate.
+- The diagnostic `unflagged_usable` policy yields 10,280 eligible observations, 1,296 usable summaries, 66 primary structurally eligible trend series, and 17 determinate primary trends. It is not adopted because source documentation does not establish omitted quality as unqualified.
+- Strict trend indeterminacy is fully categorized: 159 insufficient eligible observations, 84 insufficient temporal span, 81 eligible-censoring suppressions, zero interval-coverage suppressions, and zero duplicate/conflict suppressions. The current method does not silently drop censored values.
 
 ## Not Implemented or Not Evidenced
 
@@ -65,7 +67,7 @@ Verification here means these decisions and requirements are present in the supp
 - Full raw snapshot/cache and public production asset publication. The current response manifest records identity only; raw response bodies remain local/ephemeral.
 - Censor-aware ROS summaries and censor-aware Mann–Kendall/Akritas–Theil–Sen trends. The current documented fallback suppresses affected statistics and emits indeterminate trends.
 - Prepared station geometry and flow assets for the production application; the current analytical assets are observation/coverage/summary/trend JSON only.
-- Production React/TypeScript application behavior, runtime MapLibre map, coordinated state, table/export beyond the fixture chart, and real data assets.
+- Production analytical-asset loading, runtime MapLibre map, full real-data coordinated view, table/export beyond the fixture chart, and public observation assets.
 - Frontend component tests, Python formatter/linter/static checks, CI, and observation-level source fixtures.
 - Visual design implementation, responsive validation, accessibility validation, or performance measurements.
 - Deployment configuration, hosting selection, deployed application, monitoring, or live verification.
@@ -88,17 +90,17 @@ The foundation preview and bounded acquisition profile are implemented, but this
 
 ## Current Test and Validation State
 
-- **Automated tests:** twenty-one focused `unittest` tests pass with `python3 -m unittest discover -s tests -v`.
+- **Automated tests:** thirty-three focused `unittest` tests pass with `python3 -m unittest discover -s tests -v`.
 - **Linting/formatting:** no configuration or successful project run evidenced.
 - **Python static/type checks:** no Python project or configuration evidenced.
 - **Frontend type check/build:** `cd web && npm run typecheck` and `npm run build` pass; no runtime map or production asset flow is evidenced.
 - **Data validation:** source inventory/catalog validation is evidenced by the live audit; parser and contract validation is evidenced by fixtures plus a bounded live Hilltop profile; complete production observation coverage remains unverified.
-- **Scientific validation:** the conservative numeric-only summary and uncensored Theil–Sen/Kendall fallback are unit-tested against independent fixtures; censor-aware ROS/Mann–Kendall methods remain unimplemented and should not be implied.
+- **Scientific validation:** the conservative numeric-only summary and uncensored Theil–Sen/Kendall fallback are unit-tested against an independently calculated pairwise Theil–Sen fixture; the viability report audits all trend reasons. Censor-aware ROS/Mann–Kendall methods remain unimplemented and should not be implied.
 - **Visual/accessibility/responsive validation:** no UI exists to validate.
 - **Deployment verification:** no deployment evidenced.
 - **Repository baseline:** file inventory, required-document checks, audit tests, live audit, contract validation, Python compilation, frontend typecheck, and frontend build completed; formatter/linter, CI, production-data, visual, accessibility, and deployment gates remain unavailable or not yet applicable.
 - **Live audit:** `python3 tools/feasibility_audit.py --output docs/feasibility/audit-report.json` completed on 2026-09-13 and retrieved 6,266/6,266 surface features, 185/185 flow features, 552 Hilltop sites, and 16,425 Hilltop measurement entries; 45 coordinate-linked candidate sites were probed for units and sampling metadata.
-- **Git state:** valid repository on `main`; the latest completed commit is `Add source response manifests`; the working tree was clean at the last inspection.
+- **Git state:** valid repository on `main`; the latest completed commit is `Implement Ashburton analytical asset pipeline`; this review has an active uncommitted plan and implementation changes pending final review.
 
 ## Current Deployment State
 
@@ -106,7 +108,7 @@ No hosting provider, deployment configuration, production URL, or successful dep
 
 ## Major Blockers and Decision Boundaries
 
-The owner has selected Ashburton–Hakatere and approved the parameter/time scope. The bounded acquisition, ECan polygon membership, normalization, coverage diagnostics, conservative summaries, trends, and local asset manifest are implemented. Complete catchment observation coverage, exact source-term approval, and production publication remain open.
+The owner has selected Ashburton–Hakatere and approved the parameter/time scope. The bounded acquisition, ECan polygon membership, normalization, quality-semantics audit, coverage diagnostics, conservative summaries, trends, local asset manifest, and fixture-backed React contract integration are implemented. Complete catchment observation coverage, exact source-term approval, production asset loading, and public publication remain open.
 
 Implementation beyond feasibility is gated by:
 
@@ -119,4 +121,4 @@ Credentials or private access should not be assumed; sources must remain public/
 
 ## Logical Current Development Frontier
 
-Priority 0 is complete as a feasibility screen and Priority 1 is complete as a tested foundation. The approved bounded Priority 2/3 analytical implementation is complete and documented. The next frontier is **complete-catchment observation coverage and source-term/release-gate resolution**, followed by application asset integration; no raw or generated dataset should be committed before the licensing gate is resolved.
+Priority 0 is complete as a feasibility screen, Priority 1 is complete as a tested foundation, the approved bounded Priority 2/3 analytical implementation plus quality-semantics review is complete, and the first local React contract integration is verified. The next frontier is **production-shaped dashboard views and real asset loading**, with complete-catchment coverage, source-term/release-gate resolution, and public observation publication still explicitly separate gates.

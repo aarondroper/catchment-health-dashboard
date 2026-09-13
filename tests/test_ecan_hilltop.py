@@ -73,6 +73,29 @@ class EcanHilltopTests(unittest.TestCase):
         self.assertEqual(profile["quality_flag_count"], 3)
         self.assertEqual(profile["censoring_counts"], {"left_censored": 2, "missing_value": 1})
 
+    def test_quality_representation_distinguishes_missing_blank_and_nonempty(self):
+        source = build_source_ref(
+            endpoint="http://example.invalid/get-data",
+            source_record_id="SQ20104/Nitrate-N Nitrite-N",
+            retrieved_at="2026-09-13T00:00:00+00:00",
+        )
+        payload = b"""<Hilltop><Measurement><Data>
+          <E><T>2024-01-01T00:00:00</T><Value>1</Value></E>
+          <E><T>2024-02-01T00:00:00</T><Value>2</Value><QualityCode /></E>
+          <E><T>2024-03-01T00:00:00</T><Value>3</Value><QualityCode>600</QualityCode></E>
+        </Data></Measurement></Hilltop>"""
+        rows, counts = parse_observations(
+            payload,
+            site_id="SQ20104",
+            measurement_name="Nitrate-N Nitrite-N",
+            original_unit="mg/L",
+            source=source,
+        )
+        self.assertEqual([row.quality_representation for row in rows], ["missing_field", "blank_field", "nonempty_code"])
+        self.assertEqual(counts["quality_representation_missing_field"], 1)
+        self.assertEqual(counts["quality_representation_blank_field"], 1)
+        self.assertEqual(counts["quality_representation_nonempty_code"], 1)
+
     def test_unexpected_observation_error_response_fails(self):
         source = build_source_ref(
             endpoint="http://example.invalid/get-data",

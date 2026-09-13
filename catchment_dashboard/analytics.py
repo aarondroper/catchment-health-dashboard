@@ -28,7 +28,7 @@ from .contracts import (
 )
 
 
-ANALYTICAL_VERSION = "ashburton-analytical-v1"
+ANALYTICAL_VERSION = "ashburton-analytical-v2-quality-semantics"
 MIN_SUMMARY_OBSERVATIONS = 3
 MIN_TREND_OBSERVATIONS = 8
 MIN_TREND_YEARS = 3
@@ -67,6 +67,11 @@ QUALITY_DISPOSITION: dict[str, str] = {
     "450": "excluded_poor_quality",
     "500": "retained_fair_quality",
     "600": "retained_good_quality",
+}
+
+QUALITY_POLICIES: dict[str, str] = {
+    "strict": "Only documented fair/good quality records are primary-eligible; missing, blank, and unfamiliar quality remain unresolved.",
+    "unflagged_usable": "Missing or blank quality representations are primary-eligible as unflagged_usable; documented poor, synthetic, missing, and unfamiliar codes remain excluded or unresolved.",
 }
 
 
@@ -115,10 +120,17 @@ def _censor_limit(result_text: str | None, censoring: str | None) -> float | Non
     return value if math.isfinite(value) else None
 
 
-def _quality_disposition(flag: str | None) -> str:
-    if flag is None or not flag.strip():
-        return "unresolved_quality"
-    return QUALITY_DISPOSITION.get(flag.strip(), "unresolved_quality")
+def _quality_disposition(row: ObservationRecord, quality_policy: str) -> str:
+    if quality_policy not in QUALITY_POLICIES:
+        raise ValueError(f"unsupported quality policy: {quality_policy}")
+    representation = row.quality_representation
+    if representation == "missing_field" or (representation is None and row.quality_flag is None):
+        return "unflagged_usable" if quality_policy == "unflagged_usable" else "missing_quality_field"
+    if representation == "blank_field":
+        return "unflagged_usable" if quality_policy == "unflagged_usable" else "blank_quality_field"
+    if row.quality_flag is None or not row.quality_flag.strip():
+        return "unflagged_usable" if quality_policy == "unflagged_usable" else "blank_quality_field"
+    return QUALITY_DISPOSITION.get(row.quality_flag.strip(), "unresolved_quality")
 
 
 def _value_kind(row: ObservationRecord) -> str:
@@ -136,7 +148,11 @@ def _duplicate_group(row: ObservationRecord) -> str:
     return hashlib.sha256(key.encode("utf-8")).hexdigest()[:20]
 
 
-def normalize_observations(rows: Iterable[ObservationRecord]) -> tuple[list[NormalizedObservationRecord], dict[str, int]]:
+def normalize_observations(
+    rows: Iterable[ObservationRecord],
+    *,
+    quality_policy: str = "strict",
+) -> tuple[list[NormalizedObservationRecord], dict[str, int]]:
     """Normalize rows while preserving every source record and its disposition."""
 
     source_rows = list(rows)
@@ -151,7 +167,7 @@ def normalize_observations(rows: Iterable[ObservationRecord]) -> tuple[list[Norm
         spec = PARAMETER_SPECS.get(row.parameter_id)
         parameter_name = spec["name"] if spec else row.parameter_id
         canonical_unit, supported_unit = _canonicalize_unit(row.parameter_id, row.original_unit)
-        quality = _quality_disposition(row.quality_flag)
+        quality = _quality_disposition(row, quality_policy)
         value_kind = _value_kind(row)
         limit = _censor_limit(row.result_text, row.censoring)
         canonical_value = row.value if supported_unit else None
@@ -159,11 +175,11 @@ def normalize_observations(rows: Iterable[ObservationRecord]) -> tuple[list[Norm
             quality = "unresolved_unit"
         if value_kind == "censored" and limit is None:
             quality = "unresolved_censoring"
-        eligible = quality in {"retained_fair_quality", "retained_good_quality"}
+        eligible = quality in {"retained_fair_quality", "retained_good_quality", "unflagged_usable"}
         eligible = eligible and supported_unit and value_kind in {"observed_numeric", "censored"}
         group = grouped[(row.station_id, row.parameter_id, row.observed_at)]
         signatures = {
-            (item.value, item.result_text, item.original_unit, item.quality_flag, item.censoring)
+            (item.value, item.result_text, item.original_unit, item.quality_flag, item.quality_representation, item.censoring)
             for item in group
         }
         conflict = len(signatures) > 1
@@ -189,6 +205,7 @@ def normalize_observations(rows: Iterable[ObservationRecord]) -> tuple[list[Norm
                 censoring=row.censoring,
                 censor_limit=limit,
                 quality_flag=row.quality_flag,
+                quality_representation=row.quality_representation or ("nonempty_code" if row.quality_flag else "legacy_unspecified"),
                 quality_disposition=quality,
                 value_kind=value_kind,
                 duplicate_group_id=_duplicate_group(row),
@@ -353,6 +370,9 @@ def _trend_row(station_id: str, parameter_id: str, period: str, start: str, end:
     estimate = uncertainty = p_value = None
     significance = None
     direction = "indeterminate"
+    observed_dates = sorted(_date(row.observed_at) for row in numeric)
+    interval_days = [(right - left).days for left, right in zip(observed_dates, observed_dates[1:])]
+    duplicate_counts = Counter(row.duplicate_disposition for row in rows)
     if has_censoring:
         reason = "censored_values_present_censor_aware_trend_not_implemented"
     elif len(numeric) < MIN_TREND_OBSERVATIONS:
@@ -387,7 +407,15 @@ def _trend_row(station_id: str, parameter_id: str, period: str, start: str, end:
         "indeterminate_reason": reason,
         "eligible_numeric_count": len(numeric),
         "eligible_censored_count": sum(row.value_kind == "censored" for row in eligible),
+        "excluded_censored_count": sum(row.value_kind == "censored" and not row.analysis_eligible for row in rows),
+        "raw_observation_count": len(rows),
+        "duplicate_conflict_count": duplicate_counts["conflict"],
+        "suppressed_exact_duplicate_count": duplicate_counts["suppressed_exact_duplicate"],
         "calendar_year_count": years,
+        "calendar_month_count": len({(value.year, value.month) for value in observed_dates}),
+        "sampling_interval_median_days": median(interval_days) if interval_days else None,
+        "sampling_interval_max_days": max(interval_days) if interval_days else None,
+        "sampling_interval_assessment": "not_a_current_suppression_rule",
         "method": "uncensored_theil_sen_slope_with_kendall_screen_v1",
         "minimum_observations": MIN_TREND_OBSERVATIONS,
         "minimum_calendar_years": MIN_TREND_YEARS,

@@ -4,7 +4,7 @@
 
 - candidate station retrieval from the ECan ArcGIS surface-water layer with a reported-count check;
 - Hilltop site-list and per-site measurement metadata parsing;
-- Hilltop `GetData` observation parsing with source timestamps, original units, numeric values, censored result text, quality codes, and explicit missing/non-numeric states;
+- Hilltop `GetData` observation parsing with source timestamps, original units, numeric values, censored result text, quality codes, distinct missing/blank/nonempty quality-field representations, and explicit missing/non-numeric states;
 - deterministic profile summaries by parameter and site/parameter, including observation counts, numeric/null counts, units, censoring categories, and quality-code presence;
 - a response manifest containing the exact successful request endpoints,
   retrieval timestamps, byte counts, and SHA-256 digests;
@@ -148,15 +148,17 @@ eight-parameter run, which intentionally excludes pH.
 
 ## Approved analytical acquisition and asset build
 
-The approved eight-parameter `2007-01-01` through `2024-12-31` run completed
-on 2026-09-13 against all 19 coordinate-bearing sites inside the verified
-polygon. Fifteen sites returned data, yielding 10,426 source observations
-across the six core and two secondary parameters. The source summary contained
-9,478 numeric, 933 left-censored, and 15 right-censored results. Quality-code
-counts were 774 code `600`, 72 code `500`, and 146 code `400`; 9,434 rows had
-no recognized quality disposition and remain retained but unresolved in
-normalized assets. The code `400` rows are retained and excluded from primary
-analytical eligibility under the documented compromised-quality rule.
+The approved eight-parameter `2007-01-01` through `2024-12-31` run was
+refreshed on 2026-09-13 against all 19 coordinate-bearing sites inside the
+verified polygon. Fifteen sites returned data, yielding 10,426 source
+observations across the six core and two secondary parameters. The source
+summary contained 9,478 numeric, 933 left-censored, and 15 right-censored
+results. Quality-code counts were 774 code `600`, 72 code `500`, and 146 code
+`400`; the parser also recorded 9,434 rows with a missing `<QualityCode>` child
+and no blank quality elements. The code `400` rows are retained and excluded
+from primary analytical eligibility under the documented compromised-quality
+rule. Missing quality is kept as `missing_field` and remains unresolved under
+the strict production policy; it is not treated as good.
 
 `python3 tools/build_analytical_assets.py` generated ignored local assets with:
 
@@ -167,10 +169,17 @@ analytical eligibility under the documented compromised-quality rule.
 - 846 primary-eligible rows after documented quality, unit, value, and
   duplicate rules.
 
-All 324 generated trend rows are currently `indeterminate`: 81 contain
-censored eligible values, 159 do not meet the eligible-observation minimum,
-and 84 do not span three eligible calendar years. The generated manifest and
-coverage asset are the evidence source for these counts. The source profile,
+All 324 generated trend rows are currently `indeterminate`: 81 are suppressed
+by the zero-tolerance eligible-censoring rule, 159 do not meet the eligible-
+observation minimum, and 84 do not span three eligible calendar years. No
+duplicate/conflict or sampling-interval suppression occurred. The separate
+viability report compares a diagnostic policy that treats missing/blank quality
+as `unflagged_usable`; it produces 10,280 eligible observations and 17
+determinate primary trends, but that policy is not adopted because omitted
+quality semantics are not documented for this ECan response.
+
+The generated manifest and coverage asset are the evidence source for these
+counts. The source profile,
 raw responses, and generated assets remain ignored pending dataset-specific
 source-terms confirmation and release review; the published ECan data
 agreement findings and attribution/freshness requirements are in

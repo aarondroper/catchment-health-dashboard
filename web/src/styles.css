@@ -19,7 +19,7 @@ h2 { font-size: 1.16rem; letter-spacing: -.015em; margin-bottom: 0; }
 .build-badge, .status-chip, .unit-label { align-items: center; background: #e3f3ef; border: 1px solid #b9ded4; border-radius: 999px; color: #17645f; display: inline-flex; font-size: .78rem; font-weight: 700; gap: 8px; padding: 8px 12px; white-space: nowrap; }
 .build-dot { background: #31a28e; border-radius: 50%; height: 8px; width: 8px; }
 .control-strip, .panel { background: #fff; border: 1px solid #dce6eb; border-radius: 18px; box-shadow: 0 12px 28px #102a430a; }
-.control-strip { align-items: end; display: grid; gap: 20px; grid-template-columns: minmax(250px, 1fr) 250px 250px; margin-bottom: 22px; padding: 22px; }
+.control-strip { align-items: end; display: grid; gap: 20px; grid-template-columns: minmax(220px, 1fr) repeat(3, minmax(170px, 220px)); margin-bottom: 22px; padding: 22px; }
 .control-strip label { color: #526777; display: grid; font-size: .76rem; font-weight: 750; gap: 7px; text-transform: uppercase; }
 select { background: #f4f7f9; border: 1px solid #d7e2e8; border-radius: 8px; color: #526777; padding: 10px; text-transform: none; }
 .dashboard-grid { display: grid; gap: 22px; grid-template-columns: 1.12fr .88fr; }
@@ -34,6 +34,7 @@ select { background: #f4f7f9; border: 1px solid #d7e2e8; border-radius: 8px; col
 .map-pin { background: #d7684c; border: 3px solid #fff; border-radius: 50% 50% 50% 0; box-shadow: 0 2px 4px #102a4340; height: 20px; left: 48%; position: absolute; top: 42%; transform: rotate(-45deg); width: 20px; }
 .map-note { background: #ffffffd9; border: 1px solid #ffffff; border-radius: 8px; bottom: 14px; color: #526777; font-size: .75rem; line-height: 1.4; margin: 0 14px; padding: 9px 11px; position: absolute; }
 .technical-note, .panel-intro { color: #718492; font-size: .75rem; line-height: 1.45; margin: 12px 0 0; }
+.empty-state { background: #fff8e7; border: 1px solid #f0d9a5; border-radius: 8px; color: #765b1f; font-size: .82rem; line-height: 1.45; padding: 10px 12px; }
 .series-chart { background: #f8fbfc; border-radius: 10px; display: block; margin: 4px 0 18px; width: 100%; }
 .chart-axis { stroke: #bfd0d8; stroke-width: 1; }.chart-line { fill: none; stroke: #267d79; stroke-width: 3; }.chart-point { fill: #d7684d; stroke: #fff; stroke-width: 2; }.chart-label { fill: #718492; font-size: 10px; }
 .observation-table { border-collapse: collapse; font-size: .78rem; width: 100%; }.observation-table caption { color: #526777; font-weight: 700; margin-bottom: 8px; text-align: left; }.observation-table th { color: #718492; font-size: .68rem; text-align: left; text-transform: uppercase; }.observation-table td, .observation-table th { border-bottom: 1px solid #e8eef1; padding: 9px 6px; }.observation-table td:last-child { color: #718492; }

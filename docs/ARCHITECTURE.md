@@ -94,9 +94,10 @@ Responsibilities:
 - preserve excluded or transformed-record counts and reasons;
 - stop or prominently mark outputs when source completeness cannot be established.
 
-The implemented `ashburton-analytical-v1` rules preserve original values and
-source fields, convert only equivalent nutrient units, retain unresolved rows
-with explicit dispositions, suppress censored summaries rather than
+The implemented `ashburton-analytical-v2-quality-semantics` rules preserve original values and
+source fields, convert only equivalent nutrient units, retain distinct
+missing/blank/nonempty quality representations with explicit dispositions, and
+suppress censored summaries rather than
 substitute values, and publish indeterminate trends when minimums or
 censor-aware methods are not met. See `docs/METHODOLOGY.md`.
 

@@ -24,7 +24,11 @@ export const fixtureAsset: FixtureAsset = {
       resultText: "0.42",
       originalUnit: "g/m3",
       qualityFlag: null,
+      qualityRepresentation: "missing_field",
+      qualityDisposition: "missing_quality_field",
       censoring: null,
+      valueKind: "observed_numeric",
+      analysisEligible: false,
     },
     {
       observationId: "obs-002",
@@ -35,7 +39,11 @@ export const fixtureAsset: FixtureAsset = {
       resultText: "<0.01",
       originalUnit: "g/m3",
       qualityFlag: "reported_censored_fixture",
+      qualityRepresentation: "nonempty_code",
+      qualityDisposition: "unresolved_quality",
       censoring: "left_censored",
+      valueKind: "censored",
+      analysisEligible: false,
     },
   ],
 };

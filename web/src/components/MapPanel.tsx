@@ -22,7 +22,7 @@ export function MapPanel() {
         <div className="map-label map-label-one">Ashburton</div>
         <div className="map-label map-label-two">Hakatere / Ashburton River</div>
         <div className="map-pin" aria-hidden="true" />
-        <p className="map-note">Catchment geometry and verified station membership will be loaded after the Priority 2 source build.</p>
+        <p className="map-note">Production geometry and station assets remain a separate release-gated input; this local preview makes no remote tile request.</p>
       </div>
       <p className="technical-note">Prepared view: center {center.join(", ")}, zoom {mapOptions.zoom}. No remote tiles are requested by this scaffold.</p>
     </section>

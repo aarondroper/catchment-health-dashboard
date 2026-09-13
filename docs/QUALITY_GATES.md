@@ -13,6 +13,7 @@ Current executable foundation gates are:
 - `python3 tools/acquire_observations.py` for the bounded live profile, when public endpoints are responsive
 - `python3 tools/audit_catchment_sites.py` for the polygon-based site/measurement coverage audit, when public endpoints are responsive
 - `python3 tools/build_analytical_assets.py --profile reports/generated/ashburton-analytical-profile-2007-2024-all-sites.json --output-dir reports/generated/ashburton-analytical-assets-all-sites` after an ignored full profile has been acquired with `--include-observations`
+- `python3 tools/audit_analytical_viability.py --profile reports/generated/ashburton-analytical-profile-2007-2024-all-sites.json --output reports/generated/ashburton-viability-review.json` for quality-field semantics, scenario comparison, coverage, and trend-reason diagnostics
 
 The frontend lockfile is `web/package-lock.json`; `node_modules/` and build output are ignored. The fixture is synthetic and does not validate production source completeness or analytical meaning. Live profile output is written under ignored `reports/generated/` because redistribution terms remain under review.
 
