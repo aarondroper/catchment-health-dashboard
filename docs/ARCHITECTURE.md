@@ -37,12 +37,12 @@ The browser should not query remote environmental APIs for routine interactions.
 - `catchment_dashboard/ecan_hilltop.py`, `catchment_dashboard/ecan_geometry.py`, and `tools/acquire_observations.py` provide bounded, count-checked ECan/Hilltop acquisition, ECan major-catchment membership, quality summaries, successful-response manifests, and optional full source-preserving profile output.
 - `catchment_dashboard/analytics.py` and `tools/build_analytical_assets.py` implement versioned normalization, quality/unit/censoring/duplicate dispositions, coverage diagnostics, conservative summaries/trends, and ignored application-ready JSON assets.
 - `config/study_area.json` records the owner-approved Ashburton–Hakatere parameter and time scope and the verified ECan `Ashburton River` major-catchment boundary.
-- `web/` contains a Vite/React/TypeScript dashboard shell, a coordinate-based local station map, coordinated parameter/window/station state, typed inline-SVG and tabular analytical views, responsive/accessibility styling, and a local ignored application-asset loader. The loader reads `web/public/data/ashburton/dashboard.json` when the developer has prepared it and falls back to a checked-in synthetic fixture with an explicit warning. `web/package-lock.json` and the Playwright configuration provide reproducible frontend/browser verification.
+- `web/` contains a Vite/React/TypeScript dashboard shell, a local MapLibre map with the audited ECan catchment polygon and station coordinates, coordinated parameter/window/station state, typed inline-SVG and tabular analytical views, UTF-8 filtered CSV export, responsive/accessibility styling, and a local ignored application-asset loader. The loader reads the versioned runtime shell and parameter partitions from `web/public/data/ashburton/` when the developer has prepared them and falls back to a checked-in synthetic fixture with an explicit warning. `web/package-lock.json` and the Playwright/Vitest configurations provide reproducible frontend verification.
 
 ### Not yet evidenced
 
 - Publicly redistributable production assets, licensed source snapshots, complete catchment observation coverage, and CI.
-- A runtime MapLibre map with verified geometry/tiles; the current MapLibre dependency is a prepared boundary only.
+- A licensed third-party basemap or remote tiles; the local MapLibre style intentionally uses the verified boundary and station layers only.
 - Configured lint/format tooling, deployment configuration, or live deployment.
 
 Do not infer these components from the intended design.
@@ -55,9 +55,9 @@ Do not infer these components from the intended design.
 | Columnar data | PyArrow/Parquet where beneficial | Intended preference; validate against browser delivery strategy |
 | Local analytical query | DuckDB | Optional development decision based on data volume and transformations |
 | Frontend | React + TypeScript + Vite | Coordinated local dashboard views and ignored application asset loading implemented; public observation delivery unresolved |
-| Mapping | Coordinate-based local station schematic; MapLibre boundary remains available in `web/src/map/maplibre.ts` | Local visual workflow implemented and browser-verified without remote tiles; licensed runtime geometry/tiles unresolved |
+| Mapping | MapLibre GL JS with local GeoJSON boundary and station layers | Real ECan polygon, WGS84 stations, fit-to-bounds, selected/available states, map selection, and keyboard-equivalent station control implemented; third-party basemap remains intentionally absent |
 | Charts | Typed inline SVG plus HTML table | Observed-history chart/table and coordinated filtering implemented; richer charting remains optional |
-| Runtime assets | JSON, GeoJSON, Parquet/Arrow-derived assets, or a justified combination | Ignored local JSON application asset implemented; public observation delivery unresolved |
+| Runtime assets | Versioned JSON shell plus parameter-partitioned detail JSON | Runtime contract `2.0.0` implemented with lookup-backed observations, local geometry, manifest checksums, and lazy parameter loading; public observation delivery unresolved |
 | Runtime database | None by default | PostGIS/backend requires demonstrated need and architecture review |
 | Hosting | Static/free or extremely low-cost service | Provider unresolved |
 

@@ -4,6 +4,7 @@ export type Observation = {
   parameterId: string;
   observedAt: string;
   value: number | null;
+  originalValue: number | null;
   resultText: string | null;
   originalUnit: string | null;
   canonicalUnit: string | null;
@@ -15,9 +16,36 @@ export type Observation = {
   duplicateDisposition: string;
   valueKind: "observed_numeric" | "censored" | "missing" | "non_numeric";
   analysisEligible: boolean;
+  exclusionReason: string | null;
   sourceRecordId: string;
   sourceEndpoint: string;
   sourceRetrievedAt: string;
+};
+
+export type CatchmentGeometry = {
+  type: "Feature";
+  id?: string | number | null;
+  properties: Readonly<Record<string, string | number | null>>;
+  geometry: {
+    type: "Polygon" | "MultiPolygon";
+    coordinates: number[][][] | number[][][][];
+  };
+};
+
+export type ObservationPartitionManifest = {
+  path: string;
+  contractVersion: string;
+  rowCount: number;
+  byteCount: number;
+  sha256: string;
+};
+
+export type RuntimeDataMetadata = {
+  contractVersion: string;
+  detailLoading: "parameter_partitioned";
+  observationColumns: readonly string[];
+  lookupFields: readonly string[];
+  encoding: string;
 };
 
 export type AnalyticalWindow = "primary_2015_2024" | "recent_2020_2024" | "history_2007_2024";
@@ -66,6 +94,9 @@ export type AnalyticalAsset = {
   buildId: string | null;
   parameters: readonly ParameterOption[];
   stations: readonly Station[];
+  catchmentGeometry: CatchmentGeometry | null;
+  observationPartitions?: Readonly<Record<string, ObservationPartitionManifest>>;
+  runtimeData?: RuntimeDataMetadata;
   observations: readonly Observation[];
   coverage: readonly CoverageRecord[];
   summaries: readonly AnalyticalSummary[];

@@ -58,6 +58,36 @@ representation/disposition, censoring, duplicate state, coverage, summaries,
 trends, counts, build ID, source retrieval time, and release-gate status. It
 is not a license to commit or publicly serve observation data.
 
+## Runtime application contract
+
+The local dashboard delivery contract is `2.0.0`. `dashboard.json` is a shell
+containing the manifest/build metadata, parameters, 19 WGS84 stations,
+audited ECan `Ashburton River` catchment geometry, coverage, summaries, trends,
+counts, warnings, and parameter-partition manifests. Detailed observations are
+stored in ignored UTF-8 JSON files under
+`web/public/data/ashburton/observations/` and loaded on demand for the selected
+parameter.
+
+Each partition declares an explicit column order and lookup arrays for repeated
+units, quality/censoring/value dispositions, endpoints, retrieval times, and
+exclusion reasons. The decoder in `web/src/data/loadAsset.ts` validates the
+contract version, columns, station indexes, and lookup indexes before
+reconstructing the source-preserving `Observation` shape. The runtime format
+reduces initial delivery while retaining original values/result text/units,
+canonical values/units, censoring limits, quality representations/codes,
+eligibility, exclusion reasons, source IDs, endpoints, and retrieval times.
+
+The shell and selected initial parameter partition are the initial runtime
+payload. Summary/coverage/geometry metadata is available before other
+parameter observations are requested. This is a delivery optimization only;
+the normalized/audit assets remain the authoritative processing-layer records.
+
+The local map geometry is a GeoJSON Feature generated from the verified ECan
+ArcGIS boundary response (`CatchmentGroup=688`, EPSG:4326 output), not a
+schematic approximation. MapLibre uses a local minimal style with no remote
+basemap or tile dependency. Public data delivery and any basemap licensing
+remain release gates.
+
 ## Commands
 
 From the repository root:

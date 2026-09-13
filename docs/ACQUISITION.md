@@ -52,6 +52,11 @@ metadata; two exposed biological metrics only. The all-site acquisition mode
 uses these polygon members directly and records the selection mode in its
 profile.
 
+The site-audit output also preserves the validated boundary geometry under
+`boundary_geometry` for ignored local application preparation. Run the audit
+before `tools/prepare_dashboard_assets.py` when rebuilding the MapLibre runtime
+asset; the geometry is not committed or publicly served by this repository.
+
 ## Source-response manifest
 
 Each successful request in a profile is recorded in `source_manifest`,

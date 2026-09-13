@@ -10,6 +10,7 @@ export const analyticalFixture: AnalyticalAsset = {
   qualityPolicy: "published_unflagged",
   sourceRetrievedAt: "fixture",
   buildId: "fixture",
+  catchmentGeometry: null,
   parameters: [
     { parameterId: "e_coli", displayName: "E. coli", unit: "MPN/100 mL", selectionStatus: "core" },
     { parameterId: "nitrate_n_nitrite_n", displayName: "Nitrate-N Nitrite-N", unit: "mg/L", selectionStatus: "core" },
@@ -24,14 +25,14 @@ export const analyticalFixture: AnalyticalAsset = {
   observations: [
     {
       observationId: "obs-001", stationId: "station-ash-001", parameterId: "nitrate_n_nitrite_n", observedAt: "2024-01-15T10:00:00+12:00",
-      value: 0.42, resultText: "0.42", originalUnit: "g/m3", canonicalUnit: "mg/L", qualityFlag: null, qualityRepresentation: "missing_field",
-      qualityDisposition: "published_unflagged", censoring: null, valueKind: "observed_numeric", analysisEligible: true,
+      value: 0.42, originalValue: 0.42, resultText: "0.42", originalUnit: "g/m3", canonicalUnit: "mg/L", qualityFlag: null, qualityRepresentation: "missing_field",
+      qualityDisposition: "published_unflagged", censoring: null, valueKind: "observed_numeric", analysisEligible: true, exclusionReason: null,
       censorLimit: null, duplicateDisposition: "unique", sourceRecordId: "fixture/obs-001", sourceEndpoint: "fixture", sourceRetrievedAt: "fixture",
     },
     {
       observationId: "obs-002", stationId: "station-ash-001", parameterId: "nitrate_n_nitrite_n", observedAt: "2024-02-15T10:00:00+12:00",
-      value: null, resultText: "<0.01", originalUnit: "g/m3", canonicalUnit: "mg/L", qualityFlag: "600", qualityRepresentation: "nonempty_code",
-      qualityDisposition: "retained_good_quality", censoring: "left_censored", valueKind: "censored", analysisEligible: true,
+      value: null, originalValue: null, resultText: "<0.01", originalUnit: "g/m3", canonicalUnit: "mg/L", qualityFlag: "600", qualityRepresentation: "nonempty_code",
+      qualityDisposition: "retained_good_quality", censoring: "left_censored", valueKind: "censored", analysisEligible: true, exclusionReason: null,
       censorLimit: 0.01, duplicateDisposition: "unique", sourceRecordId: "fixture/obs-002", sourceEndpoint: "fixture", sourceRetrievedAt: "fixture",
     },
   ],

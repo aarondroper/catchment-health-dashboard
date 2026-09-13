@@ -150,7 +150,7 @@ the UI labels unsupported summaries/trends rather than relaxing the rules.
 
 ## Priority 4 — Core Coordinated Dashboard
 
-**Status:** Complete for the local production-shaped milestone; runtime geometry, export, and public observation delivery remain later work.
+**Status:** Complete for the local production-shaped milestone; public observation delivery and licensed third-party basemap use remain later release gates.
 
 ### Objective
 
@@ -207,18 +207,19 @@ expanding analytical scope.
 
 ### Exit evidence
 
-Playwright/Chromium and axe-core verification were added under `web/`. Eight
-browser tests pass against the prepared local asset, including parameter,
+Playwright/Chromium and axe-core verification were added under `web/`. The
+earlier refinement slice had eight browser tests against the prepared local asset, including parameter,
 window, station, map-pin, no-data, censored, indeterminate, fallback/error,
 accessibility, asset timing, and responsive screenshot checks. The dashboard
 was visually inspected at 1440×900, 1024×768, and 390×844 with no horizontal
 overflow. The local asset is 10,473,514 bytes; the static bundle remains small
-relative to that payload. Runtime MapLibre geometry/tiles, export, and public
-observation delivery remain outside this milestone.
+relative to that payload. The current local runtime uses a 2.0.0 shell plus
+parameter partitions, verified MapLibre geometry, and filtered export; public
+observation delivery remains outside the release gate.
 
 ## Priority 5 — Transparency, Export, Responsiveness, and Accessibility
 
-**Status:** Next frontier
+**Status:** Complete for the local functional MVP; public observation delivery remains a release gate.
 
 ### Objective
 
@@ -243,6 +244,49 @@ Make the analytical product usable, inspectable, and robust beyond the central d
 - Core tasks remain understandable and operable with keyboard input and at supported viewport sizes.
 - Meaning is not encoded by color alone and chart/map context has an accessible textual equivalent where practical.
 - Common selection and filtering interactions feel immediate on a representative deployed build.
+
+### Exit evidence
+
+The local dashboard uses the versioned 2.0.0 runtime shell and parameter
+partitions, preserves source and analytical meaning through typed decoding, and
+exports the active station/all-site context as deterministic UTF-8 CSV. The
+local MapLibre view displays the audited ECan polygon and 19 in-bound sites.
+Four frontend unit tests and twelve Playwright/Chromium browser tests pass,
+including real-data loading, coordinated parameter/window/station/map flows,
+censored and indeterminate states, export, fallback/error behavior, keyboard
+access, axe checks, performance timing, and responsive overflow checks. Full-
+page screenshots were inspected at 1440×900, 1024×768, and 390×844. The shell
+is about 1.26 MB raw/82 kB gzip; shell plus initial E. coli detail is about
+1.41 MB raw/103 kB gzip; all partitions are about 1.71 MB raw/207 kB gzip.
+
+## Priority 5.5 — Owner-Facing Review and Public-Release Readiness
+
+**Status:** Next frontier
+
+### Objective
+
+Obtain owner-facing visual/product review of the local MVP and resolve the
+release path without weakening the analytical or licensing guardrails.
+
+### Major deliverables
+
+- Owner review of the restrained visual language, map presentation, wording,
+  and the balance between observed history, coverage, distributions, and
+  supported trends.
+- Dataset-specific source-term, attribution, freshness, and redistribution
+  decision for observation assets.
+- Release checklist covering complete observation coverage, asset freshness,
+  permitted hosting/distribution, and public smoke verification.
+- Any final visual corrections required by review, without expanding analytical
+  scope absent a demonstrated correctness defect.
+
+### Acceptance criteria
+
+- Owner-facing visual decisions are recorded before public release.
+- Observation and geometry assets are distributed only under confirmed terms.
+- Freshness and attribution information is visible and reproducible.
+- Complete coverage and deployment gates are evidenced separately from local
+  development verification.
 
 ## Priority 6 — Reproducibility, Deployment, and Portfolio Release
 

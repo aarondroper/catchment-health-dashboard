@@ -3,10 +3,11 @@ import type { Observation } from "../contracts";
 type SeriesChartProps = {
   observations: readonly Observation[];
   unit: string | null;
+  loading?: boolean;
 };
 
 /** Small accessible SVG spike; table remains the authoritative text route. */
-export function SeriesChart({ observations, unit }: SeriesChartProps) {
+export function SeriesChart({ observations, unit, loading = false }: SeriesChartProps) {
   const numeric = observations.filter((observation) => observation.value !== null && observation.analysisEligible);
   const max = Math.max(...numeric.map((observation) => observation.value ?? 0), 1);
   const points = numeric.map((observation, index) => {
@@ -25,6 +26,7 @@ export function SeriesChart({ observations, unit }: SeriesChartProps) {
         <span className="unit-label">{unit ?? "unit pending"}</span>
       </div>
       <p className="panel-intro">Eligible numeric observations are plotted; censored, missing, and excluded results remain in the table and are never substituted into the line.</p>
+      {loading && <p className="empty-state" role="status" aria-live="polite">Loading this parameter's observation detail…</p>}
       {observations.length === 0 && <p className="empty-state" role="status">No observations are available for this parameter and station in the selected window.</p>}
       {observations.length > 0 && numeric.length === 0 && <p className="empty-state" role="status">No eligible numeric observations are available to plot; inspect the retained table for censored or excluded records.</p>}
       <svg className="series-chart" viewBox="0 0 420 200" role="img" aria-labelledby="chart-title chart-desc">
@@ -44,12 +46,13 @@ export function SeriesChart({ observations, unit }: SeriesChartProps) {
       <div className="observation-table-wrap" tabIndex={0} role="region" aria-label="Selected observation detail">
       <table className="observation-table">
         <caption>Selected observations — source representation retained</caption>
-        <thead><tr><th scope="col">Date</th><th scope="col">Result</th><th scope="col">Quality</th><th scope="col">Limit</th><th scope="col">Record state</th><th scope="col">Source ID</th></tr></thead>
+        <thead><tr><th scope="col">Date</th><th scope="col">Result</th><th scope="col">Original</th><th scope="col">Quality</th><th scope="col">Limit</th><th scope="col">Record state</th><th scope="col">Source ID</th></tr></thead>
         <tbody>
           {observations.map((observation) => (
             <tr key={observation.observationId}>
               <td>{observation.observedAt.slice(0, 10)}</td>
               <td>{observation.resultText ?? "missing"} {observation.originalUnit ?? ""}</td>
+              <td>{observation.originalValue ?? "—"} {observation.originalUnit ?? ""}</td>
               <td>{observation.qualityDisposition === "published_unflagged" ? "Published; no code supplied" : observation.qualityDisposition.replaceAll("_", " ")}</td>
               <td>{observation.censorLimit ?? "—"}</td>
               <td>{!observation.analysisEligible ? `Excluded — ${observation.qualityDisposition.replaceAll("_", " ")}` : observation.valueKind === "censored" ? "Censored — limit retained" : observation.valueKind === "missing" ? "Missing — not zero" : "Observed numeric"}</td>

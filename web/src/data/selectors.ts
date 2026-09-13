@@ -1,7 +1,7 @@
 import type { AnalyticalAsset, AnalyticalSummary, AnalyticalTrend, AnalyticalWindow, Observation } from "../contracts";
 
-export function selectObservations(asset: AnalyticalAsset, parameterId: string, stationId: string): readonly Observation[] {
-  return asset.observations.filter((row) => row.parameterId === parameterId && row.stationId === stationId);
+export function selectObservations(observations: readonly Observation[], stationId: string): readonly Observation[] {
+  return observations.filter((row) => row.stationId === stationId);
 }
 
 const WINDOW_BOUNDS: Record<AnalyticalWindow, readonly [string, string]> = {
@@ -10,9 +10,13 @@ const WINDOW_BOUNDS: Record<AnalyticalWindow, readonly [string, string]> = {
   history_2007_2024: ["2007-01-01", "2024-12-31"],
 };
 
-export function selectWindowObservations(asset: AnalyticalAsset, parameterId: string, stationId: string, window: AnalyticalWindow): readonly Observation[] {
+export function selectParameterWindowObservations(observations: readonly Observation[], window: AnalyticalWindow): readonly Observation[] {
   const [start, end] = WINDOW_BOUNDS[window];
-  return selectObservations(asset, parameterId, stationId).filter((row) => row.observedAt.slice(0, 10) >= start && row.observedAt.slice(0, 10) <= end);
+  return observations.filter((row) => row.observedAt.slice(0, 10) >= start && row.observedAt.slice(0, 10) <= end);
+}
+
+export function selectWindowObservations(observations: readonly Observation[], stationId: string, window: AnalyticalWindow): readonly Observation[] {
+  return selectObservations(selectParameterWindowObservations(observations, window), stationId);
 }
 
 

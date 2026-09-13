@@ -79,6 +79,15 @@ def audit_sites(output: Path) -> dict[str, object]:
             "catchment_name": boundary.catchment_name,
             "area_ha": boundary.area_ha,
         },
+        "boundary_geometry": {
+            "type": boundary.geometry_type,
+            "coordinates": [
+                [list(ring) for ring in polygon]
+                for polygon in boundary.polygons
+            ] if boundary.geometry_type == "MultiPolygon" else [
+                list(ring) for ring in boundary.polygons[0]
+            ],
+        },
         "site_list_count": len(site_rows),
         "coordinate_bearing_site_count": len(candidates),
         "in_boundary_site_count": len(included),
