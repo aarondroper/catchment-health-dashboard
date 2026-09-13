@@ -1,0 +1,19 @@
+<?xml version="1.0"?>
+<HilltopServer>
+  <Agency>ECan</Agency>
+  <DataSource Name="Dissolved Reactive Phosphorus" Site="SQ20104">
+    <NumItems>2</NumItems>
+    <TSType>StdSeries</TSType>
+    <DataType>WQData</DataType>
+    <Interpolation>Discrete</Interpolation>
+    <From>1995-10-12T10:35:00</From>
+    <To>2026-06-30T13:13:00</To>
+    <SensorGroup>Nutrients</SensorGroup>
+    <Measurement Name="Dissolved Reactive Phosphorus">
+      <Item>1</Item>
+      <RequestAs>Dissolved Reactive Phosphorus</RequestAs>
+      <Units>mg/L</Units>
+      <Format>#.####</Format>
+    </Measurement>
+  </DataSource>
+</HilltopServer>

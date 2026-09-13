@@ -1,7 +1,7 @@
 # Project State
 
 **As of:** 2026-09-13  
-**Authoritative status:** Ashburton–Hakatere selected; repository foundation complete
+**Authoritative status:** Ashburton–Hakatere selected; Priority 2 acquisition slice in progress
 
 This file is the factual snapshot of repository capability. It is not a progress diary. Update it whenever implementation, verification, blockers, or the development frontier materially changes.
 
@@ -9,7 +9,7 @@ This file is the factual snapshot of repository capability. It is not a progress
 
 This state was reconciled against the current checkout, live public-source audit, and foundation quality gates on 2026-09-13. The checkout contains governance documentation, feasibility tooling, versioned contract definitions, a synthetic fixture path, and a frontend shell. It still contains no production observation dataset, analytical build, or deployment.
 
-Accordingly, statements about the intended product are recorded as planned rather than implemented.
+Accordingly, statements about the intended product remain planned unless implementation and validation evidence is listed below.
 
 ## Current Verified State
 
@@ -22,6 +22,7 @@ Accordingly, statements about the intended product are recorded as planned rathe
 - The agent operating contract is defined, and `docs/plans/active/` and `docs/plans/completed/` exist with `.gitkeep` placeholders.
 - A live Priority 0 audit verified complete retrieval for the profiled ECan ArcGIS station/flow layers and ECan Hilltop site/measurement catalogs; results and limitations are documented in `docs/feasibility/SOURCE_AUDIT.md` and `docs/feasibility/audit-report.json`.
 - The Priority 1 foundation is implemented in `catchment_dashboard/`, `config/`, `tests/fixtures/`, `tools/validate_fixture.py`, and `web/`; contract details are documented in `docs/CONTRACTS.md` and the completed plan.
+- The Priority 2 acquisition slice is implemented in `catchment_dashboard/ecan_hilltop.py` and `tools/acquire_observations.py`; its source boundary and limitations are documented in `docs/ACQUISITION.md`.
 
 Verification here means these decisions and requirements are present in the supplied context and governance documents—not that product functionality exists.
 
@@ -44,15 +45,17 @@ Verification here means these decisions and requirements are present in the supp
 - Python package metadata and source-independent version `0.1.0` contracts exist for source, station, parameter, observation, aggregate, trend, and asset-manifest records.
 - A synthetic fixture validates source provenance, normalized observation fields, censored/null preservation, referential integrity, and manifest counts.
 - A Vite/React/TypeScript frontend shell exists with Ashburton–Hakatere copy, disabled pending controls, MapLibre-ready options boundary, and accessible inline-SVG/table chart spike. `web/package-lock.json` is checked in.
-- Quality gates pass: nine Python `unittest` tests, fixture validation, Python compilation, frontend strict typecheck, and frontend production build on 2026-09-13.
+- Quality gates pass: sixteen Python `unittest` tests, fixture validation, Python compilation, frontend strict typecheck, and frontend production build on 2026-09-13.
+- A bounded live Hilltop profile verified 12 real observations for `SQ20104`/Dissolved Reactive Phosphorus; no production dataset is committed.
+- The normal bounded three-parameter profile joined 10 provisional sites and retrieved 195 observations; 9 sites had data, 160 observations were numeric, and 35 were left-censored.
 
 ## Not Implemented or Not Evidenced
 
 - Final parameter set or primary temporal window.
 - Final licensing approval, rate-limit agreement, and redistribution decision. Public endpoints, schemas, station counts, catalog coverage, and inventory-level flow availability are now partially verified; see the audit limitations.
-- Polygon-based catchment membership and observation-level completeness profile.
+- Authoritative polygon-based catchment membership and complete observation-level coverage profile.
 - Final four-to-six water-quality parameters or primary temporal window.
-- Data acquisition, cache, normalization, quality-control, aggregation, trend, or asset-build code.
+- Production-scale data acquisition/cache, full normalization, quality-control reporting, aggregation, trend, or asset-build code.
 - Adopted handling of censored values, quality flags, duplicates, units, or time zones.
 - Adopted analytical aggregation, comparison, trend, direction-label, or threshold methodology.
 - Prepared monitoring, spatial, summary, trend, flow, or manifest assets.
@@ -64,7 +67,7 @@ Verification here means these decisions and requirements are present in the supp
 
 ## Partially Implemented
 
-The foundation preview is implemented, but it is not a production dashboard: the visible observations are synthetic, controls are intentionally disabled, and the map does not load remote tiles or verified catchment geometry.
+The foundation preview and bounded acquisition profile are implemented, but this is not a production dashboard: the visible web observations are synthetic, controls are intentionally disabled, the map does not load remote tiles, and live profile site membership is still provisional.
 
 ## Known Limitations and Risks
 
@@ -79,11 +82,11 @@ The foundation preview is implemented, but it is not a production dashboard: the
 
 ## Current Test and Validation State
 
-- **Automated tests:** nine focused `unittest` tests pass with `python3 -m unittest discover -s tests -v`.
+- **Automated tests:** sixteen focused `unittest` tests pass with `python3 -m unittest discover -s tests -v`.
 - **Linting/formatting:** no configuration or successful project run evidenced.
 - **Python static/type checks:** no Python project or configuration evidenced.
 - **Frontend type check/build:** `cd web && npm run typecheck` and `npm run build` pass; no runtime map or production asset flow is evidenced.
-- **Data validation:** source inventory/catalog validation is evidenced by the live audit; full observation validation is not yet implemented.
+- **Data validation:** source inventory/catalog validation is evidenced by the live audit; parser and contract validation is evidenced by fixtures plus a bounded live Hilltop profile; complete production observation coverage remains unverified.
 - **Scientific validation:** no methodology selected or validated.
 - **Visual/accessibility/responsive validation:** no UI exists to validate.
 - **Deployment verification:** no deployment evidenced.
@@ -97,7 +100,7 @@ No hosting provider, deployment configuration, production URL, or successful dep
 
 ## Major Blockers and Decision Boundaries
 
-The owner has selected Ashburton–Hakatere as the working catchment direction. Full polygon and observation acquisition are the next technical validation steps; final parameters and analytical semantics remain owner decisions.
+The owner has selected Ashburton–Hakatere as the working catchment direction. Priority 2 acquisition and observation-quality profiling are in progress; final parameters and analytical semantics remain owner decisions.
 
 Implementation beyond feasibility is gated by:
 
@@ -110,4 +113,4 @@ Credentials or private access should not be assumed; sources must remain public/
 
 ## Logical Current Development Frontier
 
-Priority 0 is complete as a feasibility screen and Priority 1 is complete as a tested foundation. The next frontier is **Priority 2: Acquisition, Normalization, and Data Quality**. Polygon membership, observation-level source checks, final parameter selection, quality/unit semantics, and analytical methods remain future work and are not silently selected by the foundation.
+Priority 0 is complete as a feasibility screen and Priority 1 is complete as a tested foundation. The current frontier is **Priority 2: Acquisition, Normalization, and Data Quality**, with a bounded ECan/Hilltop adapter and live profile now in progress. Authoritative polygon membership, complete observation acquisition, final parameter selection, quality/unit semantics, and analytical methods remain future work and are not silently selected.

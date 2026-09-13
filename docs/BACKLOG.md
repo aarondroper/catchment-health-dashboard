@@ -75,6 +75,8 @@ The repository now contains a Python package and versioned contracts, a syntheti
 
 ## Priority 2 — Acquisition, Normalization, and Data Quality
 
+**Status:** In progress; bounded acquisition/profile slice complete; full normalization and authoritative geometry remain. Plan archived at `docs/plans/completed/2026-09-13-ashburton-observation-acquisition.md`.
+
 ### Objective
 
 Build a reliable pipeline from authoritative public sources to validated normalized observations and spatial metadata.
@@ -101,6 +103,10 @@ Build a reliable pipeline from authoritative public sources to validated normali
 - Duplicate, invalid, censored, missing, and partial-retrieval behavior is explicit.
 - Station coordinates and catchment membership pass spatial validation.
 - Flow records, if included, have a documented and defensible relationship to the monitoring context.
+
+### Bounded slice evidence
+
+The ECan/Hilltop adapter now performs a count-checked candidate station query, provisional coordinate join, measurement metadata parsing, and source-preserving observation parsing. The 2024 three-parameter profile retrieved 195 observations across 10 provisional sites, with 9 sites producing data; numeric, left-censored, quality-coded, duplicate, missing, malformed, and incomplete-response behavior is covered by 16 Python tests. Full source snapshots, authoritative polygon membership, complete temporal coverage, normalization rules, and production asset generation remain open.
 
 ## Priority 3 — Analytical Methodology and Derived Assets
 

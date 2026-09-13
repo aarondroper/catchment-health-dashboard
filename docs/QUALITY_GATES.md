@@ -10,8 +10,9 @@ Current executable foundation gates are:
 - `python3 tools/validate_fixture.py tests/fixtures/minimal_asset.json`
 - `cd web && npm ci && npm run typecheck && npm run build`
 - `python3 -m py_compile catchment_dashboard/*.py tools/*.py tests/*.py`
+- `python3 tools/acquire_observations.py` for the bounded live profile, when public endpoints are responsive
 
-The frontend lockfile is `web/package-lock.json`; `node_modules/` and build output are ignored. The fixture is synthetic and does not validate production source completeness or analytical meaning.
+The frontend lockfile is `web/package-lock.json`; `node_modules/` and build output are ignored. The fixture is synthetic and does not validate production source completeness or analytical meaning. Live profile output is written under ignored `reports/generated/` because redistribution terms remain under review.
 
 ### Current documentation-only baseline
 

@@ -4,6 +4,12 @@
   "selection_status": "owner_selected_direction",
   "geography_status": "authoritative_polygon_membership_pending",
   "candidate_parameters_status": "pending_observation_profile_and_owner_review",
+  "profile_parameters": [
+    "Dissolved Reactive Phosphorus",
+    "Total Nitrogen",
+    "Nitrate-N Nitrite-N"
+  ],
+  "profile_parameters_status": "bounded_profile_only_not_owner_selection",
   "candidate_parameters": [
     "E. coli",
     "Nitrate-N Nitrite-N",

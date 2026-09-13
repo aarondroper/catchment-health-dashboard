@@ -1,0 +1,35 @@
+<?xml version="1.0"?>
+<Hilltop>
+  <Agency>ECan</Agency>
+  <Measurement SiteName="SQ20104">
+    <DataSource Name="Dissolved Reactive Phosphorus" NumItems="2">
+      <TSType>StdSeries</TSType>
+      <DataType>WQData</DataType>
+      <Interpolation>Discrete</Interpolation>
+      <ItemInfo ItemNumber="1">
+        <ItemName>Dissolved Reactive Phosphorus</ItemName>
+        <Units>mg/L</Units>
+      </ItemInfo>
+    </DataSource>
+    <Data DateFormat="Calendar" NumItems="2">
+      <E>
+        <T>2024-01-30T11:38:00</T>
+        <Value>0.0012</Value>
+        <QualityCode>600</QualityCode>
+      </E>
+      <E>
+        <T>2024-02-27T12:01:00</T>
+        <Value>&lt;0.001</Value>
+        <QualityCode>600</QualityCode>
+      </E>
+      <E>
+        <T>2024-02-27T12:01:00</T>
+        <Value>&lt;0.001</Value>
+        <QualityCode>600</QualityCode>
+      </E>
+      <E>
+        <T>2024-03-27T12:01:00</T>
+      </E>
+    </Data>
+  </Measurement>
+</Hilltop>

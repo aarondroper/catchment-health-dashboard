@@ -2,7 +2,7 @@
 
 **Audit run:** 2026-09-13T10:30:56Z
 
-**Status:** Verified for the profiled public endpoints; owner decision required for scope selection.
+**Status:** Verified for the profiled public endpoints; Ashburton–Hakatere selected; Priority 2 acquisition active.
 
 This audit is a source-feasibility screen, not a selected-catchment or analytical-method decision. The reproducible command is:
 
@@ -68,4 +68,4 @@ Before implementation proceeds, the owner must select the exact catchment and pa
 - The audit did not approve redistribution terms. Before release, review [ECan API terms](https://apidevelopers.ecan.govt.nz/terms), ECan water-quality terms linked from the publication page, and the license metadata for any LAWA or ArcGIS derivative.
 - The endpoint can be slow or change. The tool fails on incomplete pages or source errors rather than treating partial retrieval as complete.
 
-Next work is owner selection, followed by the Priority 1 contract foundation. Priority 2 should then perform polygon joins and a small observation-level acquisition/profile against the selected source route.
+The owner selected Ashburton–Hakatere and the Priority 1 contract foundation is complete. Priority 2 now performs the polygon join and bounded observation-level acquisition/profile against the selected source route. The current adapter and live-profile evidence are documented in `docs/ACQUISITION.md`.
