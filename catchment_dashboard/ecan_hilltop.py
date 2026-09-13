@@ -451,6 +451,7 @@ def build_source_ref(*, endpoint: str, source_record_id: str, retrieved_at: str)
 def summarize_observations(observations: Iterable[ObservationRecord], parse_counts: Counter[str]) -> dict[str, Any]:
     rows = list(observations)
     by_parameter: dict[str, dict[str, Any]] = {}
+    by_site_parameter: dict[tuple[str, str], dict[str, Any]] = {}
     for parameter_id in sorted({row.parameter_id for row in rows}):
         parameter_rows = [row for row in rows if row.parameter_id == parameter_id]
         by_parameter[parameter_id] = {
@@ -463,11 +464,44 @@ def summarize_observations(observations: Iterable[ObservationRecord], parse_coun
             "censored_or_missing_count": sum(row.value is None for row in parameter_rows),
             "quality_flag_count": sum(row.quality_flag is not None for row in parameter_rows),
         }
+    for row in rows:
+        key = (row.station_id, row.parameter_id)
+        profile = by_site_parameter.setdefault(
+            key,
+            {
+                "site_id": row.station_id,
+                "parameter_id": row.parameter_id,
+                "observation_count": 0,
+                "numeric_count": 0,
+                "censored_or_missing_count": 0,
+                "quality_flag_count": 0,
+                "units": set(),
+                "censoring_counts": Counter(),
+            },
+        )
+        profile["observation_count"] += 1
+        if row.value is None:
+            profile["censored_or_missing_count"] += 1
+            if row.censoring:
+                profile["censoring_counts"][row.censoring] += 1
+        else:
+            profile["numeric_count"] += 1
+        if row.quality_flag is not None:
+            profile["quality_flag_count"] += 1
+        if row.original_unit:
+            profile["units"].add(row.original_unit)
+    site_parameter_profiles = []
+    for key in sorted(by_site_parameter):
+        profile = by_site_parameter[key]
+        profile["units"] = sorted(profile["units"])
+        profile["censoring_counts"] = dict(sorted(profile["censoring_counts"].items()))
+        site_parameter_profiles.append(profile)
     return {
         "observation_count": len(rows),
         "site_count": len({row.station_id for row in rows}),
         "parameter_count": len(by_parameter),
         "parameters": by_parameter,
+        "site_parameter_profiles": site_parameter_profiles,
         "parse_counts": dict(parse_counts),
     }
 

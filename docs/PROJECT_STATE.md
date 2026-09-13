@@ -24,6 +24,7 @@ Accordingly, statements about the intended product remain planned unless impleme
 - The Priority 1 foundation is implemented in `catchment_dashboard/`, `config/`, `tests/fixtures/`, `tools/validate_fixture.py`, and `web/`; contract details are documented in `docs/CONTRACTS.md` and the completed plan.
 - The Priority 2 acquisition slice is implemented in `catchment_dashboard/ecan_hilltop.py` and `tools/acquire_observations.py`; its source boundary and limitations are documented in `docs/ACQUISITION.md`.
 - The spatial membership slice is implemented in `catchment_dashboard/ecan_geometry.py`; it validates a complete ECan GeoJSON boundary response and filters out-of-bound Hilltop sites before observations are retrieved.
+- The bounded profile now emits deterministic site/parameter quality summaries; valid Hilltop no-data responses remain explicit rather than being converted to zeros or treated as fatal transport errors.
 
 Verification here means these decisions and requirements are present in the supplied context and governance documents—not that product functionality exists.
 
@@ -55,7 +56,7 @@ Verification here means these decisions and requirements are present in the supp
 
 - Final parameter set or primary temporal window.
 - Final licensing approval, rate-limit agreement, and redistribution decision. Public endpoints, schemas, station counts, catalog coverage, and inventory-level flow availability are now partially verified; see the audit limitations.
-- Complete observation-level coverage profile.
+- Complete observation-level coverage profile beyond the bounded technical window.
 - Final four-to-six water-quality parameters or primary temporal window.
 - Production-scale data acquisition/cache, full normalization, quality-control reporting, aggregation, trend, or asset-build code.
 - Adopted handling of censored values, quality flags, duplicates, units, or time zones.

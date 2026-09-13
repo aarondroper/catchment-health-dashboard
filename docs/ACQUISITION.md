@@ -5,6 +5,7 @@
 - candidate station retrieval from the ECan ArcGIS surface-water layer with a reported-count check;
 - Hilltop site-list and per-site measurement metadata parsing;
 - Hilltop `GetData` observation parsing with source timestamps, original units, numeric values, censored result text, quality codes, and explicit missing/non-numeric states;
+- deterministic profile summaries by parameter and site/parameter, including observation counts, numeric/null counts, units, censoring categories, and quality-code presence;
 - a provisional nearest-coordinate join to name-screened ECan stations followed
   by point-in-polygon membership against ECan's major-catchment boundary;
 - compact ignored output under `reports/generated/`.

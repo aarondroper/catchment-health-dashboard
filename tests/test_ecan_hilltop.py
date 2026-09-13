@@ -21,6 +21,7 @@ from catchment_dashboard.ecan_hilltop import (
     parse_arcgis_candidates,
     provisional_site_join,
     ProvisionalSite,
+    summarize_observations,
 )
 
 
@@ -62,6 +63,13 @@ class EcanHilltopTests(unittest.TestCase):
         self.assertEqual(rows[0].quality_flag, "600")
         for row in rows:
             validate_observation(row)
+        summary = summarize_observations(rows, counts)
+        profile = summary["site_parameter_profiles"][0]
+        self.assertEqual(profile["observation_count"], 4)
+        self.assertEqual(profile["numeric_count"], 1)
+        self.assertEqual(profile["censored_or_missing_count"], 3)
+        self.assertEqual(profile["quality_flag_count"], 3)
+        self.assertEqual(profile["censoring_counts"], {"left_censored": 2, "missing_value": 1})
 
     def test_unexpected_observation_error_response_fails(self):
         source = build_source_ref(
