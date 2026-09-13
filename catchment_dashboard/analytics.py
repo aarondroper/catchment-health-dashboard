@@ -1,8 +1,10 @@
-"""Conservative Ashburton normalization and analytical asset builders.
+"""Ashburton normalization and conservative analytical asset builders.
 
 The module deliberately keeps source observations separate from derived rows.
-No censored value is substituted, and unresolved source quality is retained but
-does not enter the primary eligible subset.
+No censored value is substituted. The adopted exploratory policy includes
+published observations with an absent quality field under a distinct
+``published_unflagged`` disposition; strict eligibility remains available for
+sensitivity analysis.
 """
 
 from __future__ import annotations
@@ -28,7 +30,8 @@ from .contracts import (
 )
 
 
-ANALYTICAL_VERSION = "ashburton-analytical-v2-quality-semantics"
+ANALYTICAL_VERSION = "ashburton-analytical-v3-published-unflagged"
+PRIMARY_QUALITY_POLICY = "published_unflagged"
 MIN_SUMMARY_OBSERVATIONS = 3
 MIN_TREND_OBSERVATIONS = 8
 MIN_TREND_YEARS = 3
@@ -71,7 +74,7 @@ QUALITY_DISPOSITION: dict[str, str] = {
 
 QUALITY_POLICIES: dict[str, str] = {
     "strict": "Only documented fair/good quality records are primary-eligible; missing, blank, and unfamiliar quality remain unresolved.",
-    "unflagged_usable": "Missing or blank quality representations are primary-eligible as unflagged_usable; documented poor, synthetic, missing, and unfamiliar codes remain excluded or unresolved.",
+    "published_unflagged": "Missing quality-field observations returned by ECan's published service are primary-eligible as published_unflagged; blank fields remain separate and excluded pending semantics.",
 }
 
 
@@ -125,11 +128,11 @@ def _quality_disposition(row: ObservationRecord, quality_policy: str) -> str:
         raise ValueError(f"unsupported quality policy: {quality_policy}")
     representation = row.quality_representation
     if representation == "missing_field" or (representation is None and row.quality_flag is None):
-        return "unflagged_usable" if quality_policy == "unflagged_usable" else "missing_quality_field"
+        return "published_unflagged" if quality_policy == "published_unflagged" else "missing_quality_field"
     if representation == "blank_field":
-        return "unflagged_usable" if quality_policy == "unflagged_usable" else "blank_quality_field"
+        return "blank_quality_field"
     if row.quality_flag is None or not row.quality_flag.strip():
-        return "unflagged_usable" if quality_policy == "unflagged_usable" else "blank_quality_field"
+        return "blank_quality_field"
     return QUALITY_DISPOSITION.get(row.quality_flag.strip(), "unresolved_quality")
 
 
@@ -151,7 +154,7 @@ def _duplicate_group(row: ObservationRecord) -> str:
 def normalize_observations(
     rows: Iterable[ObservationRecord],
     *,
-    quality_policy: str = "strict",
+    quality_policy: str = PRIMARY_QUALITY_POLICY,
 ) -> tuple[list[NormalizedObservationRecord], dict[str, int]]:
     """Normalize rows while preserving every source record and its disposition."""
 
@@ -175,7 +178,7 @@ def normalize_observations(
             quality = "unresolved_unit"
         if value_kind == "censored" and limit is None:
             quality = "unresolved_censoring"
-        eligible = quality in {"retained_fair_quality", "retained_good_quality", "unflagged_usable"}
+        eligible = quality in {"retained_fair_quality", "retained_good_quality", "published_unflagged"}
         eligible = eligible and supported_unit and value_kind in {"observed_numeric", "censored"}
         group = grouped[(row.station_id, row.parameter_id, row.observed_at)]
         signatures = {
@@ -433,7 +436,12 @@ def build_trends(rows: Iterable[NormalizedObservationRecord]) -> list[dict[str, 
     return result
 
 
-def build_assets(profile_path: Path, output_dir: Path) -> dict[str, Any]:
+def build_assets(
+    profile_path: Path,
+    output_dir: Path,
+    *,
+    quality_policy: str = PRIMARY_QUALITY_POLICY,
+) -> dict[str, Any]:
     """Build ignored, versioned application assets from a full profile JSON."""
 
     with profile_path.open(encoding="utf-8") as handle:
@@ -446,7 +454,7 @@ def build_assets(profile_path: Path, output_dir: Path) -> dict[str, Any]:
         payload = dict(source_payload)
         source = SourceRef(**payload.pop("source"))
         observations.append(ObservationRecord(source=source, **payload))
-    normalized, disposition_counts = normalize_observations(observations)
+    normalized, disposition_counts = normalize_observations(observations, quality_policy=quality_policy)
     coverage = build_coverage(normalized)
     summaries = build_summaries(normalized)
     trends = build_trends(normalized)
@@ -468,6 +476,7 @@ def build_assets(profile_path: Path, output_dir: Path) -> dict[str, Any]:
         "manifest_version": "1.0.0",
         "analytical_version": ANALYTICAL_VERSION,
         "normalized_contract_version": NORMALIZED_CONTRACT_VERSION,
+        "quality_policy": quality_policy,
         "study_area_id": "ashburton_hakatere",
         "site_selection_mode": profile.get("site_selection_mode"),
         "profile_site_count": len(profile.get("provisional_sites", [])),

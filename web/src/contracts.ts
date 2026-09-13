@@ -6,12 +6,18 @@ export type Observation = {
   value: number | null;
   resultText: string | null;
   originalUnit: string | null;
+  canonicalUnit: string | null;
   qualityFlag: string | null;
   qualityRepresentation: "missing_field" | "blank_field" | "nonempty_code";
   qualityDisposition: string;
   censoring: string | null;
+  censorLimit: number | null;
+  duplicateDisposition: string;
   valueKind: "observed_numeric" | "censored" | "missing" | "non_numeric";
   analysisEligible: boolean;
+  sourceRecordId: string;
+  sourceEndpoint: string;
+  sourceRetrievedAt: string;
 };
 
 export type AnalyticalWindow = "primary_2015_2024" | "recent_2020_2024" | "history_2007_2024";
@@ -26,7 +32,7 @@ export type ParameterOption = {
 export type AnalyticalSummary = {
   stationId: string;
   parameterId: string;
-  period: AnalyticalWindow;
+  period: string;
   value: number | null;
   q1: number | null;
   q3: number | null;
@@ -55,11 +61,39 @@ export type AnalyticalAsset = {
   studyAreaId: string;
   studyAreaName: string;
   sourceTermsStatus: "local_processing_only_release_gate";
-  parameterCatalog: readonly ParameterOption[];
-  stationCatalog: readonly { stationId: string; name: string }[];
+  qualityPolicy: string | null;
+  sourceRetrievedAt: string | null;
+  buildId: string | null;
+  parameters: readonly ParameterOption[];
+  stations: readonly Station[];
   observations: readonly Observation[];
+  coverage: readonly CoverageRecord[];
   summaries: readonly AnalyticalSummary[];
   trends: readonly AnalyticalTrend[];
+  counts: Readonly<Record<string, number>>;
+  warnings: readonly string[];
+};
+
+export type Station = {
+  stationId: string;
+  name: string;
+  latitude: number;
+  longitude: number;
+  membershipBasis: string | null;
+};
+
+export type CoverageRecord = {
+  station_id: string;
+  parameter_id: string;
+  window: AnalyticalWindow;
+  raw_count: number;
+  eligible_count: number;
+  eligible_numeric_count: number;
+  eligible_censored_count: number;
+  sampled_calendar_month_count: number;
+  sampled_calendar_year_count: number;
+  summary_eligibility: string;
+  trend_eligibility: string;
 };
 
 export type FixtureAsset = {

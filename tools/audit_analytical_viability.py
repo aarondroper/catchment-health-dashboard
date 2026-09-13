@@ -26,7 +26,7 @@ def main() -> int:
     print(json.dumps({
         "source_observation_count": report["source_observation_count"],
         "raw_quality_representation_counts": report["raw_quality_representation_counts"],
-        "comparison": report["comparison_strict_to_unflagged"],
+        "comparison": report["comparison_strict_to_published_unflagged"],
     }, sort_keys=True))
     return 0
 

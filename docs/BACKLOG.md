@@ -106,11 +106,11 @@ Build a reliable pipeline from authoritative public sources to validated normali
 
 ### Bounded slice evidence
 
-The ECan/Hilltop adapter now performs a count-checked candidate station query, authoritative polygon membership, measurement metadata parsing, source-preserving observation parsing, deterministic site/parameter quality summaries, and successful-response manifests. The owner-approved eight-parameter 2007–2024 polygon-based run retrieved 10,426 observations at 15 data-producing sites from 19 in-bound catalog sites. Normalization and asset generation produced explicit raw quality-representation, quality/unit/censoring/duplicate dispositions, 324 coverage records, 1,830 summaries, and 324 trend records. The focused quality-semantics review verified 9,434 missing quality elements, 992 nonempty quality codes, strict eligibility of 846 rows, and complete trend indeterminacy reasons. Thirty-three Python tests plus fixture, compilation, acquisition, deterministic-build, and viability-report checks pass. Source-term approval, public asset publication, and censor-aware trend implementation remain open.
+The ECan/Hilltop adapter now performs a count-checked candidate station query, authoritative polygon membership, measurement metadata parsing, source-preserving observation parsing, deterministic site/parameter quality summaries, and successful-response manifests. The owner-approved eight-parameter 2007–2024 polygon-based run retrieved 10,426 observations at 15 data-producing sites from 19 in-bound catalog sites. Normalization and asset generation produced explicit raw quality-representation, quality/unit/censoring/duplicate dispositions, 324 coverage records, 1,830 summaries, and 324 trend records. The focused quality-semantics review verified 9,434 missing quality elements, 992 nonempty quality codes, adopted eligibility of 10,280 rows, strict sensitivity eligibility of 846 rows, and complete trend reason diagnostics. Thirty-three Python tests plus fixture, compilation, acquisition, deterministic-build, and viability-report checks pass. Source-term approval, public asset publication, and censor-aware trend implementation remain open.
 
 ## Priority 3 — Analytical Methodology and Derived Assets
 
-**Status:** Complete for the approved bounded profile; quality-semantics review retained the conservative production policy and documented the diagnostic unflagged alternative. Local React integration is next.
+**Status:** Complete for the approved bounded profile; the adopted `published_unflagged` policy, strict sensitivity comparison, and ignored application-ready assets are implemented and regenerated. The local React dashboard integration is complete for this milestone.
 
 ### Objective
 
@@ -144,13 +144,13 @@ Adopt defensible summaries and trends, then generate compact application-ready a
 The completed plan `docs/plans/completed/2026-09-13-analytical-viability-review.md`
 records the source evidence, quality-field contract, alternative-policy audit,
 trend-reason taxonomy, independent Theil–Sen fixture, and regenerated ignored
-assets. Strict assets are scientifically usable for observed-history and
-coverage/distribution views but do not support a general trend view; the UI
-must label unsupported summaries/trends rather than relax the rules.
+assets. The adopted assets are scientifically usable for observed-history and
+coverage/distribution views and support only a subset of neutral trend rows;
+the UI labels unsupported summaries/trends rather than relaxing the rules.
 
 ## Priority 4 — Core Coordinated Dashboard
 
-**Status:** In progress; local fixture-backed analytical contract integration is implemented and verified. Production asset loading, runtime map, real-data visual review, and component tests remain.
+**Status:** Complete for the local production-shaped milestone; runtime geometry, browser visual review, component tests, export, and public observation delivery remain later work.
 
 ### Objective
 
@@ -165,10 +165,17 @@ Deliver the primary desktop analytical workflow as a coherent React/TypeScript a
 - Shared analytical state so relevant views update consistently.
 - Units, coverage, method, data-date, provenance, limitation, empty, and error context.
 
-### Dependencies
+### Exit evidence
 
-- Validated application assets and owner-approved methodological semantics.
-- Major visual composition review at the design boundary.
+The local app loads `web/public/data/ashburton/dashboard.json` when prepared by
+`tools/prepare_dashboard_assets.py`, with an explicit synthetic-fixture
+fallback. Parameter, window, station, and map-pin selections share state
+across the map, series/table, summaries, coverage, comparison, and quality
+context. The generated app asset contains 10,426 observations, 10,280
+eligible observations, 19 stations, 1,830 summaries, and 324 trend records;
+17 primary-window trends are reported and 91 are indeterminate. Typecheck and
+production build pass. Browser screenshot review and component automation are
+not configured yet.
 
 ### Acceptance criteria
 
@@ -177,6 +184,24 @@ Deliver the primary desktop analytical workflow as a coherent React/TypeScript a
 - Map and charts use intentional freshwater-monitoring design rather than default library styling.
 - Incomplete or unavailable information is not represented as zero, normal, or complete.
 - Core flows pass automated logic/component tests and visual review at supported desktop sizes.
+
+## Priority 4.5 — UX/UI Refinement and Visual Verification
+
+**Status:** Next frontier
+
+### Objective
+
+Refine the local dashboard’s visual hierarchy and verify the coordinated
+workflow at representative desktop, tablet, and mobile viewports without
+expanding analytical scope.
+
+### Initial work
+
+- Run a browser-capable visual review and correct layout, chart, map-pin,
+  empty-state, accessibility, and responsive issues.
+- Add focused frontend interaction/component tests for shared selection state.
+- Measure realistic local asset load and interaction behavior.
+- Keep source-term and public-data release gates unchanged.
 
 ## Priority 5 — Transparency, Export, Responsiveness, and Accessibility
 

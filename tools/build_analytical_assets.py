@@ -19,8 +19,10 @@ def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--profile", type=Path, required=True)
     parser.add_argument("--output-dir", type=Path, default=Path("reports/generated/ashburton-analytical-assets"))
+    parser.add_argument("--quality-policy", choices=("published_unflagged", "strict"), default=None)
     args = parser.parse_args()
-    manifest = build_assets(args.profile, args.output_dir)
+    build_kwargs = {} if args.quality_policy is None else {"quality_policy": args.quality_policy}
+    manifest = build_assets(args.profile, args.output_dir, **build_kwargs)
     print(json.dumps(manifest["counts"], sort_keys=True))
     return 0
 

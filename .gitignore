@@ -8,3 +8,4 @@ dist/
 data/raw/
 data/cache/
 reports/generated/
+web/public/data/

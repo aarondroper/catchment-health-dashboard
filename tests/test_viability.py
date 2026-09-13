@@ -34,7 +34,7 @@ def _observation(record_id: str, observed_at: str, value: float, *, quality: str
 
 
 class ViabilityTests(unittest.TestCase):
-    def test_strict_and_unflagged_policies_are_distinct(self):
+    def test_strict_and_published_unflagged_policies_are_distinct(self):
         rows = [
             _observation("missing", "2020-01-01T00:00:00", 1, quality=None, representation="missing_field"),
             _observation("blank", "2020-02-01T00:00:00", 2, quality=None, representation="blank_field"),
@@ -42,12 +42,15 @@ class ViabilityTests(unittest.TestCase):
             _observation("unknown", "2020-04-01T00:00:00", 4, quality="999", representation="nonempty_code"),
         ]
         strict, _ = normalize_observations(rows, quality_policy="strict")
-        unflagged, _ = normalize_observations(rows, quality_policy="unflagged_usable")
+        published, _ = normalize_observations(rows, quality_policy="published_unflagged")
+        default_policy, _ = normalize_observations(rows)
         self.assertEqual(sum(row.analysis_eligible for row in strict), 1)
-        self.assertEqual(sum(row.analysis_eligible for row in unflagged), 3)
+        self.assertEqual(sum(row.analysis_eligible for row in published), 2)
+        self.assertEqual(sum(row.analysis_eligible for row in default_policy), 2)
         self.assertEqual(strict[0].quality_disposition, "missing_quality_field")
-        self.assertEqual(unflagged[0].quality_disposition, "unflagged_usable")
+        self.assertEqual(published[0].quality_disposition, "published_unflagged")
         self.assertEqual(strict[1].quality_disposition, "blank_quality_field")
+        self.assertEqual(published[1].quality_disposition, "blank_quality_field")
 
     def test_trend_fixture_matches_independent_pairwise_sen_slope(self):
         observations = [

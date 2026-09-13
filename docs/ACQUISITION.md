@@ -157,8 +157,10 @@ results. Quality-code counts were 774 code `600`, 72 code `500`, and 146 code
 `400`; the parser also recorded 9,434 rows with a missing `<QualityCode>` child
 and no blank quality elements. The code `400` rows are retained and excluded
 from primary analytical eligibility under the documented compromised-quality
-rule. Missing quality is kept as `missing_field` and remains unresolved under
-the strict production policy; it is not treated as good.
+rule. Under the adopted exploratory policy, missing quality is retained as
+`missing_field` and included analytically as `published_unflagged`; it is not
+described as explicitly quality-verified or good. Blank fields remain separate
+and excluded. The strict policy remains available as a sensitivity build.
 
 `python3 tools/build_analytical_assets.py` generated ignored local assets with:
 
@@ -166,17 +168,21 @@ the strict production policy; it is not treated as good.
 - 324 station/parameter/window coverage records;
 - 1,830 annual/window summary records;
 - 324 trend records;
-- 846 primary-eligible rows after documented quality, unit, value, and
+- 10,280 primary-eligible rows after documented quality, unit, value, and
   duplicate rules.
 
-All 324 generated trend rows are currently `indeterminate`: 81 are suppressed
-by the zero-tolerance eligible-censoring rule, 159 do not meet the eligible-
-observation minimum, and 84 do not span three eligible calendar years. No
-duplicate/conflict or sampling-interval suppression occurred. The separate
-viability report compares a diagnostic policy that treats missing/blank quality
-as `unflagged_usable`; it produces 10,280 eligible observations and 17
-determinate primary trends, but that policy is not adopted because omitted
-quality semantics are not documented for this ECan response.
+Of the 324 generated trend rows, 41 are reported and 283 are `indeterminate`
+under the adopted policy. The primary window has 17 reported trends and 91
+indeterminate trends. The remaining indeterminate reasons are retained in the
+trend asset, including insufficient eligible observations, insufficient span,
+screened non-significant direction (159 across all windows) and censoring
+suppression (124 across all windows); no duplicate/conflict suppression
+occurred. The
+viability report compares this policy with strict eligibility: strict retains
+846 rows, 208 usable summaries, and no determinate trends, while the adopted
+policy retains 10,280 rows, 1,296 usable summaries, and 17 determinate primary
+trends. The adopted label describes source publication without overstating
+quality verification.
 
 The generated manifest and coverage asset are the evidence source for these
 counts. The source profile,

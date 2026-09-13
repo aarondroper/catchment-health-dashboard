@@ -1,6 +1,6 @@
 # Analytical methodology
 
-**Method version:** `ashburton-analytical-v2-quality-semantics`
+**Method version:** `ashburton-analytical-v3-published-unflagged`
 **Scope:** Ashburton–Hakatere, selected ECan/Hilltop monitoring sites
 **Status:** Implemented and locally validated; release remains gated by source terms and complete-catchment coverage review
 
@@ -47,13 +47,16 @@ possible child codes was not found. Therefore:
   retained in the normalized record but excluded from primary eligibility;
 -  200 and unfamiliar nonempty codes are retained with `unresolved_quality`
   and excluded from primary eligibility;
--  a missing `<QualityCode>` child is retained as `missing_field` and a
-  supplied empty child as `blank_field`; both normalize to
-  `missing_quality_field` under the strict production policy and are excluded
-  from primary eligibility;
--  the source documentation does not establish that omitted quality means
-  good, accepted, or unqualified data. A separate `unflagged_usable` scenario
-  is implemented for diagnostic comparison only, not production publication;
+-  a missing `<QualityCode>` child is retained as `missing_field` and included
+  under the adopted exploratory disposition `published_unflagged`; this means
+  only that the observation was returned by the published service without a
+  quality field, not that it was explicitly verified, QC600, or “good”;
+-  a supplied empty child is retained as `blank_field`, normalized to
+  `blank_quality_field`, and excluded because no blank-field semantics were
+  observed or documented;
+-  the prior strict policy remains available as a sensitivity mode: missing,
+  blank, and unfamiliar quality values are excluded while documented fair/good
+  records remain eligible;
 - no source row is deleted by normalization.
 
 This conservative treatment means a record can be present in raw and
@@ -106,10 +109,12 @@ insufficient observations, or insufficient time span produce an explicit
 indeterminate reason. No causal, compliance, ecological-health, or
 parameter-specific positive/negative interpretation is added.
 
-The current build's selected-site profile contains censoring in several
-parameters and sparse quality-coded eligible subsets, so the generated trend
-assets are presently indeterminate. This is an evidence result, not a defect
-to be hidden by relaxing the rules.
+The selected-site profile contains censoring in several parameters and
+irregular sampling. Under the adopted policy, 41 of 324 trend records are
+reported and 283 are indeterminate; 17 reported trends are in the primary
+window. This is an evidence result, not a defect to be hidden by relaxing the
+rules. Censored values remain visible in observation detail and are not
+substituted.
 
 ## Quality-semantics viability review
 
@@ -123,18 +128,25 @@ quality parse failures were observed. The nonempty codes were 774 `600`, 72
 by representation, disposition, parameter, site, year, and inclusion status,
 plus scenario-level coverage and summary comparisons.
 
-The strict build has 846 eligible observations, 208 usable summaries across
-annual and window records, and no determinate trends. The diagnostic
-unflagged build has 10,280 eligible observations, 1,296 usable summaries, 66
-structurally trend-eligible primary series, and 17 determinate primary trends.
-It changes 154 shared reported medians; no shared reported slope comparison
-is available because strict trends are all indeterminate. Core primary summary
+The adopted `published_unflagged` build has 10,280 eligible observations,
+1,296 usable summaries across annual and window records, 66 structurally
+trend-eligible primary series, and 17 determinate primary trends. The strict
+sensitivity build has 846 eligible observations, 208 usable summaries, and no
+determinate trends. The adopted policy changes 154 shared reported medians;
+no shared reported slope comparison is available because strict trends are all
+indeterminate. Core primary summary
 coverage under strict rules is useful but uneven: dissolved oxygen reports at
 9 sites, total nitrogen at 8, E. coli/turbidity at 6 each, nitrate and DRP at
 6 each, with DRP reporting only one usable primary summary. The dashboard
 should therefore emphasize observed history, distributions, seasonal/coverage
 context, and explicitly unavailable results; a trend view should show only
 supported results and indeterminate reasons.
+
+Across the 324 generated trend records, 41 are reported, 159 are
+`screened_not_significant`, and 124 are suppressed because eligible censored
+values are present and no validated censor-aware trend implementation is
+available. By window, the reported/indeterminate counts are 15/93 for the
+history window, 17/91 for the primary window, and 9/99 for the recent window.
 
 ## Reproducible build
 
@@ -160,6 +172,10 @@ python3 tools/audit_analytical_viability.py \
   --profile reports/generated/ashburton-analytical-profile-2007-2024-all-sites.json \
   --output reports/generated/ashburton-viability-review.json
 ```
+
+The build defaults to `published_unflagged`. To regenerate the strict
+sensitivity asset separately, pass `--quality-policy strict` and use a
+separate ignored output directory so the adopted local asset is not replaced.
 
 The generated asset directory contains normalized observations, coverage,
 summary, trend, and manifest JSON. Raw responses and generated assets remain

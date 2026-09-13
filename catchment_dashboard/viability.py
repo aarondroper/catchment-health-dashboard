@@ -212,7 +212,7 @@ def _comparison(left: dict[str, Any], right: dict[str, Any]) -> dict[str, Any]:
 def build_viability_report(profile_path: Path) -> dict[str, Any]:
     profile, observations = load_profile_observations(profile_path)
     strict = _scenario(observations, "strict")
-    unflagged = _scenario(observations, "unflagged_usable")
+    published_unflagged = _scenario(observations, "published_unflagged")
     raw_representation_counts = Counter(_representation(row) for row in observations)
     legacy_counts = Counter()
     for row in strict["normalized"]:
@@ -242,16 +242,16 @@ def build_viability_report(profile_path: Path) -> dict[str, Any]:
                 "The same guidance reports data without a quality code as a separately measurable category, but does not establish that an omitted quality element is good or unqualified.",
                 "ECan states that public water-quality results may be delayed for quality checks and directs users to its terms of use.",
             ],
-            "production_conclusion": "Retain missing and blank quality as unresolved in the production policy; evaluate unflagged_usable only as a diagnostic scenario because omitted-quality semantics are not documented for this ECan Hilltop response.",
+            "production_conclusion": "Use published_unflagged for missing quality fields returned by ECan's published service; retain blank fields separately and excluded because no blank-field semantics were observed or documented.",
         },
         "scenarios": {
             "strict_current": {key: value for key, value in strict.items() if key not in {"normalized", "coverage", "summaries", "trends"}},
-            "unflagged_usable_diagnostic": {key: value for key, value in unflagged.items() if key not in {"normalized", "coverage", "summaries", "trends"}},
+            "published_unflagged_adopted": {key: value for key, value in published_unflagged.items() if key not in {"normalized", "coverage", "summaries", "trends"}},
         },
-        "comparison_strict_to_unflagged": _comparison(strict, unflagged),
+        "comparison_strict_to_published_unflagged": _comparison(strict, published_unflagged),
         "trend_audit": {
             "strict_primary_reason_counts": strict["trend_reason_counts_primary"],
-            "unflagged_primary_reason_counts": unflagged["trend_reason_counts_primary"],
+            "published_unflagged_primary_reason_counts": published_unflagged["trend_reason_counts_primary"],
             "method_note": "Current trends use uncensored Theil-Sen slopes with a Kendall screen. Eligible censored observations are not substituted or silently removed; the current zero-tolerance censoring rule suppresses the series and records the reason.",
             "sampling_interval_note": "Sampling intervals are reported for audit. No additional interval-coverage suppression rule is currently applied beyond minimum observation and calendar-year requirements.",
         },
