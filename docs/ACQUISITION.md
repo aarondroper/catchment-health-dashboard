@@ -87,3 +87,29 @@ the generated profile's `parameters_without_observations` field. No unit
 conversion, quality exclusion, duplicate collapse, censored-value
 substitution, temporal aggregation, trend estimate, threshold, or
 health/status interpretation is applied.
+
+## Longer-window coverage evidence
+
+On 2026-09-13, the same nine-parameter request was run for `2007-01-01`
+through `2024-12-31` against the 10 in-bound site joins. It retrieved 8,644
+observations across all nine requested parameters. Eight parameters returned
+records at 9 sites; pH returned 99 numeric records at 5 sites, ending in 2013,
+and had no reported unit. The result is still bounded to the selected site
+probe and is not a complete catchment history:
+
+| Candidate parameter | Sites | Observations | Numeric | Censored/missing | Quality-coded | Units | Observed span |
+| --- | ---: | ---: | ---: | ---: | ---: | --- | --- |
+| E. coli | 9 | 1,070 | 1,011 | 59 | 111 | `MPN/100mL` | 2007–2024 |
+| Nitrate-N Nitrite-N | 9 | 1,070 | 979 | 91 | 111 | `g/m3` | 2007–2024 |
+| Dissolved Reactive Phosphorus | 9 | 1,070 | 719 | 351 | 111 | `mg/L` | 2007–2024 |
+| Total Nitrogen | 9 | 1,070 | 1,032 | 38 | 111 | `g/m3` | 2007–2024 |
+| Total Phosphorus | 9 | 1,070 | 792 | 278 | 111 | `g/m3` | 2007–2024 |
+| Turbidity | 9 | 1,070 | 1,068 | 2 | 49 | `NTU` | 2007–2024 |
+| Dissolved Oxygen | 9 | 1,057 | 1,057 | 0 | 107 | `mg/L` | 2007–2024 |
+| Water Temperature (Field) | 9 | 1,068 | 1,068 | 0 | 111 | `C` | 2007–2024 |
+| pH | 5 | 99 | 99 | 0 | 0 | not reported | 2007–2013 |
+
+The retrieval recorded 7,825 numeric results, 804 left-censored results, 15
+right-censored results, and two data-free site/parameter responses. This is
+coverage evidence for owner review, not a recommendation to include all nine
+parameters or to treat 2007–2024 as the final product window.

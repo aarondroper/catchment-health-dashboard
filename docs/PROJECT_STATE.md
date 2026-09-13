@@ -51,12 +51,13 @@ Verification here means these decisions and requirements are present in the supp
 - A bounded live Hilltop profile verified 12 real observations for `SQ20104`/Dissolved Reactive Phosphorus; no production dataset is committed.
 - The normal bounded three-parameter profile joined 10 in-bound sites and retrieved 243 observations; 9 sites had data, 194 observations were numeric, and 49 were left-censored. Two Canterbury Bight marine name-screened records were excluded by the polygon.
 - A neutral nine-parameter candidate profile inside the same boundary retrieved 644 observations across 8 parameters at 9 sites; pH had metadata matches but no observations in the 2024 window. This informs, but does not make, the final parameter decision.
+- A longer neutral nine-parameter profile for 2007–2024 retrieved 8,644 observations; eight parameters covered 9 sites, while pH covered 5 sites and ended in 2013 without reported units. This informs, but does not select, the final parameter or time window.
 
 ## Not Implemented or Not Evidenced
 
 - Final parameter set or primary temporal window.
 - Final licensing approval, rate-limit agreement, and redistribution decision. Public endpoints, schemas, station counts, catalog coverage, and inventory-level flow availability are now partially verified; see the audit limitations.
-- Complete observation-level coverage profile beyond the bounded technical window.
+- Complete catchment observation-level coverage and production-scale profile.
 - Final four-to-six water-quality parameters or primary temporal window.
 - Production-scale data acquisition/cache, full normalization, quality-control reporting, aggregation, trend, or asset-build code.
 - Adopted handling of censored values, quality flags, duplicates, units, or time zones.
