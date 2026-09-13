@@ -35,7 +35,7 @@ Establish whether authoritative public data can support a credible dashboard and
 
 ### Exit decision
 
-Owner selected Ashburton–Hakatere as the catchment direction. The completed screening evidence is in `docs/feasibility/SOURCE_AUDIT.md` and `docs/feasibility/audit-report.json`. The ECan major-catchment polygon is now validated for the bounded profile; core parameter direction, complete observation-level coverage, and acquisition semantics remain open.
+Owner selected Ashburton–Hakatere as the catchment direction. The completed screening evidence is in `docs/feasibility/SOURCE_AUDIT.md` and `docs/feasibility/audit-report.json`. The ECan major-catchment polygon is validated for the bounded profile; the core parameter/time scope is now owner-approved, while complete observation-level coverage and source-term release remain open.
 
 ## Priority 1 — Repository and Contract Foundation
 
@@ -75,7 +75,7 @@ The repository now contains a Python package and versioned contracts, a syntheti
 
 ## Priority 2 — Acquisition, Normalization, and Data Quality
 
-**Status:** In progress; bounded acquisition/profile and authoritative ECan major-catchment membership slices complete; full normalization remains. Plans archived at `docs/plans/completed/2026-09-13-ashburton-observation-acquisition.md` and `docs/plans/completed/2026-09-13-ashburton-spatial-membership.md`.
+**Status:** Substantially complete for the approved bounded profile; complete-catchment acquisition, source-term approval, and production publication remain open. Plans archived at `docs/plans/completed/2026-09-13-ashburton-observation-acquisition.md`, `docs/plans/completed/2026-09-13-ashburton-spatial-membership.md`, and the analytical implementation plan after milestone completion.
 
 ### Objective
 
@@ -106,9 +106,11 @@ Build a reliable pipeline from authoritative public sources to validated normali
 
 ### Bounded slice evidence
 
-The ECan/Hilltop adapter now performs a count-checked candidate station query, provisional coordinate join, authoritative ECan major-catchment polygon membership, measurement metadata parsing, source-preserving observation parsing, deterministic site/parameter quality summaries, and successful-response manifests. The 2024 three-parameter profile retrieved 243 observations across 10 in-bound sites, with 9 sites producing data; the two Canterbury Bight name-screened marine records were excluded by geometry. Neutral nine-parameter profiles retrieved 644 observations for 2024 and 8,644 observations for 2007–2024; pH covered only 5 sites and ended in 2013 without reported units. Numeric, left-censored, quality-coded, duplicate, missing, malformed, geometry, no-data, and incomplete-response behavior is covered by 22 Python tests. Full raw snapshots/cache, complete catchment coverage, final parameter selection, quality/unit semantics, and analytical methods remain open.
+The ECan/Hilltop adapter now performs a count-checked candidate station query, authoritative polygon membership, measurement metadata parsing, source-preserving observation parsing, deterministic site/parameter quality summaries, and successful-response manifests. The owner-approved eight-parameter 2007–2024 polygon-based run retrieved 10,426 observations at 15 data-producing sites from 19 in-bound catalog sites. Normalization and asset generation produced explicit quality/unit/censoring/duplicate dispositions, 324 coverage records, 1,830 summaries, and 324 indeterminate trend records. Numeric, left-censored, quality-coded, duplicate, missing, malformed, geometry, no-data, and incomplete-response behavior is covered by 29 Python tests. Source-term approval, public asset publication, and censor-aware trend implementation remain open.
 
 ## Priority 3 — Analytical Methodology and Derived Assets
+
+**Status:** In progress; conservative first analytical assets implemented for the bounded approved profile
 
 ### Objective
 

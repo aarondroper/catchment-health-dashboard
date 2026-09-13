@@ -1,0 +1,60 @@
+{
+  "fixture_version": "analytics-v1",
+  "observations": [
+    {
+      "observation_id": "fixture-good",
+      "station_id": "SQ-FIXTURE",
+      "parameter_id": "nitrate_n_nitrite_n",
+      "observed_at": "2020-01-15T00:00:00Z",
+      "value": 0.12,
+      "result_text": "0.12",
+      "original_unit": "g/m3",
+      "canonical_unit": null,
+      "quality_flag": "600",
+      "censoring": null
+    },
+    {
+      "observation_id": "fixture-censored",
+      "station_id": "SQ-FIXTURE",
+      "parameter_id": "nitrate_n_nitrite_n",
+      "observed_at": "2020-02-15T00:00:00Z",
+      "value": null,
+      "result_text": "<0.01",
+      "original_unit": "g/m3",
+      "canonical_unit": null,
+      "quality_flag": "600",
+      "censoring": "left_censored"
+    },
+    {
+      "observation_id": "fixture-poor",
+      "station_id": "SQ-FIXTURE",
+      "parameter_id": "nitrate_n_nitrite_n",
+      "observed_at": "2020-03-15T00:00:00Z",
+      "value": 0.2,
+      "result_text": "0.2",
+      "original_unit": "g/m3",
+      "canonical_unit": null,
+      "quality_flag": "400",
+      "censoring": null
+    },
+    {
+      "observation_id": "fixture-unresolved",
+      "station_id": "SQ-FIXTURE",
+      "parameter_id": "nitrate_n_nitrite_n",
+      "observed_at": "2020-04-15T00:00:00Z",
+      "value": 0.3,
+      "result_text": "0.3",
+      "original_unit": "g/m3",
+      "canonical_unit": null,
+      "quality_flag": "999",
+      "censoring": null
+    }
+  ],
+  "source": {
+    "provider": "Environment Canterbury",
+    "dataset": "analytics-fixture",
+    "endpoint": "https://example.invalid/hilltop",
+    "retrieved_at": "2026-09-13T00:00:00Z",
+    "source_record_id_prefix": "fixture"
+  }
+}

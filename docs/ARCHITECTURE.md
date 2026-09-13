@@ -8,7 +8,7 @@ This document distinguishes three states:
 - **Intended:** accepted direction but not yet implemented.
 - **Unresolved:** requires feasibility evidence, an implementation choice, or an owner decision.
 
-As audited on 2026-09-13, the checkout contains a dependency-free source-feasibility audit, versioned contract foundation, bounded ECan/Hilltop acquisition adapters, a validated ECan catchment-boundary membership slice, synthetic fixture path, and React/TypeScript/Vite shell. It does not yet contain normalized production observations or analytical processing. `docs/PROJECT_STATE.md` is authoritative for what currently exists and has been verified.
+As audited on 2026-09-13, the checkout contains a dependency-free source-feasibility audit, versioned contract foundation, bounded ECan/Hilltop acquisition adapters, a validated ECan catchment-boundary membership slice, source-preserving normalization and analytical asset builders, synthetic and analytical fixtures, and a React/TypeScript/Vite shell. Generated production-scale outputs remain ignored local artifacts pending source-term review. `docs/PROJECT_STATE.md` is authoritative for what currently exists and has been verified.
 
 ## System Context
 
@@ -33,14 +33,15 @@ The browser should not query remote environmental APIs for routine interactions.
 - Agent workflow, backlog, decision record, and quality gates are defined under `AGENTS.md` and `docs/`.
 - Active/completed plan directories exist under `docs/plans/`; completed plans include the feasibility audit and repository foundation plans.
 - A read-only feasibility audit verifies public ECan ArcGIS station/flow inventory and ECan Hilltop WFS site/measurement catalog access. See `docs/feasibility/SOURCE_AUDIT.md`.
-- `catchment_dashboard/contracts.py` defines version `0.1.0` source, station, parameter, observation, aggregate, trend, and asset-manifest boundaries. `docs/CONTRACTS.md` is the contract reference.
-- `catchment_dashboard/ecan_hilltop.py`, `catchment_dashboard/ecan_geometry.py`, and `tools/acquire_observations.py` provide a bounded, count-checked ECan/Hilltop acquisition, ECan major-catchment membership boundary, quality summary, and successful-response manifest; raw source snapshotting and production normalization are not yet implemented.
-- `config/study_area.json` records Ashburton–Hakatere as the owner-selected direction and the verified ECan `Ashburton River` major-catchment boundary while leaving parameters and analytical semantics pending.
+- `catchment_dashboard/contracts.py` defines version `0.1.0` source records and `1.0.0` normalized observation records alongside station, parameter, aggregate, trend, and asset-manifest boundaries. `docs/CONTRACTS.md` is the contract reference.
+- `catchment_dashboard/ecan_hilltop.py`, `catchment_dashboard/ecan_geometry.py`, and `tools/acquire_observations.py` provide bounded, count-checked ECan/Hilltop acquisition, ECan major-catchment membership, quality summaries, successful-response manifests, and optional full source-preserving profile output.
+- `catchment_dashboard/analytics.py` and `tools/build_analytical_assets.py` implement versioned normalization, quality/unit/censoring/duplicate dispositions, coverage diagnostics, conservative summaries/trends, and ignored application-ready JSON assets.
+- `config/study_area.json` records the owner-approved Ashburton–Hakatere parameter and time scope and the verified ECan `Ashburton River` major-catchment boundary.
 - `web/` contains a Vite/React/TypeScript shell, a MapLibre-ready type boundary, and a typed inline-SVG chart spike backed only by synthetic fixture data. `web/package-lock.json` provides a reproducible frontend install.
 
 ### Not yet evidenced
 
-- Production-scale source snapshots/normalization, analytical calculations, generated application assets, or CI.
+- Publicly redistributable production assets, licensed source snapshots, complete catchment observation coverage, and CI.
 - A runtime MapLibre map with verified geometry/tiles; the current MapLibre dependency is a prepared boundary only.
 - Frontend interaction tests, configured lint/format tooling, deployment configuration, or live deployment.
 
@@ -93,7 +94,11 @@ Responsibilities:
 - preserve excluded or transformed-record counts and reasons;
 - stop or prominently mark outputs when source completeness cannot be established.
 
-Rules for censored results, source quality flags, and unit conversion must follow source metadata and are unresolved until the audit.
+The implemented `ashburton-analytical-v1` rules preserve original values and
+source fields, convert only equivalent nutrient units, retain unresolved rows
+with explicit dispositions, suppress censored summaries rather than
+substitute values, and publish indeterminate trends when minimums or
+censor-aware methods are not met. See `docs/METHODOLOGY.md`.
 
 ### 4. Analytical processing
 
@@ -157,7 +162,7 @@ The version `0.1.0` foundation schemas are documented in `docs/CONTRACTS.md` and
 | `observation` | Station, parameter, timestamp, numeric/result representation, original and canonical units, quality/censoring status, source record reference |
 | `flow_observation` | Gauge, timestamp, flow/stage value and unit, quality/source metadata; optional |
 | `aggregate` | Station/parameter/period, method, count, coverage, statistic, method version |
-| `trend` | Scope, period, method, estimate, uncertainty/significance fields where applicable, coverage, method version; methodology unresolved |
+| `trend` | Scope, period, method, estimate, uncertainty/significance fields where applicable, coverage, method version; current conservative fallback documented in `docs/METHODOLOGY.md` |
 | `asset_manifest` | Build/source timestamps, spatial/temporal coverage, counts, versions, checksums, warnings |
 
 Internal identifiers must be stable and source identifiers must be retained. Unit conversion must never erase the original value/unit context needed for audit.

@@ -481,6 +481,7 @@ def build_source_ref(*, endpoint: str, source_record_id: str, retrieved_at: str)
 
 def summarize_observations(observations: Iterable[ObservationRecord], parse_counts: Counter[str]) -> dict[str, Any]:
     rows = list(observations)
+    quality_flags = Counter(row.quality_flag for row in rows if row.quality_flag is not None)
     by_parameter: dict[str, dict[str, Any]] = {}
     by_site_parameter: dict[tuple[str, str], dict[str, Any]] = {}
     for parameter_id in sorted({row.parameter_id for row in rows}):
@@ -494,6 +495,9 @@ def summarize_observations(observations: Iterable[ObservationRecord], parse_coun
             "numeric_count": sum(row.value is not None for row in parameter_rows),
             "censored_or_missing_count": sum(row.value is None for row in parameter_rows),
             "quality_flag_count": sum(row.quality_flag is not None for row in parameter_rows),
+            "quality_flag_counts": dict(sorted(Counter(
+                row.quality_flag for row in parameter_rows if row.quality_flag is not None
+            ).items())),
         }
     for row in rows:
         key = (row.station_id, row.parameter_id)
@@ -506,6 +510,7 @@ def summarize_observations(observations: Iterable[ObservationRecord], parse_coun
                 "numeric_count": 0,
                 "censored_or_missing_count": 0,
                 "quality_flag_count": 0,
+                "quality_flag_counts": Counter(),
                 "units": set(),
                 "censoring_counts": Counter(),
             },
@@ -519,6 +524,7 @@ def summarize_observations(observations: Iterable[ObservationRecord], parse_coun
             profile["numeric_count"] += 1
         if row.quality_flag is not None:
             profile["quality_flag_count"] += 1
+            profile["quality_flag_counts"][row.quality_flag] += 1
         if row.original_unit:
             profile["units"].add(row.original_unit)
     site_parameter_profiles = []
@@ -526,6 +532,7 @@ def summarize_observations(observations: Iterable[ObservationRecord], parse_coun
         profile = by_site_parameter[key]
         profile["units"] = sorted(profile["units"])
         profile["censoring_counts"] = dict(sorted(profile["censoring_counts"].items()))
+        profile["quality_flag_counts"] = dict(sorted(profile["quality_flag_counts"].items()))
         site_parameter_profiles.append(profile)
     return {
         "observation_count": len(rows),
@@ -534,6 +541,7 @@ def summarize_observations(observations: Iterable[ObservationRecord], parse_coun
         "parameters": by_parameter,
         "site_parameter_profiles": site_parameter_profiles,
         "parse_counts": dict(parse_counts),
+        "quality_flag_counts": dict(sorted(quality_flags.items())),
     }
 
 
@@ -550,6 +558,8 @@ def profile_to_dict(
     boundary: Any | None = None,
     excluded_sites: list[dict[str, str | None]] | None = None,
     source_manifest: Iterable[SourceResponse] | None = None,
+    include_observations: bool = False,
+    site_selection_mode: str = "bounded_name_screened_station_join",
 ) -> dict[str, Any]:
     boundary_metadata = None
     membership_status = "provisional_coordinate_and_name_screening_not_authoritative_polygon"
@@ -573,6 +583,7 @@ def profile_to_dict(
         "retrieved_at": retrieved_at,
         "study_area_id": "ashburton_hakatere",
         "status": "observation_profile_only",
+        "site_selection_mode": site_selection_mode,
         "membership_status": membership_status,
         "catchment_boundary": boundary_metadata,
         "excluded_sites": excluded_sites or [],
@@ -582,12 +593,13 @@ def profile_to_dict(
         "provisional_sites": [asdict(site) for site in sites],
         "summary": summarize_observations(observations, parse_counts),
         "sample_observations": [asdict(row) for row in observations[:10]],
+        "observations": [asdict(row) for row in observations] if include_observations else None,
         "source_endpoints": source_endpoints,
         "source_manifest": [asdict(response) for response in source_manifest or ()],
         "limitations": [
             "Profile uses bounded requested parameters and sites; it is not a complete catchment dataset.",
             "Unit conversion, quality exclusion, duplicate collapse, or censored-value substitution was not applied.",
             "Hilltop timestamps are preserved as supplied; timezone interpretation remains a later source-quality decision.",
-            "Final parameters, analysis window, and analytical methods remain pending observation review and owner decision.",
+            "This profile is source-preserving acquisition input; normalization and analytical eligibility are applied by the analytical build.",
         ],
     }

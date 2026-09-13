@@ -12,6 +12,12 @@ python3 tools/feasibility_audit.py --output docs/feasibility/audit-report.json
 
 The command retrieves source metadata and compact catalogs only. It does not download or commit raw observations. The machine-readable result is [audit-report.json](audit-report.json).
 
+This document records the feasibility-stage evidence and recommendation. The
+owner subsequently approved the Ashburton–Hakatere scope, eight-parameter
+core/secondary acquisition set, and 2007–2024 / 2015–2024 / 2020–2024 windows.
+Current observation-level evidence and methods are maintained in
+`docs/ACQUISITION.md` and `docs/METHODOLOGY.md`.
+
 ## Verified source evidence
 
 The live run retrieved all records reported by the endpoints for the requested scopes:
@@ -58,7 +64,11 @@ Recommended owner-review shortlist:
 1. Ashburton–Hakatere for maximum profiled data depth and flow context.
 2. Waimakariri or Ashley–Rakahuri as smaller alternatives if geographic coherence and a tighter station network are preferred.
 
-Before final analytical implementation proceeds, the owner must review the bounded polygon membership result and select the final parameter direction after observation-level profiling. No final parameters, trend estimator, threshold, status label, or causal interpretation has been adopted here. A plausible provisional analysis window is 2007–2024 because several common parameters span that period at some linked sites; completeness and sampling density must be measured from observations first.
+At the time of this feasibility audit, the owner still needed to review the
+bounded polygon membership result and select the final parameter direction.
+That review has since been completed; this historical section does not adopt
+the later analytical method. The current method, thresholds policy, and
+coverage caveats are in `docs/METHODOLOGY.md`.
 
 ## Constraints, limitations, and next work
 

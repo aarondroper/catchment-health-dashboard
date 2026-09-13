@@ -20,7 +20,7 @@ This log preserves consequential decisions that constrain future work. It does n
 
 ## D-003 — Limit the core to approximately four to six water-quality parameters
 
-- **Status:** Accepted scope; parameter identities pending
+- **Status:** Accepted scope; identities recorded in D-014
 - **Decision:** Use a deliberately limited principal parameter set chosen after source-coverage analysis.
 - **Rationale:** This is broad enough to demonstrate environmental monitoring while avoiding an unfocused portal.
 - **Alternatives considered:** Expose every available analyte; preselect parameters solely for environmental familiarity.
@@ -100,8 +100,30 @@ This log preserves consequential decisions that constrain future work. It does n
 
 ## D-013 — Select Ashburton–Hakatere as the study-area direction
 
-- **Status:** Accepted by owner on 2026-09-13; bounded ECan membership boundary verified; final parameter set pending
+- **Status:** Accepted by owner on 2026-09-13; bounded ECan membership boundary verified
 - **Decision:** Use the Ashburton–Hakatere catchment as the selected study-area direction for repository foundation and subsequent source/geometry validation.
 - **Evidence:** The Priority 0 audit found the strongest quantitative screening profile for this candidate: 37 name-screened ECan surface stations, 10 coordinate-linked Hilltop sites, 458 measurement entries, 72 parameters present at two or more linked sites, and 8 name-matched flow sites. These are screening measures, not authoritative polygon membership.
 - **Alternatives considered:** Waimakariri and Ashley–Rakahuri as smaller alternatives; revisiting Canterbury.
-- **Consequences:** Ashburton–Hakatere becomes the working configuration scope. The bounded acquisition uses ECan's `Ashburton River` major-catchment polygon (`CatchmentGroup=688`) for membership; this is a hydrological source boundary, not a regulatory or water-zone claim. Final four-to-six parameters, primary analysis window, quality/unit rules, flow pairing, trends, thresholds, and status semantics still require evidence and owner review. The audit recommendation and limitations remain in `docs/feasibility/SOURCE_AUDIT.md`.
+- **Consequences:** Ashburton–Hakatere becomes the working configuration scope. The bounded acquisition uses ECan's `Ashburton River` major-catchment polygon (`CatchmentGroup=688`) for membership; this is a hydrological source boundary, not a regulatory or water-zone claim. Parameter, window, and analytical decisions are recorded below. Flow pairing, thresholds, and any health/status semantics remain outside this milestone. The audit recommendation and limitations remain in `docs/feasibility/SOURCE_AUDIT.md`.
+
+## D-014 — Approve Ashburton parameter and time scope
+
+- **Status:** Accepted by owner on 2026-09-13
+- **Decision:** Use E. coli, Nitrate-N Nitrite-N, Dissolved Reactive Phosphorus, Total Nitrogen, Turbidity, and Dissolved Oxygen as core parameters. Retain Total Phosphorus and Water Temperature as secondary normalized parameters, exclude pH from the common scope, preserve 2007–2024 history, and expose 2015–2024 as the provisional primary window with 2020–2024 recent-condition summaries.
+- **Evidence:** The long-window polygon-based profile retrieved eight non-pH parameters at 15 data-producing sites inside 19 in-bound catalog sites. pH covered five sites in the earlier neutral profile, ended in 2013, and had no reported unit. The selected scope and windows are configured in `config/study_area.json`.
+- **Consequences:** Future dashboard work must not silently add pH, replace the selected core, or shorten the retained history. Coverage remains subject to source completeness and the explicit site/parameter diagnostics.
+
+## D-015 — Adopt conservative normalized dispositions and analytical fallback
+
+- **Status:** Accepted for implementation by owner authorization on 2026-09-13; release interpretation remains constrained
+- **Decision:** Preserve every source row; normalize equivalent nutrient units to `mg/L`; retain documented fair/good quality records; retain but exclude unresolved, synthetic, and documented poor/compromised records from primary eligibility; suppress summaries when censored values prevent a defensible numeric-only statistic; and use an uncensored Theil–Sen/Kendall fallback with explicit minimums and neutral direction labels.
+- **Evidence:** The inspected source documentation provides NEMS meanings for 100/200/300/400/500/600, but no complete public ECan child-code map was found. The selected polygon-based long-window run contained 10,426 observations, 948 censored values, 774 good-quality codes, 72 fair-quality codes, 146 documented poor-quality codes, and 9,434 absent/unresolved quality dispositions. A dependency-free censor-aware ROS/Mann–Kendall implementation was not sufficiently validated for this milestone.
+- **Alternatives considered:** Universal half-limit substitution; silently including unresolved quality; unvalidated ROS or censor-aware trend libraries; regulatory thresholds or a composite score. These were rejected under the product guardrails.
+- **Consequences:** Many current primary summaries and all current selected-site trend rows may be indeterminate. This is explicit in the generated assets and must remain visible in the application. Source terms and complete coverage remain release gates.
+
+## D-016 — Treat ECan published data terms as a local-processing basis, not release approval
+
+- **Status:** Verified source-terms guidance on 2026-09-13; public redistribution remains a release gate
+- **Decision:** Continue local acquisition, normalization, testing, and ignored asset generation. Do not commit or publicly serve raw responses or generated observations until the legacy Hilltop route is confirmed under the applicable ECan terms and the product implements attribution, freshness/update responsibility, no-branding, and no-advertising constraints.
+- **Evidence:** ECan's water-quality page links terms of use. The published ECan data agreement states ECan copyright, source attribution, no ECan branding without permission, no advertising in applications without permission, a public-electronic-data freshness/removal responsibility, and CC BY 4.0 unless specifically stated otherwise. It also notes that provisional values may change.
+- **Consequences:** The licensing question no longer blocks the analytical implementation milestone, but it remains a release gate for committed or publicly redistributed data and requires an explicit attribution/freshness plan.

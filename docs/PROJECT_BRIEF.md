@@ -7,7 +7,7 @@
 - **Geographic direction:** Ashburton–Hakatere, represented for bounded acquisition by Environment Canterbury's Ashburton River major-catchment boundary
 - **Lifecycle stage:** Acquisition, normalization, and analytical-method preparation
 
-Ashburton–Hakatere is the owner-selected working catchment following the Canterbury source-feasibility audit. Its bounded acquisition membership uses the verified ECan Ashburton River major-catchment polygon; final parameters, analysis window, and analytical semantics remain subject to owner review.
+Ashburton–Hakatere is the owner-selected working catchment following the Canterbury source-feasibility audit. Its acquisition membership uses the verified ECan Ashburton River major-catchment polygon. The owner-approved analytical scope is recorded in `config/study_area.json` and `docs/DECISIONS.md`; analytical results remain subject to explicit coverage, quality, censoring, and source-term caveats.
 
 ## Purpose
 
@@ -122,7 +122,7 @@ The MVP will not include accounts, user-created dashboards, arbitrary uploads or
 - Do not commit unnecessarily large raw or generated datasets.
 - Keep the project small enough to finish and suitable for iterative agentic development.
 - Do not overstate environmental condition, trend certainty, causation, regulatory meaning, completeness, or sampling continuity.
-- Obtain owner review before finalizing the core parameter set, primary analysis window, trend interpretation language, applicable thresholds, any composite indicator, or the major dashboard composition. The working catchment direction is already selected; any material geography change still requires owner review.
+- Obtain owner review before finalizing any future material change to the owner-approved core parameter set, primary analysis window, trend interpretation language, applicable thresholds, any composite indicator, or the major dashboard composition. The working catchment direction and current analytical scope are selected; any material geography change still requires owner review.
 
 ## Success Definition
 

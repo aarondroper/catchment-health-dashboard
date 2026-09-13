@@ -53,6 +53,8 @@ def acquire_profile(
     from_date: str,
     to_date: str,
     site_ids: list[str] | None = None,
+    include_observations: bool = False,
+    all_in_bound_sites: bool = False,
 ) -> dict[str, object]:
     retrieved_at = utc_now()
     fetcher = RecordingFetcher()
@@ -74,19 +76,34 @@ def acquire_profile(
             for site_id in sorted(set(site_ids))
         ]
     else:
-        source_endpoints.append(arcgis_candidate_url(count_only=True))
-        source_endpoints.append(station_endpoint)
-        stations = fetch_arcgis_candidates(fetcher)
         site_list_endpoint = f"{HILLTOP_ENDPOINT}?Service=Hilltop&Request=SiteList&Location=LatLong"
         sites = parse_site_list(fetcher(site_list_endpoint, timeout=60))
         source_endpoints.append(site_list_endpoint)
-        provisional_sites = provisional_site_join(stations, sites)
         boundary_endpoint = arcgis_catchment_url()
         boundary = parse_catchment_boundary(
             fetcher(boundary_endpoint, timeout=60),
             source_endpoint=boundary_endpoint,
         )
         source_endpoints.append(boundary_endpoint)
+        if all_in_bound_sites:
+            provisional_sites = [
+                ProvisionalSite(
+                    site_id=row["site_id"],
+                    station_name=None,
+                    source_station_id=None,
+                    latitude=float(row["latitude"]),
+                    longitude=float(row["longitude"]),
+                    join_distance_degrees=None,
+                    membership_basis="hilltop_site_list_coordinate_screening",
+                )
+                for row in sites
+                if row.get("latitude") and row.get("longitude")
+            ]
+        else:
+            source_endpoints.append(arcgis_candidate_url(count_only=True))
+            source_endpoints.append(station_endpoint)
+            stations = fetch_arcgis_candidates(fetcher)
+            provisional_sites = provisional_site_join(stations, sites)
         provisional_sites, excluded_sites = filter_sites_to_boundary(provisional_sites, boundary)
     if not provisional_sites:
         raise RuntimeError("no in-bound Ashburton site joins were found")
@@ -159,6 +176,12 @@ def acquire_profile(
         source_endpoints=source_endpoints,
         boundary=boundary,
         excluded_sites=excluded_sites,
+        include_observations=include_observations,
+        site_selection_mode=(
+            "all_coordinate_bearing_hilltop_sites_inside_authoritative_polygon"
+            if all_in_bound_sites
+            else "bounded_name_screened_station_join"
+        ),
     )
     output.parent.mkdir(parents=True, exist_ok=True)
     output.write_text(json.dumps(result, indent=2, sort_keys=True) + "\n", encoding="utf-8")
@@ -182,6 +205,16 @@ def main() -> int:
         action="append",
         help="Probe an explicit Hilltop site without asserting spatial membership.",
     )
+    parser.add_argument(
+        "--include-observations",
+        action="store_true",
+        help="Include the complete source-preserving observation rows for a local analytical build.",
+    )
+    parser.add_argument(
+        "--all-in-bound-sites",
+        action="store_true",
+        help="Use every coordinate-bearing Hilltop site inside the authoritative polygon instead of the bounded name-screened station join.",
+    )
     args = parser.parse_args()
     if args.max_sites < 1:
         parser.error("--max-sites must be at least 1")
@@ -193,6 +226,8 @@ def main() -> int:
         from_date=args.from_date,
         to_date=args.to_date,
         site_ids=args.site_ids,
+        include_observations=args.include_observations,
+        all_in_bound_sites=args.all_in_bound_sites,
     )
     print(json.dumps(result["summary"], sort_keys=True))
     return 0

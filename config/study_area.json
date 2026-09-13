@@ -14,13 +14,47 @@
     "membership_method": "point_in_authoritative_polygon_inclusive_boundary",
     "endpoint": "https://gis.ecan.govt.nz/arcgis/rest/services/Public/Hydrology/MapServer/0"
   },
-  "candidate_parameters_status": "pending_observation_profile_and_owner_review",
-  "profile_parameters": [
+  "candidate_parameters_status": "owner_approved_analytical_scope_2026-09-13",
+  "normalization_version": "ashburton-analytical-v1",
+  "history_window": {
+    "start": "2007-01-01",
+    "end": "2024-12-31",
+    "status": "preserve_available_history"
+  },
+  "primary_dashboard_window": {
+    "start": "2015-01-01",
+    "end": "2024-12-31",
+    "status": "provisional_owner_approved"
+  },
+  "recent_condition_window": {
+    "start": "2020-01-01",
+    "end": "2024-12-31",
+    "status": "available_owner_approved"
+  },
+  "core_parameters": [
+    "E. coli",
+    "Nitrate-N Nitrite-N",
     "Dissolved Reactive Phosphorus",
     "Total Nitrogen",
-    "Nitrate-N Nitrite-N"
+    "Turbidity",
+    "Dissolved Oxygen"
   ],
-  "profile_parameters_status": "bounded_profile_only_not_owner_selection",
+  "secondary_parameters": [
+    "Total Phosphorus",
+    "Water Temperature"
+  ],
+  "excluded_common_parameters": ["pH"],
+  "profile_parameters": [
+    "E. coli",
+    "Dissolved Reactive Phosphorus",
+    "Total Nitrogen",
+    "Nitrate-N Nitrite-N",
+    "Total Phosphorus",
+    "Turbidity",
+    "Dissolved Oxygen",
+    "Water Temperature (Field)"
+  ],
+  "profile_parameters_status": "approved_core_and_secondary_acquisition_scope",
   "candidate_parameters": [
     "E. coli",
     "Nitrate-N Nitrite-N",
@@ -32,8 +66,8 @@
     "Dissolved Oxygen",
     "Water Temperature (Field)"
   ],
-  "analysis_window": null,
+  "analysis_window": "2015-2024_primary_with_2020-2024_recent_summary",
   "flow_status": "contextual_inclusion_pending_station_match",
-  "source_route": "ecan_hilltop_catalog_and_public_arcgis_candidates",
+  "source_route": "ecan_hilltop_catalog_with_public_arcgis_catchment_boundary",
   "provenance_policy": "retain_provider_ids_units_timestamps_quality_and_censoring_fields"
 }

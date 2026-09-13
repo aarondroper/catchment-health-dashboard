@@ -8,6 +8,8 @@
 - deterministic profile summaries by parameter and site/parameter, including observation counts, numeric/null counts, units, censoring categories, and quality-code presence;
 - a response manifest containing the exact successful request endpoints,
   retrieval timestamps, byte counts, and SHA-256 digests;
+- an optional full source-preserving observation materialization for the local
+  analytical build (`--include-observations`); and
 - a provisional nearest-coordinate join to name-screened ECan stations followed
   by point-in-polygon membership against ECan's major-catchment boundary;
 - compact ignored output under `reports/generated/`.
@@ -18,10 +20,13 @@ Run from the repository root:
 python3 tools/acquire_observations.py
 ```
 
-The default is deliberately bounded to three in-bound provisional site joins
-and the three profile parameters in `config/study_area.json`, for the
-technical window `2024-01-01` through `2024-12-31`. These are profiling
-settings, not the final parameter set or primary product window.
+The default remains deliberately bounded to three in-bound provisional site
+joins. For the approved analytical build, pass `--max-sites 19`,
+`--all-in-bound-sites`, the eight
+configured core/secondary source parameters, `--from-date 2007-01-01`,
+`--to-date 2024-12-31`, and `--include-observations`. The full profile is an
+ignored local input to `tools/build_analytical_assets.py`; it is not a
+redistributable raw snapshot.
 
 When ArcGIS is unavailable but a known Hilltop site needs a source-only probe, use the explicit-site mode:
 
@@ -33,6 +38,19 @@ python3 tools/acquire_observations.py \
 ```
 
 Explicit-site mode labels membership as `explicit_site_id_not_spatially_validated`; it must not be used to claim catchment membership.
+
+To audit full coordinate membership before observation retrieval, run:
+
+```text
+python3 tools/audit_catchment_sites.py
+```
+
+The 2026-09-13 audit found 550 coordinate-bearing Hilltop sites, 19 inside
+the Ashburton polygon, and no measurement-catalog retrieval errors. Seventeen
+of those 19 sites exposed at least one selected water-quality parameter in
+metadata; two exposed biological metrics only. The all-site acquisition mode
+uses these polygon members directly and records the selection mode in its
+profile.
 
 ## Source-response manifest
 
@@ -72,9 +90,11 @@ On 2026-09-13, the normal bounded command completed the ArcGIS count-checked sta
 Sixty-nine observations carried a quality code. The two current marine name-screened joins (`SQ35193` and `SQ35200`, Canterbury Bight) were excluded by the authoritative polygon. The generated JSON is ignored because source redistribution terms remain under review.
 
 The ArcGIS candidate query, Hilltop coordinate join, boundary retrieval, and
-site membership filter are live-verified for this bounded run. This validates
-the spatial inclusion rule for the profiled sites; it does not establish
-complete historical observation coverage or select the final parameters.
+site membership filter are live-verified for this bounded diagnostic run. The
+separate all-site audit and acquisition below establish the current polygon
+membership and selected-parameter retrieval evidence; they still do not prove
+that the public source contains every possible monitoring record for the
+catchment.
 
 A separate neutral candidate run requested the nine parameters listed in
 `config/study_area.json` for the same 10 in-bound sites and 2024 window. Eight
@@ -122,6 +142,36 @@ probe and is not a complete catchment history:
 | pH | 5 | 99 | 99 | 0 | 0 | not reported | 2007–2013 |
 
 The retrieval recorded 7,825 numeric results, 804 left-censored results, 15
-right-censored results, and two data-free site/parameter responses. This is
-coverage evidence for owner review, not a recommendation to include all nine
-parameters or to treat 2007–2024 as the final product window.
+right-censored results, and two data-free site/parameter responses. This
+neutral run is superseded for the analytical build by the owner-approved
+eight-parameter run, which intentionally excludes pH.
+
+## Approved analytical acquisition and asset build
+
+The approved eight-parameter `2007-01-01` through `2024-12-31` run completed
+on 2026-09-13 against all 19 coordinate-bearing sites inside the verified
+polygon. Fifteen sites returned data, yielding 10,426 source observations
+across the six core and two secondary parameters. The source summary contained
+9,478 numeric, 933 left-censored, and 15 right-censored results. Quality-code
+counts were 774 code `600`, 72 code `500`, and 146 code `400`; 9,434 rows had
+no recognized quality disposition and remain retained but unresolved in
+normalized assets. The code `400` rows are retained and excluded from primary
+analytical eligibility under the documented compromised-quality rule.
+
+`python3 tools/build_analytical_assets.py` generated ignored local assets with:
+
+- 10,426 normalized observation rows;
+- 324 station/parameter/window coverage records;
+- 1,830 annual/window summary records;
+- 324 trend records;
+- 846 primary-eligible rows after documented quality, unit, value, and
+  duplicate rules.
+
+All 324 generated trend rows are currently `indeterminate`: 81 contain
+censored eligible values, 159 do not meet the eligible-observation minimum,
+and 84 do not span three eligible calendar years. The generated manifest and
+coverage asset are the evidence source for these counts. The source profile,
+raw responses, and generated assets remain ignored pending dataset-specific
+source-terms confirmation and release review; the published ECan data
+agreement findings and attribution/freshness requirements are in
+`docs/METHODOLOGY.md`.

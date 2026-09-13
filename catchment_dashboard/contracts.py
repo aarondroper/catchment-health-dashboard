@@ -16,6 +16,7 @@ from typing import Any
 
 
 CONTRACT_VERSION = "0.1.0"
+NORMALIZED_CONTRACT_VERSION = "1.0.0"
 STUDY_AREA_ID = "ashburton_hakatere"
 
 
@@ -69,6 +70,37 @@ class ObservationRecord:
     canonical_unit: str | None
     quality_flag: str | None
     censoring: str | None
+    source: SourceRef
+
+
+@dataclass(frozen=True)
+class NormalizedObservationRecord:
+    """A source-preserving observation after explicit analytical disposition.
+
+    ``value`` and ``result_text`` are the provider values. ``canonical_value``
+    is only a unit-normalized numeric value; it is never a substituted value
+    for a censored or missing result.
+    """
+
+    normalized_observation_id: str
+    observation_id: str
+    station_id: str
+    parameter_id: str
+    parameter_name: str
+    observed_at: str
+    value: float | None
+    canonical_value: float | None
+    result_text: str | None
+    original_unit: str | None
+    canonical_unit: str | None
+    censoring: str | None
+    censor_limit: float | None
+    quality_flag: str | None
+    quality_disposition: str
+    value_kind: str
+    duplicate_group_id: str
+    duplicate_disposition: str
+    analysis_eligible: bool
     source: SourceRef
 
 
@@ -191,6 +223,46 @@ def validate_observation(observation: ObservationRecord) -> None:
         "censoring",
     ):
         _optional_text(getattr(observation, name), f"observation.{name}")
+    validate_source(observation.source)
+
+
+def validate_normalized_observation(observation: NormalizedObservationRecord) -> None:
+    """Validate the normalized contract without interpreting its disposition."""
+
+    for name in (
+        "normalized_observation_id",
+        "observation_id",
+        "station_id",
+        "parameter_id",
+        "parameter_name",
+        "quality_disposition",
+        "value_kind",
+        "duplicate_group_id",
+        "duplicate_disposition",
+    ):
+        _required_text(getattr(observation, name), f"normalized_observation.{name}")
+    _iso_datetime(observation.observed_at, "normalized_observation.observed_at")
+    if observation.value is not None and (
+        not isinstance(observation.value, (int, float)) or not math.isfinite(observation.value)
+    ):
+        raise ContractError("normalized_observation.value must be finite or null")
+    if observation.canonical_value is not None and (
+        not isinstance(observation.canonical_value, (int, float))
+        or not math.isfinite(observation.canonical_value)
+    ):
+        raise ContractError("normalized_observation.canonical_value must be finite or null")
+    if observation.censor_limit is not None and (
+        not isinstance(observation.censor_limit, (int, float))
+        or not math.isfinite(observation.censor_limit)
+        or observation.censor_limit < 0
+    ):
+        raise ContractError("normalized_observation.censor_limit must be null or non-negative")
+    if observation.value is None and not observation.result_text:
+        raise ContractError("a null normalized value requires result_text provenance")
+    for name in ("result_text", "original_unit", "canonical_unit", "censoring", "quality_flag"):
+        _optional_text(getattr(observation, name), f"normalized_observation.{name}")
+    if not isinstance(observation.analysis_eligible, bool):
+        raise ContractError("normalized_observation.analysis_eligible must be boolean")
     validate_source(observation.source)
 
 
