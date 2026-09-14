@@ -75,7 +75,7 @@ The repository now contains a Python package and versioned contracts, a syntheti
 
 ## Priority 2 — Acquisition, Normalization, and Data Quality
 
-**Status:** Complete for the approved bounded profile and refreshed quality-semantics review; complete-catchment acquisition and production publication remain open. Plans are archived under `docs/plans/completed/`.
+**Status:** Complete for the approved scope and identified source inventories; broader source completeness and production publication remain outside the evidence. Plans are archived under `docs/plans/completed/`.
 
 ### Objective
 
@@ -106,7 +106,7 @@ Build a reliable pipeline from authoritative public sources to validated normali
 
 ### Bounded slice evidence
 
-The ECan/Hilltop adapter now performs a count-checked candidate station query, authoritative polygon membership, measurement metadata parsing, source-preserving observation parsing, deterministic site/parameter quality summaries, and successful-response manifests. The owner-approved eight-parameter 2007–2024 polygon-based run retrieved 10,426 observations at 15 data-producing sites from 19 in-bound catalog sites. Normalization and asset generation produced explicit raw quality-representation, quality/unit/censoring/duplicate dispositions, 324 coverage records, 1,830 summaries, and 324 trend records. The focused quality-semantics review verified 9,434 missing quality elements, 992 nonempty quality codes, adopted eligibility of 10,280 rows, strict sensitivity eligibility of 846 rows, and complete trend reason diagnostics. Thirty-three Python tests plus fixture, compilation, acquisition, deterministic-build, and viability-report checks pass. Source-term approval, public asset publication, and censor-aware trend implementation remain open.
+The ECan/Hilltop adapter now performs a count-checked candidate station query, authoritative polygon membership, measurement metadata parsing, source-preserving observation parsing, deterministic site/parameter quality summaries, and successful-response manifests. The fresh 2007–2025 polygon-based run retrieved 11,230 observations at 15 data-producing sites from 19 exact-ID in-bound matches. Normalization and asset generation produced explicit raw quality-representation, quality/unit/censoring/duplicate dispositions, 324 coverage records, 1,930 summaries, and 324 trend records. The focused quality-semantics review remains preserved; the fresh adopted build has 11,078 eligible rows, 1,370 reported summaries, and 30 determinate trends, while the strict sensitivity build has 1,644 eligible rows, 348 reported summaries, and no determinate trends. Source-inventory reconciliation, runtime freshness, and the public-shaped release build are implemented; publication and deployment remain owner actions.
 
 ## Priority 3 — Analytical Methodology and Derived Assets
 
@@ -171,13 +171,13 @@ The local app loads `web/public/data/ashburton/dashboard.json` when prepared by
 `tools/prepare_dashboard_assets.py`, with an explicit synthetic-fixture
 fallback. Parameter, window, station, and map-pin selections share state
 across the map, series/table, summaries, coverage, comparison, and quality
-context. The generated app asset contains 10,426 observations, 10,280
-eligible observations, 19 stations, 1,830 summaries, and 324 trend records;
-17 primary-window trends are reported and 91 are indeterminate. Typecheck,
-production build, and the focused browser suite pass. Browser verification
-confirmed the real asset, coordinated controls, no-data/censored/indeterminate
-states, fallback/error behavior, responsive overflow, and the absence of
-serious/critical accessibility violations at 1440×900, 1024×768, and 390×844.
+context. The refreshed v4 runtime contains 11,230 observations, 11,078
+eligible observations, 19 stations, 1,930 summaries, and 324 trend records;
+9 primary-window trends are determinate. Typecheck, production build, and the
+focused browser suite pass. Browser verification confirmed the real asset,
+coordinated controls, no-data/censored/indeterminate states, fallback/error
+behavior, responsive overflow, and the absence of serious/critical
+accessibility violations at 1440×900, 1024×768, and 390×844.
 
 ### Acceptance criteria
 
@@ -262,7 +262,7 @@ is about 1.26 MB raw/82 kB gzip; shell plus initial E. coli detail is about
 
 ## Priority 5.5 — Owner-Facing Review and Public-Release Readiness
 
-**Status:** Local UI and release-readiness work complete; public distribution decision required
+**Status:** Local UI, source-inventory, freshness, and release-readiness work complete; external publication and deployment authorization remain
 
 ### Objective
 
@@ -287,7 +287,7 @@ The accepted owner-facing visual direction is implemented locally without
 analytical or licensing changes. The hero is compact, controls and export sit
 in a primary workspace bar, map/history/selected-site evidence are visible
 early, technical details are consolidated under Data notes, and the default is
-Total Nitrogen at `SQ35874` for 2015–2024 based on coverage and supported
+Total Nitrogen at `SQ35874` for 2016–2025 based on coverage and supported
 output. The chart uses a labelled linear scale with gridlines, dated
 observation context, pointer titles, and a keyboard inspection list. The
 observation table is decoupled from the map/chart row and appears as a later
@@ -296,7 +296,8 @@ median/IQR interval plot with exact values behind an accessible disclosure;
 neutral trend directions do not use health-signalling colors. Four frontend
 unit tests and fifteen browser tests pass, and screenshots at 1440×900,
 1024×768, and 390×844 were inspected. The remaining work is source-specific
-public distribution approval, not more local feature scope.
+external publication authorization and deployment operations, not more local
+feature scope.
 
 ### Release-readiness outcome
 
@@ -325,6 +326,9 @@ current-source, attribution, terms-hash, and no-tracked-output checks pass.
 
 ## Priority 6 — Reproducibility, Deployment, and Portfolio Release
 
+**Status:** Pre-publication implementation complete locally; external GitHub
+publication and deployment remain owner-authorized actions only.
+
 ### Objective
 
 Publish a validated, maintainable, low-cost demonstration and the evidence needed to present it professionally.
@@ -341,6 +345,17 @@ Publish a validated, maintainable, low-cost demonstration and the evidence neede
 ### Dependencies
 
 - All MVP behavior and applicable quality gates from Priorities 1–5.
+
+### Pre-publication exit evidence
+
+The 2026-09-14 rehearsal reconciles 6,266/6,266 ECan surface features, 550
+coordinate-bearing Hilltop sites, 19 polygon-member Hilltop sites, and 19 exact
+station-ID matches. A fresh 11,230-row profile reaches 2025-12-18 and supports
+the 2016–2025 primary window for all six core parameter families, while keeping
+2007–2025 history. Runtime freshness blocks missing, invalid, future, or
+expired assets at 120 days. `tools/release_build.py` is the documented
+end-to-end build and writes an ignored release manifest. Public deployment is
+deliberately not performed.
 
 ### Acceptance criteria
 

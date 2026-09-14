@@ -110,6 +110,26 @@ substituted for the dataset-specific water-quality terms.
 - Public deployment and publication of generated assets are intentionally not
   performed in this milestone.
 
+## Freshness and reproducible build safeguards
+
+`tools/release_build.py` is the reproducible public-shaped build command. It
+reacquires the 2007–2025 profile, validates source-inventory reconciliation,
+generates the ignored analytical/runtime assets, runs the public-mode release
+gate, runs the locked frontend checks/build, and writes an ignored manifest
+with source identities, terms hash, timestamps, hashes, and byte counts. The
+2026-09-14 rehearsal completed with 11,230 source observations, 19 exact
+station-ID matches, a 1,294,388-byte runtime shell, and a 13-file static
+frontend output. `npm ci` was run separately immediately after the
+`--skip-npm-install` rehearsal because the lockfile install was already
+available; the full command remains the clean-checkout path.
+
+The frontend independently evaluates `sourceRetrievedAt` at runtime. Missing,
+invalid, future, or more-than-120-day-old metadata blocks the analytical asset
+and presents an actionable rebuild message; an asset within 30 days of expiry
+is labelled near expiry in the runtime contract. The dashboard displays source
+retrieval freshness separately from its 2007–2025 coverage period. No browser
+code calls ECan at visitor runtime.
+
 ## Remaining release gates
 
 Before any public deployment, the operator must run the asset-generation and

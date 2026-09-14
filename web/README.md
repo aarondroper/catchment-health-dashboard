@@ -11,8 +11,8 @@ dependency.
 Prerequisite: Node.js 22 or newer and npm.
 
 The owner-review landing view defaults to Total Nitrogen at monitoring station
-`SQ35874` for 2015–2024 because that selection has broad site coverage and a
-supported summary/trend without being chosen for an extreme result. The
+`SQ35874` for 2016–2025 because that selection has broad site coverage and a
+supported distribution summary without being chosen for an extreme result. The
 observed-history view uses a labelled linear SVG scale plus an HTML table.
 Numeric eligible observations are plotted; censored, missing, and excluded
 records remain inspectable in the legend, expandable row details, and CSV
@@ -28,8 +28,9 @@ npm run build
 npm run test:browser
 ```
 
-To prepare the local real-data asset, run from the repository root after the
-ignored source profile and site audit have been acquired:
+To prepare the local real-data asset without the full release rehearsal, run
+from the repository root after the ignored source profile and site audit have
+been acquired:
 
 ```text
 python3 tools/audit_catchment_sites.py
@@ -47,4 +48,8 @@ and captures ignored full-page review screenshots at 1440×900, 1024×768, and
 cache; browser binaries, screenshots, traces, and reports are ignored and
 must not be committed.
 
-Observation assets remain local-only pending ECan/Hilltop source-term review.
+The current ECan water-quality Terms of Use provide an attributed CC BY 4.0
+reuse basis, separately from the CC BY 3.0 NZ spatial-source licences. Public
+hosting still requires the reproducible release command, freshness/remove
+operation, attribution, accompanying terms, and owner authorization. Generated
+observation assets remain ignored in this repository.

@@ -1,4 +1,5 @@
 import type { AnalyticalAsset, Observation, ObservationPartitionManifest } from "../contracts";
+import { assessAssetFreshness, AssetFreshnessError } from "./freshness";
 
 export const LOCAL_ASSET_PATH = "/data/ashburton/dashboard.json";
 
@@ -91,6 +92,10 @@ export async function loadAnalyticalAsset(initialParameterId?: string): Promise<
   const shell = await getJson<AnalyticalAsset>(LOCAL_ASSET_PATH);
   if (shell.contractVersion !== "2.0.0" || !shell.observationPartitions || !shell.runtimeData) {
     throw new Error("Analytical asset does not provide runtime contract 2.0.0");
+  }
+  const freshness = assessAssetFreshness(shell.sourceRetrievedAt);
+  if (freshness.status === "expired" || freshness.status === "invalid") {
+    throw new AssetFreshnessError(freshness);
   }
   const firstParameter = shell.parameters.find((item) => item.parameterId === initialParameterId)
     ?? shell.parameters.find((item) => item.selectionStatus === "core")

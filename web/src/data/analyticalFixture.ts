@@ -3,7 +3,7 @@ import type { AnalyticalAsset } from "../contracts";
 /** Small checked-in fixture; ignored production observation assets are not bundled. */
 export const analyticalFixture: AnalyticalAsset = {
   contractVersion: "1.0.0",
-  analyticalVersion: "ashburton-analytical-v3-published-unflagged",
+  analyticalVersion: "ashburton-analytical-v4-published-unflagged-2016-2025",
   studyAreaId: "ashburton_hakatere",
   studyAreaName: "Ashburton–Hakatere catchment",
   sourceTermsStatus: "local_processing_only_release_gate",
@@ -38,11 +38,11 @@ export const analyticalFixture: AnalyticalAsset = {
   ],
   coverage: [],
   summaries: [
-    { stationId: "station-ash-001", parameterId: "nitrate_n_nitrite_n", period: "primary_2015_2024", value: null, q1: null, q3: null, unit: "mg/L", status: "indeterminate", indeterminateReason: "censored_values_present_no_substitution_applied", eligibleNumericCount: 1, eligibleCensoredCount: 1 },
-    { stationId: "station-ash-001", parameterId: "nitrate_n_nitrite_n", period: "recent_2020_2024", value: null, q1: null, q3: null, unit: "mg/L", status: "indeterminate", indeterminateReason: "censored_values_present_no_substitution_applied", eligibleNumericCount: 1, eligibleCensoredCount: 1 },
+    { stationId: "station-ash-001", parameterId: "nitrate_n_nitrite_n", period: "primary_2016_2025", value: null, q1: null, q3: null, unit: "mg/L", status: "indeterminate", indeterminateReason: "censored_values_present_no_substitution_applied", eligibleNumericCount: 1, eligibleCensoredCount: 1 },
+    { stationId: "station-ash-001", parameterId: "nitrate_n_nitrite_n", period: "recent_2020_2025", value: null, q1: null, q3: null, unit: "mg/L", status: "indeterminate", indeterminateReason: "censored_values_present_no_substitution_applied", eligibleNumericCount: 1, eligibleCensoredCount: 1 },
   ],
   trends: [
-    { stationId: "station-ash-001", parameterId: "nitrate_n_nitrite_n", period: "primary_2015_2024", estimatePerYear: null, direction: "indeterminate", status: "indeterminate", indeterminateReason: "censored_values_present_censor_aware_trend_not_implemented", eligibleNumericCount: 1, calendarYearCount: 1 },
+    { stationId: "station-ash-001", parameterId: "nitrate_n_nitrite_n", period: "primary_2016_2025", estimatePerYear: null, direction: "indeterminate", status: "indeterminate", indeterminateReason: "censored_values_present_censor_aware_trend_not_implemented", eligibleNumericCount: 1, calendarYearCount: 1 },
   ],
   counts: { normalized_observations: 2, analysis_eligible: 1 },
   warnings: ["Checked-in fixture only; local generated analytical assets are preferred."],

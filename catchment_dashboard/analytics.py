@@ -30,16 +30,16 @@ from .contracts import (
 )
 
 
-ANALYTICAL_VERSION = "ashburton-analytical-v3-published-unflagged"
+ANALYTICAL_VERSION = "ashburton-analytical-v4-published-unflagged-2016-2025"
 PRIMARY_QUALITY_POLICY = "published_unflagged"
 MIN_SUMMARY_OBSERVATIONS = 3
 MIN_TREND_OBSERVATIONS = 8
 MIN_TREND_YEARS = 3
 
 WINDOWS: dict[str, tuple[str, str]] = {
-    "history_2007_2024": ("2007-01-01", "2024-12-31"),
-    "primary_2015_2024": ("2015-01-01", "2024-12-31"),
-    "recent_2020_2024": ("2020-01-01", "2024-12-31"),
+    "history_2007_2025": ("2007-01-01", "2025-12-31"),
+    "primary_2016_2025": ("2016-01-01", "2025-12-31"),
+    "recent_2020_2025": ("2020-01-01", "2025-12-31"),
 }
 
 # Source aliases are represented by the provider slug at the normalized

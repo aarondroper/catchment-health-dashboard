@@ -5,9 +5,9 @@ export function selectObservations(observations: readonly Observation[], station
 }
 
 const WINDOW_BOUNDS: Record<AnalyticalWindow, readonly [string, string]> = {
-  primary_2015_2024: ["2015-01-01", "2024-12-31"],
-  recent_2020_2024: ["2020-01-01", "2024-12-31"],
-  history_2007_2024: ["2007-01-01", "2024-12-31"],
+  primary_2016_2025: ["2016-01-01", "2025-12-31"],
+  recent_2020_2025: ["2020-01-01", "2025-12-31"],
+  history_2007_2025: ["2007-01-01", "2025-12-31"],
 };
 
 export function selectParameterWindowObservations(observations: readonly Observation[], window: AnalyticalWindow): readonly Observation[] {

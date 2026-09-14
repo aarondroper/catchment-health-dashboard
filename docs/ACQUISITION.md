@@ -152,7 +152,7 @@ right-censored results, and two data-free site/parameter responses. This
 neutral run is superseded for the analytical build by the owner-approved
 eight-parameter run, which intentionally excludes pH.
 
-## Approved analytical acquisition and asset build
+## Historical 2024 analytical acquisition and asset build
 
 The approved eight-parameter `2007-01-01` through `2024-12-31` run was
 refreshed on 2026-09-13 against all 19 coordinate-bearing sites inside the
@@ -197,3 +197,23 @@ item metadata support attributed public reuse, while the freshness/removal
 requirements and exact evidence are in [`docs/RELEASE_READINESS.md`](RELEASE_READINESS.md)
 and `docs/release/`. Public endpoint access is not the licence evidence; the
 current conclusion is based on the retrieved terms and item metadata.
+
+## Fresh 2025 production profile and source reconciliation
+
+On 2026-09-14, the all-19-site eight-parameter acquisition was refreshed
+through `2025-12-31`. It returned 11,230 source observations from 15
+data-producing sites, with the latest returned observation on
+`2025-12-18T12:22:00`. Each core parameter family had 2025 observations at
+9–15 sites and represented all twelve calendar months, although lower-frequency
+sites had quarterly or five-visit patterns and `SQ32804` returned no rows for
+three selected parameter requests. The evidence supports the 2016–2025
+primary window and 2020–2025 recent window; it does not imply continuous or
+complete catchment monitoring.
+
+`tools/reconcile_catchment_coverage.py` validates 6,266/6,266 ArcGIS surface
+features through count-checked ordered pagination, 550 coordinate-bearing
+Hilltop sites, 19 in-bound Hilltop sites, and 19 exact stable station-ID
+matches. It reports 321 in-bound surface-only features, 0 Hilltop-only matches,
+three metadata-only sites, and the observation-free site state in the ignored
+JSON audit. Exact IDs are authoritative; coordinates are used for polygon
+screening and diagnostics only. See `docs/COVERAGE_RECONCILIATION.md`.

@@ -58,10 +58,10 @@ describe("filtered CSV export", () => {
   });
 
   it("creates a context-identifying filename", () => {
-    expect(exportFilename("Ashburton–Hakatere catchment", parameter, "primary_2015_2024", "station", "SQ2"))
-      .toBe("ashburton-hakatere-catchment_nitrate-n-nitrite-n_primary-2015-2024_station-sq2.csv");
-    expect(exportFilename("Ashburton–Hakatere catchment", parameter, "recent_2020_2024", "all_sites"))
-      .toBe("ashburton-hakatere-catchment_nitrate-n-nitrite-n_recent-2020-2024_all-sites.csv");
+    expect(exportFilename("Ashburton–Hakatere catchment", parameter, "primary_2016_2025", "station", "SQ2"))
+      .toBe("ashburton-hakatere-catchment_nitrate-n-nitrite-n_primary-2016-2025_station-sq2.csv");
+    expect(exportFilename("Ashburton–Hakatere catchment", parameter, "recent_2020_2025", "all_sites"))
+      .toBe("ashburton-hakatere-catchment_nitrate-n-nitrite-n_recent-2020-2025_all-sites.csv");
   });
 });
 

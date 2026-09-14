@@ -135,7 +135,7 @@ class AnalyticsTests(unittest.TestCase):
             for year in range(2015, 2024)
         ])
         trends = build_trends(rows)
-        primary = next(row for row in trends if row["period"] == "primary_2015_2024")
+        primary = next(row for row in trends if row["period"] == "primary_2016_2025")
         self.assertEqual(primary["direction"], "increasing")
         self.assertEqual(primary["status"], "reported")
         self.assertGreater(primary["estimate_per_year"], 0)
@@ -147,7 +147,7 @@ class AnalyticsTests(unittest.TestCase):
             observation("coverage-b", "2020-06-01T00:00:00", 0.2),
         ])
         coverage = build_coverage(rows)
-        recent = next(row for row in coverage["records"] if row["window"] == "recent_2020_2024")
+        recent = next(row for row in coverage["records"] if row["window"] == "recent_2020_2025")
         self.assertEqual(recent["sampled_calendar_month_count"], 2)
         self.assertEqual(recent["coverage_interpretation"], "sampled_calendar_coverage_not_continuous_monitoring")
         self.assertEqual(coverage["analytical_version"], ANALYTICAL_VERSION)

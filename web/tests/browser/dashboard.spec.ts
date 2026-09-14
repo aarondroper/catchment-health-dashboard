@@ -21,6 +21,7 @@ test("loads the real asset and exposes the production site network", async ({ pa
   const consoleWarnings: string[] = [];
   const pageErrors: string[] = [];
   const failedRequests: string[] = [];
+  const externalRequests: string[] = [];
   page.on("console", (message) => {
     if (message.type() === "error") consoleErrors.push(message.text());
     // Chromium's headless software compositor emits this MapLibre readback diagnostic during canvas paint; it is not an application warning.
@@ -28,6 +29,9 @@ test("loads the real asset and exposes the production site network", async ({ pa
   });
   page.on("pageerror", (error) => pageErrors.push(error.message));
   page.on("requestfailed", (request) => failedRequests.push(`${request.method()} ${request.url()}`));
+  page.on("request", (request) => {
+    if (!request.url().startsWith("http://127.0.0.1:4173/")) externalRequests.push(request.url());
+  });
   await openDashboard(page);
   await expect(page.locator(".map-marker")).toHaveCount(19);
   await expect(page.getByRole("region", { name: "Dataset overview" }).getByText("19", { exact: true })).toBeVisible();
@@ -36,6 +40,7 @@ test("loads the real asset and exposes the production site network", async ({ pa
   expect(consoleWarnings).toEqual([]);
   expect(pageErrors).toEqual([]);
   expect(failedRequests).toEqual([]);
+  expect(externalRequests).toEqual([]);
 });
 
 test("lands on a representative coverage-led default", async ({ page }) => {
@@ -44,7 +49,7 @@ test("lands on a representative coverage-led default", async ({ page }) => {
   await expect(page.getByRole("combobox", { name: "Monitoring site" })).toHaveValue("SQ35874");
   await expect(page.getByRole("heading", { name: "Water-quality monitoring evidence" })).toBeVisible();
   await expect(page.getByRole("region", { name: "Selected site evidence" }).getByText("0.82 mg/L", { exact: true })).toBeVisible();
-  await expect(page.getByRole("region", { name: "Selected site evidence" }).getByText("increasing", { exact: true })).toBeVisible();
+  await expect(page.getByRole("region", { name: "Selected site evidence" }).getByText("Not reported", { exact: true })).toBeVisible();
   await expect(page.getByText(/Linear scale; all eligible numeric values are shown/)).toBeVisible();
 });
 
@@ -66,14 +71,14 @@ test("coordinates parameter and time-period changes", async ({ page }) => {
   await parameter.selectOption("nitrate_n_nitrite_n");
   await expect(parameter).toHaveValue("nitrate_n_nitrite_n");
   await expect(page.getByRole("heading", { name: "Nitrate-N Nitrite-N" })).toBeVisible();
-  await expect(page.locator(".selection-summary")).toContainText("2015–2024");
+  await expect(page.locator(".selection-summary")).toContainText("2016–2025");
   await expect(page.getByRole("table", { name: /Recorded observations/ })).toBeVisible();
-  await expect(page.locator(".insight-grid .headline-value").first()).toHaveText("0.71 mg/L");
-  await window.selectOption("recent_2020_2024");
-  await expect(window).toHaveValue("recent_2020_2024");
+  await expect(page.locator(".insight-grid .headline-value").first()).toHaveText("0.74 mg/L");
+  await window.selectOption("recent_2020_2025");
+  await expect(window).toHaveValue("recent_2020_2025");
   await expect(page.getByRole("heading", { name: "Nitrate-N Nitrite-N" })).toBeVisible();
-  await expect(page.locator(".selection-summary")).toContainText("2020–2024 recent");
-  await expect(page.locator(".insight-grid .headline-value").first()).toHaveText("0.79 mg/L");
+  await expect(page.locator(".selection-summary")).toContainText("2020–2025 recent");
+  await expect(page.locator(".insight-grid .headline-value").first()).toHaveText("0.76 mg/L");
   await expect(page.getByText(/Recorded visits describe monitoring coverage/)).toBeVisible();
 });
 
@@ -101,8 +106,8 @@ test("keeps censored observations and indeterminate reasons explicit", async ({ 
 test("shows a supported neutral trend when the selected series meets the rules", async ({ page }) => {
   await openDashboard(page);
   await page.getByRole("combobox", { name: "Parameter" }).selectOption("turbidity");
-  await page.getByRole("combobox", { name: "Monitoring site" }).selectOption("SQ20106");
-  await expect(page.getByText("increasing", { exact: true })).toBeVisible();
+  await page.getByRole("combobox", { name: "Monitoring site" }).selectOption("SQ35874");
+  await expect(page.getByText("decreasing", { exact: true })).toBeVisible();
   await expect(page.getByText(/This is not an improvement/)).toBeVisible();
   await expect(page.locator(".trend-value")).toHaveCSS("color", "rgb(16, 42, 67)");
 });
@@ -120,7 +125,7 @@ test("exports selected and all-site filtered records as deterministic UTF-8 CSV"
   const downloadPromise = page.waitForEvent("download");
   await page.getByRole("button", { name: "Export CSV" }).click();
   const selectedDownload = await downloadPromise;
-  expect(selectedDownload.suggestedFilename()).toMatch(/ashburton-hakatere-catchment_total-nitrogen_primary-2015-2024_station-sq35874/);
+  expect(selectedDownload.suggestedFilename()).toMatch(/ashburton-hakatere-catchment_total-nitrogen_primary-2016-2025_station-sq35874/);
   const selectedPath = await selectedDownload.path();
   const selectedCsv = await readFile(selectedPath!, "utf8");
   expect(selectedCsv).toContain("station_name,source_station_id,parameter,timestamp");

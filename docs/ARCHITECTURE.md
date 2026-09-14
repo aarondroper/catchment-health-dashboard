@@ -8,7 +8,7 @@ This document distinguishes three states:
 - **Intended:** accepted direction but not yet implemented.
 - **Unresolved:** requires feasibility evidence, an implementation choice, or an owner decision.
 
-As audited on 2026-09-14, the checkout contains a dependency-free source-feasibility audit, versioned contract foundation, bounded ECan/Hilltop acquisition adapters, a validated ECan catchment-boundary membership slice, source-preserving normalization and analytical asset builders, synthetic and analytical fixtures, and a React/TypeScript/Vite shell. Generated production-scale outputs remain ignored local artifacts and require a fresh release check before publication. `docs/PROJECT_STATE.md` is authoritative for what currently exists and has been verified.
+As audited on 2026-09-14, the checkout contains a dependency-free source-feasibility audit, versioned contract foundation, count-checked ECan/Hilltop acquisition adapters, a validated ECan catchment-boundary membership slice, source-preserving normalization and analytical asset builders, complete source-inventory reconciliation against the identified inventories, synthetic and analytical fixtures, and a React/TypeScript/Vite shell. Generated production-scale outputs remain ignored local artifacts and require a fresh release check before publication. `docs/PROJECT_STATE.md` is authoritative for what currently exists and has been verified.
 
 ## System Context
 
@@ -35,7 +35,9 @@ The browser should not query remote environmental APIs for routine interactions.
 - A read-only feasibility audit verifies public ECan ArcGIS station/flow inventory and ECan Hilltop WFS site/measurement catalog access. See `docs/feasibility/SOURCE_AUDIT.md`.
 - `catchment_dashboard/contracts.py` defines version `0.1.0` source records and `1.0.0` normalized observation records alongside station, parameter, aggregate, trend, and asset-manifest boundaries. `docs/CONTRACTS.md` is the contract reference.
 - `catchment_dashboard/ecan_hilltop.py`, `catchment_dashboard/ecan_geometry.py`, and `tools/acquire_observations.py` provide bounded, count-checked ECan/Hilltop acquisition, ECan major-catchment membership, quality summaries, successful-response manifests, and optional full source-preserving profile output.
-- `catchment_dashboard/analytics.py` and `tools/build_analytical_assets.py` implement versioned normalization, quality/unit/censoring/duplicate dispositions, coverage diagnostics, conservative summaries/trends, and ignored application-ready JSON assets.
+- `catchment_dashboard/analytics.py` and `tools/build_analytical_assets.py` implement versioned normalization, quality/unit/censoring/duplicate dispositions, coverage diagnostics, conservative summaries/trends, and ignored application-ready JSON assets. The current analytical version is `ashburton-analytical-v4-published-unflagged-2016-2025`.
+- `tools/reconcile_catchment_coverage.py` reconciles the full identified ArcGIS surface inventory against the coordinate-bearing Hilltop catalog using exact station IDs, validates pagination/counts/CRS, and records source limitations without nearest-coordinate fallbacks.
+- `tools/release_build.py` is the reproducible local public-build rehearsal. It acquires sources, validates the reconciliation and terms/freshness gate, builds the static app, and emits an ignored hashed release manifest. Runtime freshness validation independently blocks stale or malformed assets.
 - `config/study_area.json` records the owner-approved Ashburton–Hakatere parameter and time scope and the verified ECan `Ashburton River` major-catchment boundary.
 - `web/` contains a Vite/React/TypeScript dashboard shell, a local MapLibre map with the audited ECan catchment polygon and station coordinates, coordinated parameter/window/station state, typed inline-SVG and tabular analytical views, UTF-8 filtered CSV export, responsive/accessibility styling, expandable provenance notes with official attribution/source links, and a local ignored application-asset loader. The loader reads the versioned runtime shell and parameter partitions from `web/public/data/ashburton/` when the developer has prepared them and falls back to a checked-in synthetic fixture with an explicit warning. `web/package-lock.json` and the Playwright/Vitest configurations provide reproducible frontend verification.
 
@@ -94,7 +96,7 @@ Responsibilities:
 - preserve excluded or transformed-record counts and reasons;
 - stop or prominently mark outputs when source completeness cannot be established.
 
-The implemented `ashburton-analytical-v3-published-unflagged` rules preserve original values and
+The implemented `ashburton-analytical-v4-published-unflagged-2016-2025` rules preserve original values and
 source fields, convert only equivalent nutrient units, retain distinct
 missing/blank/nonempty quality representations with explicit dispositions, and
 suppress censored summaries rather than

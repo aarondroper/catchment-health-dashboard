@@ -18,17 +18,17 @@
   "normalization_version": "ashburton-analytical-v1",
   "history_window": {
     "start": "2007-01-01",
-    "end": "2024-12-31",
+    "end": "2025-12-31",
     "status": "preserve_available_history"
   },
   "primary_dashboard_window": {
-    "start": "2015-01-01",
-    "end": "2024-12-31",
+    "start": "2016-01-01",
+    "end": "2025-12-31",
     "status": "provisional_owner_approved"
   },
   "recent_condition_window": {
     "start": "2020-01-01",
-    "end": "2024-12-31",
+    "end": "2025-12-31",
     "status": "available_owner_approved"
   },
   "core_parameters": [
@@ -66,7 +66,7 @@
     "Dissolved Oxygen",
     "Water Temperature (Field)"
   ],
-  "analysis_window": "2015-2024_primary_with_2020-2024_recent_summary",
+  "analysis_window": "2016-2025_primary_with_2020-2025_recent_summary",
   "flow_status": "contextual_inclusion_pending_station_match",
   "source_route": "ecan_hilltop_catalog_with_public_arcgis_catchment_boundary",
   "provenance_policy": "retain_provider_ids_units_timestamps_quality_and_censoring_fields"

@@ -58,7 +58,7 @@ class ViabilityTests(unittest.TestCase):
             for year in range(2015, 2024)
         ]
         normalized, _ = normalize_observations(observations)
-        trend = next(row for row in build_trends(normalized) if row["period"] == "primary_2015_2024")
+        trend = next(row for row in build_trends(normalized) if row["period"] == "primary_2016_2025")
         slopes = []
         for index, left in enumerate(observations):
             for right in observations[index + 1:]:

@@ -7,6 +7,8 @@ export default defineConfig({
     exclude: ["maplibre-gl"],
   },
   build: {
-    sourcemap: true,
+    // Public builds do not publish source maps; local debugging can use Vite's
+    // development server and the checked-in source instead.
+    sourcemap: false,
   },
 });

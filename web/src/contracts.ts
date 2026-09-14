@@ -48,7 +48,7 @@ export type RuntimeDataMetadata = {
   encoding: string;
 };
 
-export type AnalyticalWindow = "primary_2015_2024" | "recent_2020_2024" | "history_2007_2024";
+export type AnalyticalWindow = "primary_2016_2025" | "recent_2020_2025" | "history_2007_2025";
 
 export type ParameterOption = {
   parameterId: string;

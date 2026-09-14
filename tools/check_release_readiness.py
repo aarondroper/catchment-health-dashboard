@@ -74,8 +74,15 @@ def check_local_readiness(asset_path: Path, *, max_age_days: int) -> tuple[list[
         raise ValueError("runtime asset has no sourceRetrievedAt freshness marker")
     if not isinstance(build_id, str) or not build_id:
         raise ValueError("runtime asset has no buildId")
-    retrieved_at = datetime.fromisoformat(retrieved.replace("Z", "+00:00"))
+    try:
+        retrieved_at = datetime.fromisoformat(retrieved.replace("Z", "+00:00"))
+    except ValueError as error:
+        raise ValueError("runtime asset source retrieval date is invalid") from error
+    if retrieved_at.tzinfo is None:
+        raise ValueError("runtime asset source retrieval date must include a timezone")
     age_days = (datetime.now(timezone.utc) - retrieved_at).total_seconds() / 86400
+    if age_days < -1:
+        raise ValueError("runtime asset source retrieval date is in the future; refresh the asset")
     if age_days > max_age_days:
         raise ValueError(f"runtime asset source retrieval is {age_days:.1f} days old; refresh or remove it")
     if terms_status not in {LOCAL_GATE, PUBLIC_GATE}:

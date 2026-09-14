@@ -14,6 +14,7 @@ from .analytics import (
     build_summaries,
     build_trends,
     normalize_observations,
+    WINDOWS,
 )
 from .contracts import ObservationRecord, SourceRef
 
@@ -136,8 +137,11 @@ def _scenario(observations: list[ObservationRecord], policy: str) -> dict[str, A
     coverage = build_coverage(normalized)
     summaries = build_summaries(normalized)
     trends = build_trends(normalized)
-    primary_coverage = [row for row in coverage["records"] if row["window"] == "primary_2015_2024"]
-    primary_trends = [row for row in trends if row["period"] == "primary_2015_2024"]
+    primary_window = "primary_2016_2025"
+    recent_window = "recent_2020_2025"
+    primary_start, primary_end = WINDOWS[primary_window]
+    primary_coverage = [row for row in coverage["records"] if row["window"] == primary_window]
+    primary_trends = [row for row in trends if row["period"] == primary_window]
     return {
         "policy": policy,
         "policy_description": QUALITY_POLICIES[policy],
@@ -154,11 +158,11 @@ def _scenario(observations: list[ObservationRecord], policy: str) -> dict[str, A
             for row in primary_coverage
         ],
         "temporal_coverage_primary": _series_coverage([
-            row for row in normalized if row.observed_at[:10] <= "2024-12-31" and row.observed_at[:10] >= "2015-01-01"
+            row for row in normalized if primary_start <= row.observed_at[:10] <= primary_end
         ]),
         "usable_summary_count": sum(row["status"] == "reported" for row in summaries),
         "usable_summary_count_primary_or_recent": sum(
-            row["status"] == "reported" and row["period"] in {"primary_2015_2024", "recent_2020_2024"} for row in summaries
+            row["status"] == "reported" and row["period"] in {primary_window, recent_window} for row in summaries
         ),
         "trend_eligible_series_primary": sum(
             row["eligible_numeric_count"] >= row["minimum_observations"]

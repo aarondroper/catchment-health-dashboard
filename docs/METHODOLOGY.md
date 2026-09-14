@@ -1,13 +1,13 @@
 # Analytical methodology
 
-**Method version:** `ashburton-analytical-v3-published-unflagged`
+**Method version:** `ashburton-analytical-v4-published-unflagged-2016-2025`
 **Scope:** Ashburton–Hakatere, selected ECan/Hilltop monitoring sites
 **Status:** Implemented and locally validated; public release is permitted by the dataset-specific water-quality terms subject to attribution/freshness safeguards and complete-catchment coverage limitations
 
 ## Scope and windows
 
 The normalized build preserves the available `2007-01-01` through
-`2024-12-31` history for eight selected analytes. The six core parameters are
+`2025-12-31` history for eight selected analytes. The six core parameters are
 E. coli, Nitrate-N Nitrite-N, Dissolved Reactive Phosphorus, Total Nitrogen,
 Turbidity, and Dissolved Oxygen. Total Phosphorus and Water Temperature are
 retained as secondary parameters. pH is excluded from the common analytical
@@ -16,9 +16,15 @@ reported unit in the long-window profile.
 
 The versioned assets expose three windows:
 
-- `history_2007_2024`: retained history and diagnostics;
-- `primary_2015_2024`: provisional dashboard window;
-- `recent_2020_2024`: recent-condition summaries.
+- `history_2007_2025`: retained history and diagnostics;
+- `primary_2016_2025`: primary dashboard window;
+- `recent_2020_2025`: recent-condition summaries.
+
+The 2025 refresh returned all six core parameters, with 9–15 sites represented
+and observations across all twelve calendar months. Some lower-frequency sites
+have quarterly or five-visit coverage and one site/parameter combination
+returned no rows. This supports advancing the primary window to 2016–2025
+without implying complete or continuous catchment monitoring.
 
 These are observation windows, not claims of continuous sampling. Coverage
 reports count sampled calendar months and years and retain raw counts,
@@ -110,43 +116,40 @@ indeterminate reason. No causal, compliance, ecological-health, or
 parameter-specific positive/negative interpretation is added.
 
 The selected-site profile contains censoring in several parameters and
-irregular sampling. Under the adopted policy, 41 of 324 trend records are
-reported and 283 are indeterminate; 17 reported trends are in the primary
-window. This is an evidence result, not a defect to be hidden by relaxing the
-rules. Censored values remain visible in observation detail and are not
+irregular sampling. The 2025 refresh uses the same trend method and minimums;
+it does not add a censor-aware estimator or force a result to become
+determinate. This is an evidence result, not a defect to be hidden by relaxing
+the rules. Censored values remain visible in observation detail and are not
 substituted.
 
 ## Quality-semantics viability review
 
 The raw parser now distinguishes missing, blank, and nonempty quality-field
 representations and records parser failures separately. In the refreshed
-10,426-row profile there were 9,434 `missing_field` rows and 992
+11,230-row profile there were 9,434 `missing_field` rows and 1,796
 `nonempty_code` rows; no blank quality elements, unfamiliar nonempty codes, or
-quality parse failures were observed. The nonempty codes were 774 `600`, 72
-`500`, and 146 `400`. The ignored report
+quality parse failures were observed. Exact quality-code counts and disposition
+counts are retained in the generated manifest and ignored viability report.
+The ignored report
 `reports/generated/ashburton-viability-review.json` contains frequency tables
 by representation, disposition, parameter, site, year, and inclusion status,
 plus scenario-level coverage and summary comparisons.
 
-The adopted `published_unflagged` build has 10,280 eligible observations,
-1,296 usable summaries across annual and window records, 66 structurally
-trend-eligible primary series, and 17 determinate primary trends. The strict
-sensitivity build has 846 eligible observations, 208 usable summaries, and no
-determinate trends. The adopted policy changes 154 shared reported medians;
-no shared reported slope comparison is available because strict trends are all
-indeterminate. Core primary summary
-coverage under strict rules is useful but uneven: dissolved oxygen reports at
-9 sites, total nitrogen at 8, E. coli/turbidity at 6 each, nitrate and DRP at
-6 each, with DRP reporting only one usable primary summary. The dashboard
-should therefore emphasize observed history, distributions, seasonal/coverage
-context, and explicitly unavailable results; a trend view should show only
-supported results and indeterminate reasons.
+The refreshed adopted `published_unflagged` build has 11,078 eligible
+observations, 1,930 annual/window summary records, and 324 trend records. The
+strict sensitivity policy remains available in the processing layer. The
+earlier policy comparison changed 154 shared reported medians;
+no shared reported slope comparison is available because strict trends remain a
+sensitivity calculation rather than the dashboard policy. Core primary summary
+coverage remains parameter- and site-dependent. The dashboard therefore
+emphasizes observed history, distributions, seasonal/coverage context, and
+explicitly unavailable results; a trend view shows only supported results and
+indeterminate reasons.
 
-Across the 324 generated trend records, 41 are reported, 159 are
-`screened_not_significant`, and 124 are suppressed because eligible censored
-values are present and no validated censor-aware trend implementation is
-available. By window, the reported/indeterminate counts are 15/93 for the
-history window, 17/91 for the primary window, and 9/99 for the recent window.
+Across the refreshed 324 generated trend records, reported and indeterminate
+counts and their reasons remain in the trend asset. Censoring remains a
+suppression reason because no validated censor-aware trend implementation is
+available; adding 2025 does not relax that safeguard.
 
 ## Reproducible build
 
@@ -155,7 +158,7 @@ The local, ignored build sequence is:
 ```text
 python3 tools/acquire_observations.py --max-sites 19 \
   --all-in-bound-sites \
-  --from-date 2007-01-01 --to-date 2024-12-31 \
+  --from-date 2007-01-01 --to-date 2025-12-31 \
   --include-observations \
   --parameter "E. coli" \
   --parameter "Nitrate-N Nitrite-N" \
@@ -166,10 +169,10 @@ python3 tools/acquire_observations.py --max-sites 19 \
   --parameter "Dissolved Oxygen" \
   --parameter "Water Temperature (Field)"
 python3 tools/build_analytical_assets.py \
-  --profile reports/generated/ashburton-analytical-profile-2007-2024-all-sites.json \
+  --profile reports/generated/ashburton-analytical-profile-2007-2025-all-sites.json \
   --output-dir reports/generated/ashburton-analytical-assets-all-sites
 python3 tools/audit_analytical_viability.py \
-  --profile reports/generated/ashburton-analytical-profile-2007-2024-all-sites.json \
+  --profile reports/generated/ashburton-analytical-profile-2007-2025-all-sites.json \
   --output reports/generated/ashburton-viability-review.json
 ```
 

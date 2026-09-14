@@ -13,9 +13,9 @@ const DEFAULT_PARAMETER_ID = "total_nitrogen";
 const DEFAULT_STATION_ID = "SQ35874";
 
 const windows: readonly { value: AnalyticalWindow; label: string }[] = [
-  { value: "primary_2015_2024", label: "2015–2024" },
-  { value: "recent_2020_2024", label: "2020–2024 recent" },
-  { value: "history_2007_2024", label: "2007–2024 full history" },
+  { value: "primary_2016_2025", label: "2016–2025" },
+  { value: "recent_2020_2025", label: "2020–2025 recent" },
+  { value: "history_2007_2025", label: "2007–2025 full history" },
 ];
 
 function windowLabel(value: AnalyticalWindow): string {
@@ -49,8 +49,8 @@ function preferredParameter(asset: AnalyticalAsset): ParameterOption {
 
 function preferredStation(asset: AnalyticalAsset, parameterId: string): Station | undefined {
   const preferred = asset.stations.find((item) => item.stationId === DEFAULT_STATION_ID);
-  if (preferred && asset.coverage.some((row) => row.station_id === preferred.stationId && row.parameter_id === parameterId && row.window === "primary_2015_2024" && row.raw_count > 0)) return preferred;
-  return asset.stations.find((item) => asset.coverage.some((row) => row.station_id === item.stationId && row.parameter_id === parameterId && row.window === "primary_2015_2024" && row.raw_count > 0)) ?? asset.stations[0];
+  if (preferred && asset.coverage.some((row) => row.station_id === preferred.stationId && row.parameter_id === parameterId && row.window === "primary_2016_2025" && row.raw_count > 0)) return preferred;
+  return asset.stations.find((item) => asset.coverage.some((row) => row.station_id === item.stationId && row.parameter_id === parameterId && row.window === "primary_2016_2025" && row.raw_count > 0)) ?? asset.stations[0];
 }
 
 export function App() {
@@ -62,7 +62,7 @@ export function App() {
   const [observationsParameterId, setObservationsParameterId] = useState(analyticalFixture.parameters[0].parameterId);
   const [observationsLoading, setObservationsLoading] = useState(false);
   const [parameterId, setParameterId] = useState(analyticalFixture.parameters[0].parameterId);
-  const [window, setWindow] = useState<AnalyticalWindow>("primary_2015_2024");
+  const [window, setWindow] = useState<AnalyticalWindow>("primary_2016_2025");
   const [stationId, setStationId] = useState(analyticalFixture.stations[0].stationId);
   const [exportScope, setExportScope] = useState<"station" | "all_sites">("station");
   const [exportStatus, setExportStatus] = useState("");
@@ -164,7 +164,7 @@ export function App() {
         <div><span className="metric-label">Observation rows</span><strong>{asset.counts.normalized_observations?.toLocaleString() ?? "—"}</strong></div>
         <div><span className="metric-label">Eligible rows</span><strong>{asset.counts.analysis_eligible?.toLocaleString() ?? "—"}</strong></div>
         <div><span className="metric-label">Monitoring sites</span><strong>{asset.stations.length}</strong></div>
-        <div><span className="metric-label">Recorded history</span><strong>2007–2024</strong></div>
+        <div><span className="metric-label">Recorded history</span><strong>2007–2025</strong></div>
         <div className="overview-note">Sampled monitoring · current view <strong>{windowLabel(window)}</strong></div>
       </section>
 
@@ -193,7 +193,7 @@ export function App() {
 
       <ComparisonPanel rows={comparison} stations={asset.stations} parameterName={parameter.displayName} unit={parameter.unit} periodLabel={windowLabel(window)} selectedStationId={station?.stationId ?? ""} />
 
-      <details className="data-notes" data-testid="data-notes"><summary><span><span className="eyebrow">Transparency</span><strong>Data notes and provenance</strong></span><span className="summary-hint">Quality, methods, source, and release context</span></summary><div className="notes-grid"><div><h3>How to read this view</h3><p><strong>Published observation; no source quality code supplied</strong> describes returned observations without a quality field. They are usable for this exploratory dashboard but are not explicitly verified, QC600, or “good.” The processing policy is <code>published_unflagged</code>; strict eligibility is retained as a sensitivity mode. Quality-coded, censored, excluded, and missing states remain distinguishable in the table and export.</p><p>Selected records: {Object.entries(qualityCounts).map(([key, value]) => `${key.replaceAll("_", " ")} (${value})`).join(" · ") || "none"}.</p></div><div><h3>Source and method</h3><p>Environment Canterbury (ECan) public water-quality service · 2007–2024 sampled history · current window {windowLabel(window)}. Medians, interquartile ranges, and neutral trends appear only where the documented coverage and censoring rules support them. The history is not continuous monitoring and does not represent unmonitored parts of the catchment.</p><p>This work uses material sourced from Water Quality Data, which is licensed under a Creative Commons Attribution 4.0 International licence by Environment Canterbury. <a href="https://www.ecan.govt.nz/data/water-quality-data" target="_blank" rel="noreferrer">Water-quality data source</a> · <a href="https://www.ecan.govt.nz/data/document/download?uri=3957205" target="_blank" rel="noreferrer">water-quality Terms of Use</a> · <a href="https://data.ecan.govt.nz/Catalogue/Agreement?AgreementFile=Agreement.htm&amp;AgreementRequirements=General" target="_blank" rel="noreferrer">general ECan open-data agreement</a>.</p><p>Local build {asset.buildId ?? "development fixture"} · analytical version {asset.analyticalVersion} · source retrieval {asset.sourceRetrievedAt ?? "development fixture"}.</p></div><div><h3>Release context</h3><p>Public reuse is permitted under the dataset-specific CC BY 4.0 terms when attribution and the linked terms accompany the information. The release process must keep published information current or remove it; the local build applies a 120-day freshness gate. No ECan branding, regulatory compliance claim, causal explanation, threshold, or composite score is presented.</p></div></div></details>
+      <details className="data-notes" data-testid="data-notes"><summary><span><span className="eyebrow">Transparency</span><strong>Data notes and provenance</strong></span><span className="summary-hint">Quality, methods, source, and release context</span></summary><div className="notes-grid"><div><h3>How to read this view</h3><p><strong>Published observation; no source quality code supplied</strong> describes returned observations without a quality field. They are usable for this exploratory dashboard but are not explicitly verified, QC600, or “good.” The processing policy is <code>published_unflagged</code>; strict eligibility is retained as a sensitivity mode. Quality-coded, censored, excluded, and missing states remain distinguishable in the table and export.</p><p>Selected records: {Object.entries(qualityCounts).map(([key, value]) => `${key.replaceAll("_", " ")} (${value})`).join(" · ") || "none"}.</p></div><div><h3>Source and method</h3><p>Environment Canterbury (ECan) public water-quality service · 2007–2025 sampled history · current window {windowLabel(window)}. Medians, interquartile ranges, and neutral trends appear only where the documented coverage and censoring rules support them. The history is not continuous monitoring and does not represent unmonitored parts of the catchment.</p><p>This work uses material sourced from Water Quality Data, which is licensed under a Creative Commons Attribution 4.0 International licence by Environment Canterbury. <a href="https://www.ecan.govt.nz/data/water-quality-data" target="_blank" rel="noreferrer">Water-quality data source</a> · <a href="https://www.ecan.govt.nz/data/document/download?uri=3957205" target="_blank" rel="noreferrer">water-quality Terms of Use</a> · <a href="https://data.ecan.govt.nz/Catalogue/Agreement?AgreementFile=Agreement.htm&amp;AgreementRequirements=General" target="_blank" rel="noreferrer">general ECan open-data agreement</a>.</p><p>Local build {asset.buildId ?? "development fixture"} · analytical version {asset.analyticalVersion} · source retrieval {asset.sourceRetrievedAt ?? "development fixture"}.</p></div><div><h3>Release context</h3><p>Public reuse is permitted under the dataset-specific CC BY 4.0 terms when attribution and the linked terms accompany the information. The release process must keep published information current or remove it; the local build applies a 120-day freshness gate. No ECan branding, regulatory compliance claim, causal explanation, threshold, or composite score is presented.</p></div></div></details>
     </main>
   );
 }
