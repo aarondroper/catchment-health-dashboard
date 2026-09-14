@@ -253,7 +253,7 @@ The local dashboard uses the versioned 2.0.0 runtime shell and parameter
 partitions, preserves source and analytical meaning through typed decoding, and
 exports the active station/all-site context as deterministic UTF-8 CSV. The
 local MapLibre view displays the audited ECan polygon and 19 in-bound sites.
-Twelve frontend unit tests and seventeen Playwright/Chromium browser tests pass,
+Twelve frontend unit tests and eighteen Playwright/Chromium browser tests pass,
 including real-data loading, coordinated parameter/window/station/map flows,
 censored and indeterminate states, export, fallback/error behavior, keyboard
 access, axe checks, performance timing, and responsive overflow checks. Full-
@@ -297,9 +297,12 @@ observation context, pointer titles, and a keyboard inspection list. The
 observation table is decoupled from the map/chart row and appears as a later
 full-width bounded inspection panel. Cross-site summaries use a sorted
 median/IQR interval plot with exact values behind an accessible disclosure;
-neutral trend directions do not use health-signalling colors. Four frontend
-unit tests and seventeen browser tests pass, and screenshots at 1440×900,
-1536×864, 1024×768, and 390×844 were inspected. The map-centric shell now
+at short desktop heights it uses a labelled lowest/selected/highest ranked
+summary rather than a miniature unreadable plot. The map status reports a
+settled remote context or local fallback rather than remaining on a stale
+loading label. Four frontend unit tests and eighteen browser tests pass, and
+screenshots at 1440×900, 1536×864, 1920×1080, 1024×768, and 390×844 were
+inspected. The map-centric shell now
 fits without body scrolling at 1440×900, 1536×864, and 1920×1080, uses
 OpenFreeMap Positron when its vector-source lifecycle completes, and fails
 closed to the verified local geometry otherwise. The remaining work is

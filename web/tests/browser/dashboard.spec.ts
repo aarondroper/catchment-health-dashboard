@@ -17,6 +17,7 @@ async function openDashboard(page: Page) {
   await expect(page.getByText(/Verified Ashburton River boundary/)).toBeVisible();
   await expect(page.getByRole("button", { name: "Reset view" })).toBeVisible();
   await expect(page.locator(".map-service-state")).toHaveText(/Context basemap loaded|Local map fallback/);
+  await expect(page.locator(".basemap-status")).toHaveText(/Context basemap loaded|Local map fallback/);
 }
 
 test("loads real data, contextual basemap, and production-only visitor requests", async ({ page }) => {
@@ -72,12 +73,25 @@ test("fits the primary dashboard in desktop viewports without body scrolling", a
 });
 
 test("presents comparison values as a sorted interval plot and keeps exact inspection later", async ({ page }) => {
+  await page.setViewportSize({ width: 1920, height: 1080 });
   await openDashboard(page);
   await expect(page.locator(".comparison-plot")).toBeVisible();
   await expect(page.locator(".comparison-row").first()).toBeVisible();
   await expect(page.locator(".comparison-row-selected")).toHaveCount(1);
   await expect(page.getByText(/Sites are ordered from lowest to highest median/)).toBeVisible();
-  await page.getByText("Inspect exact site values").click();
+  await page.locator(".comparison-details summary").click();
+  await expect(page.locator(".comparison-details .comparison-table")).toBeVisible();
+});
+
+test("uses a readable ranked comparison at compact desktop height", async ({ page }) => {
+  await page.setViewportSize({ width: 1536, height: 864 });
+  await openDashboard(page);
+  await expect(page.locator(".comparison-plot")).toBeHidden();
+  await expect(page.locator(".comparison-compact")).toBeVisible();
+  await expect(page.getByText(/Compact ranked view · 3 of .* supported sites/)).toBeVisible();
+  await expect(page.locator(".comparison-compact-row:visible")).toHaveCount(3);
+  await expect(page.locator(".comparison-compact-row-selected")).toBeVisible();
+  await page.locator(".comparison-details summary").click();
   await expect(page.locator(".comparison-details .comparison-table")).toBeVisible();
 });
 

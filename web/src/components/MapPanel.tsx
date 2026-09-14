@@ -128,6 +128,12 @@ export function MapPanel({ stations, selectedStationId, selectedStationName, cat
       if (disposed || !containerRef.current) return;
       markerConstructorRef.current = MarkerConstructor;
       const map = new MapLibreMap({ container: containerRef.current, style: LOCAL_STYLE, center: [171.75, -43.9], zoom: 7, attributionControl: { compact: true } });
+      const reportRemoteReady = () => {
+        if (!disposed && usingRemoteStyleRef.current && map.isStyleLoaded()) {
+          if (remoteReadyTimeout !== undefined) globalThis.clearTimeout(remoteReadyTimeout);
+          reportBasemapStatus("openfreemap");
+        }
+      };
       mapRef.current = map;
       map.addControl(new NavigationControl({ showCompass: false }), "top-left");
       startupFallbackTimeout = globalThis.setTimeout(() => {
@@ -198,6 +204,7 @@ export function MapPanel({ stations, selectedStationId, selectedStationName, cat
         }
       };
       map.on("style.load", addDataLayers);
+      map.on("idle", reportRemoteReady);
       map.on("load", () => {
         setStyleReady(true);
         setMapReady(true);

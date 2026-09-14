@@ -159,6 +159,13 @@ select:focus-visible, button:focus-visible, summary:focus-visible, [tabindex="0"
 .comparison-panel .panel-intro { font-size: .61rem; }
 .comparison-plot-wrap { flex: 1 1 auto; min-height: 0; overflow: auto; }
 .comparison-plot { display: block; min-width: 300px; width: 100%; }
+.comparison-compact { display: none; }
+.comparison-compact-heading, .comparison-compact-note { color: #526777; font-size: .58rem; line-height: 1.25; margin: 0 0 5px; }
+.comparison-compact-row { align-items: baseline; border-bottom: 1px solid #e6eef0; display: flex; font-size: .59rem; gap: 6px; justify-content: space-between; padding: 4px 0; }
+.comparison-compact-row > span:first-child { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.comparison-compact-row > span:last-child { color: #526777; flex: 0 0 auto; font-size: .56rem; text-align: right; }
+.comparison-compact-row-selected { background: #f4f7f9; border-left: 2px solid #102a43; font-weight: 800; padding-left: 4px; }
+.comparison-compact-note { margin: 5px 0 0; }
 .comparison-gridline { stroke: #e6eef0; stroke-width: 1; }
 .comparison-axis-label, .comparison-site-label { fill: #526777; font-size: 9px; }
 .comparison-site-label { dominant-baseline: middle; font-size: 9px; }
@@ -220,6 +227,18 @@ a { color: #17645f; }
   .dashboard-workspace { grid-template-columns: 190px minmax(0, 1fr) 292px; }
   .product-name { font-size: .82rem; }
   .map-marker-value { display: none; }
+}
+
+@media (min-width: 761px) and (max-height: 880px) {
+  .comparison-panel { overflow: hidden; }
+  .comparison-panel .panel-heading { margin-bottom: 4px; }
+  .comparison-panel .panel-intro { display: none; }
+  .comparison-plot-wrap, .comparison-legend { display: none; }
+  .comparison-compact { display: block; min-height: 0; overflow: hidden; }
+  .comparison-compact-heading { margin-bottom: 2px; }
+  .comparison-compact-note { display: none; }
+  .comparison-compact-row { padding: 3px 0; }
+  .comparison-details { margin-top: 3px; padding-top: 3px; }
 }
 
 @media (max-width: 1040px) {

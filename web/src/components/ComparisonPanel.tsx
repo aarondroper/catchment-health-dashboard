@@ -29,6 +29,13 @@ export function ComparisonPanel({ rows, stations, parameterName, unit, periodLab
   const rowHeight = 22;
   const plotHeight = Math.max(118, comparableRows.length * rowHeight + 36);
   const xFor = (value: number) => 168 + (value / maximum) * plotWidth;
+  const compactRows = comparableRows.length <= 3
+    ? comparableRows
+    : [...new Map([
+      [comparableRows[0].stationId, comparableRows[0]] as const,
+      ...comparableRows.filter((row) => row.stationId === selectedStationId).map((row) => [row.stationId, row] as const),
+      [comparableRows.at(-1)!.stationId, comparableRows.at(-1)!] as const,
+    ]).values()].sort((a, b) => a.value - b.value);
 
   return (
     <section className="panel comparison-panel" aria-labelledby="comparison-title">
@@ -55,6 +62,17 @@ export function ComparisonPanel({ rows, stations, parameterName, unit, periodLab
               </g>;
             })}
           </svg>
+        </div>
+        <div className="comparison-compact" aria-label={`Compact ranked comparison showing ${compactRows.length} of ${comparableRows.length} supported sites`}>
+          <p className="comparison-compact-heading">Compact ranked view · {compactRows.length} of {comparableRows.length} supported sites</p>
+          {compactRows.map((row) => {
+            const isSelected = row.stationId === selectedStationId;
+            return <div className={isSelected ? "comparison-compact-row comparison-compact-row-selected" : "comparison-compact-row"} key={row.stationId}>
+              <span>{stationLabel(stations.find((station) => station.stationId === row.stationId))}{isSelected ? " · selected" : ""}</span>
+              <span>{formatValue(row.value, unit)} · IQR {formatValue(row.q1, unit)}–{formatValue(row.q3, unit)}</span>
+            </div>;
+          })}
+          <p className="comparison-compact-note">Sorted by median. Inspect exact site values for the complete comparison.</p>
         </div>
         <div className="comparison-legend"><span><i className="comparison-legend-line" /> Middle half (IQR)</span><span><i className="comparison-legend-dot" /> Median</span><span>Selected station outlined</span></div>
         <details className="comparison-details"><summary>Inspect exact site values</summary><div className="comparison-table-wrap" tabIndex={0} role="region" aria-label="Exact cross-site values"><table className="observation-table comparison-table"><caption>Supported site summaries in {periodLabel}; other sites remain represented on the map.</caption><thead><tr><th scope="col">Monitoring site</th><th scope="col">Median ({unit ?? "unit"})</th><th scope="col">Middle half ({unit ?? "unit"})</th><th scope="col">Eligible records</th></tr></thead><tbody>{comparableRows.map((row) => <tr key={row.stationId}><td>{stationLabel(stations.find((station) => station.stationId === row.stationId))}{row.stationId === selectedStationId ? " · selected" : ""}</td><td>{formatValue(row.value, unit)}</td><td>{formatValue(row.q1, unit)}–{formatValue(row.q3, unit)}</td><td>{row.eligibleNumericCount}</td></tr>)}</tbody></table></div></details>
