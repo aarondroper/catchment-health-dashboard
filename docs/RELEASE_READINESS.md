@@ -104,8 +104,11 @@ substituted for the dataset-specific water-quality terms.
   possible three-month publication lag is not treated as a guarantee that data
   are current.
 - The UI links the dataset-specific Terms of Use and gives the plain-language
-  attribution without ECan logos or branding. No advertising or remote
-  basemap is introduced.
+  attribution without ECan logos or branding. No advertising or paid map
+  dependency is introduced. The optional OpenFreeMap Positron context is
+  attributed on-map under the provider's documented OpenFreeMap/OpenMapTiles/
+  OpenStreetMap terms, and the verified local geometry remains available when
+  the remote style is unavailable.
 - CSV exports carry the source/CC BY/attribution/terms preamble.
 - Public deployment and publication of generated assets are intentionally not
   performed in this milestone.

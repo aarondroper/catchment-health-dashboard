@@ -10,9 +10,11 @@ observations into a health score or compliance claim.
 
 ## What it does
 
-- Coordinates a local MapLibre catchment map, station selection, parameter and
-  time-window controls, observed history, distributions, comparison intervals,
-  coverage, and an inspection table.
+- Coordinates a map-centric MapLibre catchment view, station selection,
+  parameter and time-window controls, observed history, distributions,
+  comparison intervals, coverage, recent observations, and secondary detail
+  surfaces. OpenFreeMap Positron provides optional contextual geography with a
+  verified local-geometry fallback and visible attribution.
 - Preserves original result text, units, timestamps, quality representation,
   censoring, exclusion reasons, source identifiers, and retrieval provenance.
 - Uses six core parameters (E. coli, Nitrate-N Nitrite-N, Dissolved Reactive
@@ -95,7 +97,8 @@ npm run test:browser
 ```
 
 Browser verification uses local Chromium and checks real-data loading,
-coordinated controls, MapLibre selection, accessibility, overflow, console and
+coordinated controls, MapLibre selection and map-display modes, contextual
+basemap attribution/fallback, accessibility, desktop overflow, console and
 network failures, export semantics, and representative responsive viewports.
 
 ## Release boundary

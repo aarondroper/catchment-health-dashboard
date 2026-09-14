@@ -5,8 +5,11 @@ Ashburton–Hakatere study. It uses the ignored generated asset at
 `public/data/ashburton/dashboard.json` when prepared, and clearly falls back to
 the checked-in synthetic fixture if that local file is unavailable. It uses
 MapLibre with the locally generated ECan catchment polygon and real station
-coordinates. The local style intentionally has no remote basemap or tile
-dependency.
+coordinates. The dashboard attempts the no-key OpenFreeMap Positron vector
+style for restrained geographic context, with OpenFreeMap/OpenMapTiles/
+OpenStreetMap attribution shown on the map. If that style or its vector-source
+lifecycle is unavailable, the application fails closed to the verified local
+catchment geometry and station layers.
 
 Prerequisite: Node.js 22 or newer and npm.
 
@@ -43,8 +46,9 @@ files are fetched on demand and decoded with lookup validation. The browser
 suite starts Vite, verifies the real shell and initial partition requests,
 checks coordinated controls, MapLibre selection, export, fallback/error state,
 keyboard access, and no-data/censored/indeterminate behavior, runs axe-core,
-and captures ignored full-page review screenshots at 1440×900, 1024×768, and
-390×844 viewport sizes. Playwright Chromium is downloaded to the normal user
+checks map-context fallback and desktop body overflow, and captures ignored
+full-page review screenshots at 1440×900, 1536×864, 1024×768, and 390×844
+viewport sizes. Playwright Chromium is downloaded to the normal user
 cache; browser binaries, screenshots, traces, and reports are ignored and
 must not be committed.
 

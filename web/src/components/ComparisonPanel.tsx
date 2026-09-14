@@ -25,8 +25,8 @@ export function ComparisonPanel({ rows, stations, parameterName, unit, periodLab
     .sort((a, b) => a.value - b.value);
   const values = comparableRows.flatMap((row) => [row.q1, row.q3]);
   const maximum = Math.max(...values, 1);
-  const plotWidth = 570;
-  const rowHeight = 34;
+  const plotWidth = 260;
+  const rowHeight = 22;
   const plotHeight = Math.max(118, comparableRows.length * rowHeight + 36);
   const xFor = (value: number) => 168 + (value / maximum) * plotWidth;
 
@@ -37,7 +37,7 @@ export function ComparisonPanel({ rows, stations, parameterName, unit, periodLab
         <span className="unit-label">{unit ?? "unit pending"}</span>
       </div>
       {comparableRows.length > 1 ? <>
-        <div className="comparison-plot-wrap" role="img" aria-labelledby="comparison-plot-title comparison-plot-desc">
+        <div className="comparison-plot-wrap" tabIndex={0} role="region" aria-label="Cross-site median and middle-half comparison">
           <svg className="comparison-plot" viewBox={`0 0 ${plotWidth + 220} ${plotHeight}`} preserveAspectRatio="xMinYMin meet">
             <title id="comparison-plot-title">{parameterName} site median and middle-half comparison</title>
             <desc id="comparison-plot-desc">{comparableRows.length} supported sites, sorted by median. The dot is the median and the line is the middle half from the first to third quartile. The selected site is outlined.</desc>

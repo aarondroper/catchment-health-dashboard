@@ -8,7 +8,7 @@ This document distinguishes three states:
 - **Intended:** accepted direction but not yet implemented.
 - **Unresolved:** requires feasibility evidence, an implementation choice, or an owner decision.
 
-As audited on 2026-09-14, the checkout contains a dependency-free source-feasibility audit, versioned contract foundation, count-checked ECan/Hilltop acquisition adapters, a validated ECan catchment-boundary membership slice, source-preserving normalization and analytical asset builders, complete source-inventory reconciliation against the identified inventories, synthetic and analytical fixtures, and a React/TypeScript/Vite shell. Generated production-scale outputs remain ignored local artifacts and require a fresh release check before publication. `docs/PROJECT_STATE.md` is authoritative for what currently exists and has been verified.
+As audited on 2026-09-14, the checkout contains a dependency-free source-feasibility audit, versioned contract foundation, count-checked ECan/Hilltop acquisition adapters, a validated ECan catchment-boundary membership slice, source-preserving normalization and analytical asset builders, complete source-inventory reconciliation against the identified inventories, synthetic and analytical fixtures, and a viewport-filling React/TypeScript/Vite dashboard shell. Generated production-scale outputs remain ignored local artifacts and require a fresh release check before publication. `docs/PROJECT_STATE.md` is authoritative for what currently exists and has been verified.
 
 ## System Context
 
@@ -39,12 +39,12 @@ The browser should not query remote environmental APIs for routine interactions.
 - `tools/reconcile_catchment_coverage.py` reconciles the full identified ArcGIS surface inventory against the coordinate-bearing Hilltop catalog using exact station IDs, validates pagination/counts/CRS, and records source limitations without nearest-coordinate fallbacks.
 - `tools/release_build.py` is the reproducible local public-build rehearsal. It acquires sources, validates the reconciliation and terms/freshness gate, builds the static app, and emits an ignored hashed release manifest. Runtime freshness validation independently blocks stale or malformed assets.
 - `config/study_area.json` records the owner-approved Ashburton–Hakatere parameter and time scope and the verified ECan `Ashburton River` major-catchment boundary.
-- `web/` contains a Vite/React/TypeScript dashboard shell, a local MapLibre map with the audited ECan catchment polygon and station coordinates, coordinated parameter/window/station state, typed inline-SVG and tabular analytical views, UTF-8 filtered CSV export, responsive/accessibility styling, expandable provenance notes with official attribution/source links, and a local ignored application-asset loader. The loader reads the versioned runtime shell and parameter partitions from `web/public/data/ashburton/` when the developer has prepared them and falls back to a checked-in synthetic fixture with an explicit warning. `web/package-lock.json` and the Playwright/Vitest configurations provide reproducible frontend verification.
+- `web/` contains a Vite/React/TypeScript dashboard shell, a map-centric three-region workspace, a MapLibre map with the audited ECan catchment polygon and station coordinates, optional OpenFreeMap Positron context with a timed local-geometry fallback, coordinated parameter/window/station/map-display state, typed inline-SVG and tabular analytical views, UTF-8 filtered CSV export, responsive/accessibility styling, expandable provenance notes with official attribution/source links, and a local ignored application-asset loader. The loader reads the versioned runtime shell and parameter partitions from `web/public/data/ashburton/` when the developer has prepared them and falls back to a checked-in synthetic fixture with an explicit warning. `web/package-lock.json` and the Playwright/Vitest configurations provide reproducible frontend verification.
 
 ### Not yet evidenced
 
 - A deployed public site, complete catchment observation coverage, and CI. `docs/RELEASE_READINESS.md` and `tools/check_release_readiness.py` make the attribution/freshness release boundary explicit.
-- A licensed third-party basemap or remote tiles; the local MapLibre style intentionally uses the verified boundary and station layers only.
+- A public deployment and operational monitoring of the OpenFreeMap dependency; local-first geometry and a bounded fallback are implemented, but the provider remains an external runtime dependency when its context is available.
 - Configured lint/format tooling, deployment configuration, or live deployment.
 
 Do not infer these components from the intended design.
@@ -57,7 +57,7 @@ Do not infer these components from the intended design.
 | Columnar data | PyArrow/Parquet where beneficial | Intended preference; validate against browser delivery strategy |
 | Local analytical query | DuckDB | Optional development decision based on data volume and transformations |
 | Frontend | React + TypeScript + Vite | Coordinated dashboard views and ignored application asset loading implemented; public delivery is terms-supported but not deployed |
-| Mapping | MapLibre GL JS with local GeoJSON boundary and station layers | Real ECan polygon, WGS84 stations, fit-to-bounds, selected/available states, map selection, and keyboard-equivalent station control implemented; third-party basemap remains intentionally absent |
+| Mapping | MapLibre GL JS with local GeoJSON boundary and station layers | Real ECan polygon, WGS84 stations, fit-to-bounds, selected/available states, map selection, keyboard-equivalent station control, OpenFreeMap Positron context, attribution, and local fallback implemented |
 | Charts | Typed inline SVG plus HTML table | Observed-history chart/table and coordinated filtering implemented; richer charting remains optional |
 | Runtime assets | Versioned JSON shell plus parameter-partitioned detail JSON | Runtime contract `2.0.0` implemented with lookup-backed observations, local geometry, manifest checksums, and lazy parameter loading; generated assets require freshness/release checks before hosting |
 | Runtime database | None by default | PostGIS/backend requires demonstrated need and architecture review |
@@ -173,6 +173,7 @@ Internal identifiers must be stable and source identifiers must be retained. Uni
 ## APIs and Runtime Boundaries
 
 - **External acquisition APIs/services:** build-time only by default. ECan ArcGIS and legacy Hilltop catalog access are verified public sources; the adapter retains the documented Hilltop route because the official web export is selected-sample oriented rather than a documented bulk-history replacement.
+- **External map context:** OpenFreeMap Positron is a browser-time, no-key contextual style. The dashboard does not send monitoring data to it; it shows the verified local boundary and station layers first, attributes OpenFreeMap/OpenMapTiles/OpenStreetMap, and falls back to local geometry when the style or vector-source lifecycle is unavailable.
 - **Internal runtime API:** none intended for MVP.
 - **Static assets:** the frontend's primary data interface; their schemas require explicit versioning and validation.
 - **Export:** derived locally from the current filtered, normalized dataset or from a prebuilt equivalent; exported columns and units must be clear.
