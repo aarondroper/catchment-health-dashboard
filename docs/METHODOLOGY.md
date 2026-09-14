@@ -2,7 +2,7 @@
 
 **Method version:** `ashburton-analytical-v3-published-unflagged`
 **Scope:** Ashburton–Hakatere, selected ECan/Hilltop monitoring sites
-**Status:** Implemented and locally validated; release remains gated by source terms and complete-catchment coverage review
+**Status:** Implemented and locally validated; public release is permitted by the dataset-specific water-quality terms subject to attribution/freshness safeguards and complete-catchment coverage limitations
 
 ## Scope and windows
 
@@ -179,15 +179,11 @@ separate ignored output directory so the adopted local asset is not replaced.
 
 The generated asset directory contains normalized observations, coverage,
 summary, trend, and manifest JSON. Raw responses and generated assets remain
-ignored local outputs. ECan's [water-quality page](https://www.ecan.govt.nz/data/water-quality-data)
-links terms of use, and the published [ECan data agreement](https://data.ecan.govt.nz/Catalogue/Agreement?AgreementFile=Agreement.htm&AgreementRequirements=General)
-states attribution, no council branding without permission, no advertising in
-applications without permission, a responsibility to keep public electronic
-data current or remove it, and CC BY 4.0 unless specifically stated otherwise.
-These terms do not explicitly prohibit local processing. Dataset-specific
-confirmation for the legacy Hilltop response route, attribution/freshness
-implementation, and any public raw-response redistribution remain release
-gates. The exact source inventory and release decision boundary are maintained
-in [`docs/RELEASE_READINESS.md`](RELEASE_READINESS.md); the local application
-uses the official attribution wording and source links but does not imply that
-public observation or CSV redistribution has been approved.
+ignored local outputs by repository policy. The exact water-quality Terms of
+Use linked by ECan's [water-quality page](https://www.ecan.govt.nz/data/water-quality-data)
+license the work for reuse under CC BY 4.0 and require attribution and
+accompanying terms; the preserved PDF and hash are in `docs/release/`. The
+general [ECan data agreement](https://data.ecan.govt.nz/Catalogue/Agreement?AgreementFile=Agreement.htm&AgreementRequirements=General)
+adds current-or-remove, no-branding, and no-advertising safeguards. Public
+reuse therefore has a defensible basis, but a release must use a fresh asset,
+retain provenance, and pass `tools/check_release_readiness.py`.

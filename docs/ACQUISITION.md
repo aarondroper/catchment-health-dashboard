@@ -63,9 +63,10 @@ Each successful request in a profile is recorded in `source_manifest`,
 including the ArcGIS count and feature queries, Hilltop site list, boundary,
 measurement metadata, and observation responses. `source_endpoints` retains
 the same request list for compatibility. The manifest records response
-identity and size only; raw response bodies are not written or committed, and
-no stale-cache reuse policy is implied while redistribution terms remain under
-review.
+identity and size only; raw response bodies are not written or committed. The
+current water-quality Terms of Use support attributed reuse of the published
+work, while raw response retention remains an intentional local/ephemeral
+policy.
 
 ## Verified spatial boundary
 
@@ -92,7 +93,7 @@ On 2026-09-13, the normal bounded command completed the ArcGIS count-checked sta
 | Total Nitrogen | 9 | 81 | 80 | 1 | `g/m3` |
 | Nitrate-N Nitrite-N | 9 | 81 | 67 | 14 | `g/m3` |
 
-Sixty-nine observations carried a quality code. The two current marine name-screened joins (`SQ35193` and `SQ35200`, Canterbury Bight) were excluded by the authoritative polygon. The generated JSON is ignored because source redistribution terms remain under review.
+Sixty-nine observations carried a quality code. The two current marine name-screened joins (`SQ35193` and `SQ35200`, Canterbury Bight) were excluded by the authoritative polygon. The generated JSON remains ignored by repository policy; public publication still requires a fresh generated asset and the release-readiness freshness/removal check.
 
 The ArcGIS candidate query, Hilltop coordinate join, boundary retrieval, and
 site membership filter are live-verified for this bounded diagnostic run. The
@@ -190,11 +191,9 @@ trends. The adopted label describes source publication without overstating
 quality verification.
 
 The generated manifest and coverage asset are the evidence source for these
-counts. The source profile,
-raw responses, and generated assets remain ignored pending dataset-specific
-source-terms confirmation and release review; the published ECan data
-agreement findings and attribution/freshness requirements are in
-`docs/METHODOLOGY.md`. The consolidated current terms position, endpoint
-inventory, exact unresolved redistribution question, and local release check
-are in [`docs/RELEASE_READINESS.md`](RELEASE_READINESS.md). Public endpoint
-access is not treated as permission to redistribute legacy Hilltop responses.
+counts. The source profile, raw responses, and generated assets remain ignored
+by repository policy; the dataset-specific water-quality terms and spatial
+item metadata support attributed public reuse, while the freshness/removal
+requirements and exact evidence are in [`docs/RELEASE_READINESS.md`](RELEASE_READINESS.md)
+and `docs/release/`. Public endpoint access is not the licence evidence; the
+current conclusion is based on the retrieved terms and item metadata.

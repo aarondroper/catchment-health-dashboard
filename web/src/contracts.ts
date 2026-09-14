@@ -88,7 +88,7 @@ export type AnalyticalAsset = {
   analyticalVersion: string;
   studyAreaId: string;
   studyAreaName: string;
-  sourceTermsStatus: "local_processing_only_release_gate";
+  sourceTermsStatus: "local_processing_only_release_gate" | "public_cc_by_attribution_freshness";
   qualityPolicy: string | null;
   sourceRetrievedAt: string | null;
   buildId: string | null;

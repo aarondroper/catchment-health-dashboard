@@ -488,7 +488,7 @@ def build_source_ref(*, endpoint: str, source_record_id: str, retrieved_at: str)
         retrieved_at=retrieved_at,
         source_record_id=source_record_id,
         source_version=None,
-        license="public endpoint; redistribution terms remain under review",
+        license="CC BY 4.0; ECan Water Quality Data Terms of Use retrieved 2026-09-14",
     )
 
 

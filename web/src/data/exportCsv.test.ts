@@ -35,7 +35,8 @@ const rows: Observation[] = [
 describe("filtered CSV export", () => {
   it("preserves censored, excluded, Unicode, commas, quotes, and missing values", () => {
     const csv = buildObservationCsv(rows, stations, parameter);
-    expect(csv.split("\r\n")[0]).toContain("censoring_direction");
+    expect(csv.split("\r\n")[0]).toContain("# Source: Environment Canterbury Water Quality Data");
+    expect(csv).toContain("station_name,source_station_id,parameter,timestamp");
     expect(csv).toContain('"Rākaiā, ""North"""');
     expect(csv).toContain('"<0.01, quoted"');
     expect(csv).toContain('"0.42 ""exact"""');
@@ -46,7 +47,14 @@ describe("filtered CSV export", () => {
 
   it("is deterministic and supports an empty deliberate export", () => {
     expect(buildObservationCsv(rows, stations, parameter)).toBe(buildObservationCsv([...rows].reverse(), stations, parameter));
-    expect(buildObservationCsv([], stations, parameter).split("\r\n")).toEqual([expect.stringContaining("station_name"), "",]);
+    expect(buildObservationCsv([], stations, parameter).split("\r\n")).toEqual([
+      "# Source: Environment Canterbury Water Quality Data",
+      "# Licence: Creative Commons Attribution 4.0 International (CC BY 4.0)",
+      expect.stringContaining("# Attribution: This work uses material sourced from Water Quality Data"),
+      "# Terms: https://www.ecan.govt.nz/data/document/download?uri=3957205",
+      expect.stringContaining("station_name"),
+      "",
+    ]);
   });
 
   it("creates a context-identifying filename", () => {

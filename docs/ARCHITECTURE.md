@@ -8,7 +8,7 @@ This document distinguishes three states:
 - **Intended:** accepted direction but not yet implemented.
 - **Unresolved:** requires feasibility evidence, an implementation choice, or an owner decision.
 
-As audited on 2026-09-13, the checkout contains a dependency-free source-feasibility audit, versioned contract foundation, bounded ECan/Hilltop acquisition adapters, a validated ECan catchment-boundary membership slice, source-preserving normalization and analytical asset builders, synthetic and analytical fixtures, and a React/TypeScript/Vite shell. Generated production-scale outputs remain ignored local artifacts pending source-term review. `docs/PROJECT_STATE.md` is authoritative for what currently exists and has been verified.
+As audited on 2026-09-14, the checkout contains a dependency-free source-feasibility audit, versioned contract foundation, bounded ECan/Hilltop acquisition adapters, a validated ECan catchment-boundary membership slice, source-preserving normalization and analytical asset builders, synthetic and analytical fixtures, and a React/TypeScript/Vite shell. Generated production-scale outputs remain ignored local artifacts and require a fresh release check before publication. `docs/PROJECT_STATE.md` is authoritative for what currently exists and has been verified.
 
 ## System Context
 
@@ -41,7 +41,7 @@ The browser should not query remote environmental APIs for routine interactions.
 
 ### Not yet evidenced
 
-- Publicly redistributable production assets, licensed source snapshots, complete catchment observation coverage, and CI. `docs/RELEASE_READINESS.md` and `tools/check_release_readiness.py` make the current local-only/release-gated boundary explicit.
+- A deployed public site, complete catchment observation coverage, and CI. `docs/RELEASE_READINESS.md` and `tools/check_release_readiness.py` make the attribution/freshness release boundary explicit.
 - A licensed third-party basemap or remote tiles; the local MapLibre style intentionally uses the verified boundary and station layers only.
 - Configured lint/format tooling, deployment configuration, or live deployment.
 
@@ -54,10 +54,10 @@ Do not infer these components from the intended design.
 | Processing | Python package with standard-library contract validation; pandas/GeoPandas remain candidates for source and spatial work | Contract foundation existing; processing dependencies unresolved |
 | Columnar data | PyArrow/Parquet where beneficial | Intended preference; validate against browser delivery strategy |
 | Local analytical query | DuckDB | Optional development decision based on data volume and transformations |
-| Frontend | React + TypeScript + Vite | Coordinated local dashboard views and ignored application asset loading implemented; public observation delivery unresolved |
+| Frontend | React + TypeScript + Vite | Coordinated dashboard views and ignored application asset loading implemented; public delivery is terms-supported but not deployed |
 | Mapping | MapLibre GL JS with local GeoJSON boundary and station layers | Real ECan polygon, WGS84 stations, fit-to-bounds, selected/available states, map selection, and keyboard-equivalent station control implemented; third-party basemap remains intentionally absent |
 | Charts | Typed inline SVG plus HTML table | Observed-history chart/table and coordinated filtering implemented; richer charting remains optional |
-| Runtime assets | Versioned JSON shell plus parameter-partitioned detail JSON | Runtime contract `2.0.0` implemented with lookup-backed observations, local geometry, manifest checksums, and lazy parameter loading; public observation delivery unresolved |
+| Runtime assets | Versioned JSON shell plus parameter-partitioned detail JSON | Runtime contract `2.0.0` implemented with lookup-backed observations, local geometry, manifest checksums, and lazy parameter loading; generated assets require freshness/release checks before hosting |
 | Runtime database | None by default | PostGIS/backend requires demonstrated need and architecture review |
 | Hosting | Static/free or extremely low-cost service | Provider unresolved |
 
@@ -72,7 +72,7 @@ Responsibilities:
 - capture source retrieval time, licensing/attribution metadata, and source identifiers;
 - fail explicitly on unexpected schema or incomplete retrieval.
 
-The primary candidate provider is Environment Canterbury. Its public ArcGIS station/flow layers and legacy Hilltop WFS/catalog are verified feasibility candidates, while the production observation route, licensing, and historical completeness remain unresolved and must be reviewed before production adapters are designed. National New Zealand sources may supplement regional data only when justified and compatible.
+The primary provider is Environment Canterbury. Its public ArcGIS station/flow layers and legacy Hilltop WFS/catalog are verified build-time sources. The dataset-specific water-quality terms provide a CC BY 4.0 public-reuse basis for the published observations; historical completeness remains bounded and must be stated. National New Zealand sources may supplement regional data only when justified and compatible.
 
 ### 2. Raw acquisition cache or source snapshots
 
@@ -170,7 +170,7 @@ Internal identifiers must be stable and source identifiers must be retained. Uni
 
 ## APIs and Runtime Boundaries
 
-- **External acquisition APIs/services:** build-time only by default. ECan ArcGIS and legacy Hilltop catalog access are verified feasibility candidates; the exact production route remains unresolved.
+- **External acquisition APIs/services:** build-time only by default. ECan ArcGIS and legacy Hilltop catalog access are verified public sources; the adapter retains the documented Hilltop route because the official web export is selected-sample oriented rather than a documented bulk-history replacement.
 - **Internal runtime API:** none intended for MVP.
 - **Static assets:** the frontend's primary data interface; their schemas require explicit versioning and validation.
 - **Export:** derived locally from the current filtered, normalized dataset or from a prebuilt equivalent; exported columns and units must be clear.

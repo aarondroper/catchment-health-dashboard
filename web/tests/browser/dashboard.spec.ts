@@ -148,7 +148,7 @@ test("exports a deliberate header-only file for a no-data station", async ({ pag
   const download = await downloadPromise;
   const path = await download.path();
   const csv = await readFile(path!, "utf8");
-  expect(csv.trimEnd().split("\r\n")).toHaveLength(1);
+  expect(csv.trimEnd().split("\r\n")).toHaveLength(5);
   await expect(page.getByText(/0 records exported/)).toBeVisible();
 });
 
@@ -173,8 +173,8 @@ test("keeps detailed technical context behind Data notes", async ({ page }) => {
   await notes.locator("summary").click();
   await expect(notes).toContainText("published_unflagged");
   await expect(notes).toContainText("analytical version");
-  await expect(notes).toContainText("public observation redistribution remain release gates");
-  await expect(notes).toContainText("This work uses data sourced from Environment Canterbury.");
+  await expect(notes).toContainText("Public reuse is permitted under the dataset-specific CC BY 4.0 terms");
+  await expect(notes).toContainText("This work uses material sourced from Water Quality Data");
 });
 
 test("has no serious accessibility violations in the real-data view", async ({ page }) => {

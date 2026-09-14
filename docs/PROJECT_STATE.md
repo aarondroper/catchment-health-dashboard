@@ -1,13 +1,13 @@
 # Project State
 
-**As of:** 2026-09-13
-**Authoritative status:** Ashburton–Hakatere `published_unflagged` analytical policy, deterministic local asset regeneration, browser-verified MapLibre MVP, and filtered export verified; public source-term release, complete observation coverage, and public deployment remain open
+**As of:** 2026-09-14
+**Authoritative status:** Ashburton–Hakatere `published_unflagged` analytical policy, deterministic local asset regeneration, browser-verified MapLibre MVP, filtered export, and an evidence-backed CC BY release path verified; complete observation coverage, freshness operations, and public deployment remain open
 
 This file is the factual snapshot of repository capability. It is not a progress diary. Update it whenever implementation, verification, blockers, or the development frontier materially changes.
 
 ## Evidence Basis
 
-This state was reconciled against the current checkout, live public-source audit, refreshed ECan/Hilltop acquisition and geometry checks, the approved 2007–2024 local analytical build, the quality-semantics viability report, and repository quality gates on 2026-09-13. Generated source profiles and analytical assets remain ignored local outputs; no raw or derived production dataset is committed or deployed.
+This state was reconciled against the current checkout, live public-source audit, refreshed ECan/Hilltop acquisition and geometry checks, the approved 2007–2024 local analytical build, the quality-semantics viability report, exact ECan water-quality terms, ArcGIS item metadata, and repository quality gates on 2026-09-14. Generated source profiles and analytical assets remain ignored local outputs; no raw or derived production dataset is deployed.
 
 Accordingly, statements about the intended product remain planned unless implementation and validation evidence is listed below.
 
@@ -62,12 +62,12 @@ Verification here distinguishes documented decisions from executable evidence; t
 
 ## Not Implemented or Not Evidenced
 
-- Dataset-specific confirmation for the legacy Hilltop route, rate-limit agreement, and public redistribution decision. ECan's published data-agreement terms are documented as a local-processing basis, not release approval; the application now carries the official attribution/source links and `tools/check_release_readiness.py` verifies local freshness/metadata and untracked generated outputs.
+- A deployed public site and operational freshness/removal process. The exact ECan water-quality Terms of Use support attributed public reuse under CC BY 4.0; `docs/release/` preserves the PDF/hash and `tools/check_release_readiness.py` verifies the evidence, source freshness, attribution, and untracked outputs.
 - Complete catchment observation-level coverage and production-scale profile.
 - Full raw snapshot/cache and public production asset publication. The current response manifest records identity only; raw response bodies remain local/ephemeral.
 - Censor-aware ROS summaries and censor-aware Mann–Kendall/Akritas–Theil–Sen trends. The current documented fallback suppresses affected statistics and emits indeterminate trends.
 - A local runtime shell now includes the audited catchment geometry and station coordinates; flow assets and complete observation coverage are still not prepared for production use.
-- Public observation assets, licensed basemap/tiles, and public deployment.
+- Public deployment and a licensed third-party basemap/tiles. Generated observation assets remain ignored and are not deployed in this milestone.
 - Frontend component tests, Python formatter/linter/static checks, CI, and observation-level source fixtures.
 - Deployment configuration, hosting selection, deployed application, monitoring, or live verification.
 - Public portfolio repository, screenshots, or case-study material.
@@ -79,10 +79,10 @@ The local production-shaped workflow is implemented against ignored generated as
 ## Known Limitations and Risks
 
 - Ashburton–Hakatere is selected as the working catchment direction; the verified ECan major-catchment boundary covers the bounded profile, while complete observation coverage and final suitability remain to be validated.
-- Environment Canterbury provides verified public station/flow inventory and legacy Hilltop catalog access for the audit, but the production observation route, licensing, and redistribution terms remain unresolved.
+- Environment Canterbury provides verified public station/flow inventory and legacy Hilltop catalog access. The water-quality terms provide CC BY 4.0 reuse with attribution; the website's undocumented internal export endpoint was not captured because ECan returned an Incapsula challenge, so Hilltop remains the documented bulk-history adapter.
 - Source records may contain irregular sampling, inconsistent analyte names or units, quality flags, censored values, duplicates, schema changes, and incomplete coverage.
 - Inventory-level flow matching is promising; a selected catchment still needs a defensible gauge-to-monitoring relationship.
-- Static delivery is preferred and locally verified for the current payload; the old formatted monolith was 10,473,514 bytes, while the new shell is about 1.26 MB raw and shell plus initial E. coli detail about 1.41 MB raw. The full partition set remains about 1.71 MB raw; public delivery terms remain unresolved.
+- Static delivery is preferred and locally verified for the current payload; the old formatted monolith was 10,473,514 bytes, while the new shell is about 1.26 MB raw and shell plus initial E. coli detail about 1.41 MB raw. The full partition set remains about 1.71 MB raw; publication requires a fresh source retrieval and removal/refresh operation.
 - The adopted published-unflagged policy improves exploratory coverage, but censoring and irregular sampling still leave 283 of 324 trend records indeterminate; this is surfaced rather than relaxed.
 - Regulatory thresholds and directional terms such as “improving” or “declining” may be inapplicable or parameter-specific.
 - No project formatter/linter, Python static/type checker, or CI workflow exists yet. Foundation test, fixture-validation, compilation, typecheck, unit test, build, and browser-verification commands are documented and verified.
@@ -107,16 +107,16 @@ No hosting provider, deployment configuration, production URL, or successful dep
 
 ## Major Blockers and Decision Boundaries
 
-The owner has selected Ashburton–Hakatere and approved the parameter/time scope. The bounded acquisition, ECan polygon membership, normalization, quality-semantics audit, coverage diagnostics, conservative summaries, trends, local runtime asset loading, MapLibre geography, filtered export, and browser-verified React integration are implemented. Complete catchment observation coverage, exact source-term approval, and public publication remain open; local production-shaped asset loading is verified. Release-readiness review is complete enough to define the exact unresolved route-specific permission question and local safeguards.
+The owner has selected Ashburton–Hakatere and approved the parameter/time scope. The bounded acquisition, ECan polygon membership, normalization, quality-semantics audit, coverage diagnostics, conservative summaries, trends, local runtime asset loading, MapLibre geography, filtered export, and browser-verified React integration are implemented. Exact water-quality terms and spatial item licences are now preserved and support attributed public reuse. Complete catchment observation coverage, operational freshness/removal, and public deployment remain open; local production-shaped asset loading is verified.
 
 Implementation beyond feasibility is gated by:
 
-1. Retrieval and review of exact source terms for local caching and public redistribution.
-2. Complete-catchment observation acquisition and coverage reconciliation beyond the bounded retrieved profile.
+1. Complete-catchment observation acquisition and coverage reconciliation beyond the bounded retrieved profile.
+2. Implement and rehearse a fresh-asset, attribution, and remove-or-refresh release operation before deployment.
 3. Owner review of any future consequential interpretation, thresholds, or status semantics before dashboard release.
 
 Credentials or private access should not be assumed; sources must remain public/open unless the owner explicitly changes scope.
 
 ## Logical Current Development Frontier
 
-Priority 0 is complete as a feasibility screen, Priority 1 is complete as a tested foundation, the approved bounded Priority 2/3 analytical implementation plus quality-semantics review is complete, and the local functional MVP plus final UI polish is complete with verified MapLibre geography, partitioned runtime data, filtered export, official attribution/source links, and browser-tested transparency/accessibility behavior. Release-readiness evidence and local safeguards are now implemented; the next frontier is an owner-facing decision on route-specific public distribution terms, followed by complete coverage/release checks and only then deployment.
+Priority 0 is complete as a feasibility screen, Priority 1 is complete as a tested foundation, the approved bounded Priority 2/3 analytical implementation plus quality-semantics review is complete, and the local functional MVP plus final UI polish is complete with verified MapLibre geography, partitioned runtime data, filtered export, official attribution/source links, and browser-tested transparency/accessibility behavior. Release-readiness evidence and safeguards are now implemented; the next frontier is complete coverage/release checks and an operational deployment rehearsal, followed by public deployment only after the owner reviews the resulting portfolio release.

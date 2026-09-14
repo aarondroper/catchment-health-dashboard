@@ -24,6 +24,13 @@ export const EXPORT_COLUMNS = [
   "source_retrieved_at",
 ] as const;
 
+export const EXPORT_PREAMBLE = [
+  "# Source: Environment Canterbury Water Quality Data",
+  "# Licence: Creative Commons Attribution 4.0 International (CC BY 4.0)",
+  "# Attribution: This work uses material sourced from Water Quality Data, which is licensed under a Creative Commons Attribution 4.0 International licence by Environment Canterbury.",
+  "# Terms: https://www.ecan.govt.nz/data/document/download?uri=3957205",
+] as const;
+
 function csvCell(value: string | number | boolean | null | undefined): string {
   const text = value === null || value === undefined ? "" : String(value);
   return /[",\r\n]/.test(text) ? `"${text.replaceAll('"', '""')}"` : text;
@@ -44,7 +51,7 @@ export function buildObservationCsv(
     `${stationNames.get(left.stationId) ?? left.stationId}\u0000${left.stationId}\u0000${left.observedAt}\u0000${left.observationId}`
       .localeCompare(`${stationNames.get(right.stationId) ?? right.stationId}\u0000${right.stationId}\u0000${right.observedAt}\u0000${right.observationId}`),
   );
-  const lines = [EXPORT_COLUMNS.join(",")];
+  const lines = [...EXPORT_PREAMBLE, EXPORT_COLUMNS.join(",")];
   for (const observation of rows) {
     lines.push([
       stationNames.get(observation.stationId) ?? observation.stationId,

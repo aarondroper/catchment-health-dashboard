@@ -38,7 +38,7 @@ FLOW_LIVE_LAYER = (
 HILLTOP_ENDPOINT = "http://wateruse.ecan.govt.nz/wqlawa.hts"
 ECAN_WQ_PAGE = "https://www.ecan.govt.nz/data/water-quality-data"
 ECAN_FLOW_PAGE = "https://www.ecan.govt.nz/data/riverflow"
-ECAN_TERMS = "https://apidevelopers.ecan.govt.nz/terms"
+ECAN_TERMS = "https://www.ecan.govt.nz/data/document/download?uri=3957205"
 ECAN_SURFACE_ITEM = (
     "https://www.arcgis.com/sharing/rest/content/items/"
     "6e62f7f10cd5433c98e5e330b4ed3b7d?f=pjson"
@@ -625,15 +625,15 @@ def report_from_live_sources() -> dict[str, Any]:
         ],
         "profile": profile,
         "constraints_and_attribution": {
-            "ecan_api_terms": ECAN_TERMS,
+            "ecan_water_quality_terms": ECAN_TERMS,
             "observed_terms": [
                 "API access requires an account and subscription where the developer portal applies",
                 "public outputs must attribute Environment Canterbury using its prescribed statement",
                 "batch calls may require agreed scheduling outside business hours",
                 "provider may change or discontinue platform/API content",
             ],
-            "proposed_attribution": "This work uses data sourced from Environment Canterbury.",
-            "licence_status": "source-specific legal review remains required before publishing derived assets",
+            "proposed_attribution": "This work uses material sourced from Water Quality Data, which is licensed under a Creative Commons Attribution 4.0 International licence by Environment Canterbury.",
+            "licence_status": "dataset-specific water-quality CC BY 4.0 evidence recorded; release safeguards remain required",
         },
         "recommendation": {
             "status": "owner_decision_required",

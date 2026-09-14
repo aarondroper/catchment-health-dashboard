@@ -35,7 +35,7 @@ Establish whether authoritative public data can support a credible dashboard and
 
 ### Exit decision
 
-Owner selected Ashburton–Hakatere as the catchment direction. The completed screening evidence is in `docs/feasibility/SOURCE_AUDIT.md` and `docs/feasibility/audit-report.json`. The ECan major-catchment polygon is validated for the bounded profile; the core parameter/time scope is now owner-approved, while complete observation-level coverage and source-term release remain open.
+Owner selected Ashburton–Hakatere as the catchment direction. The completed screening evidence is in `docs/feasibility/SOURCE_AUDIT.md` and `docs/feasibility/audit-report.json`. The ECan major-catchment polygon is validated for the bounded profile; the core parameter/time scope is owner-approved, while complete observation-level coverage and deployment operations remain open.
 
 ## Priority 1 — Repository and Contract Foundation
 
@@ -75,7 +75,7 @@ The repository now contains a Python package and versioned contracts, a syntheti
 
 ## Priority 2 — Acquisition, Normalization, and Data Quality
 
-**Status:** Complete for the approved bounded profile and refreshed quality-semantics review; complete-catchment acquisition, source-term approval, and production publication remain open. Plans are archived under `docs/plans/completed/`.
+**Status:** Complete for the approved bounded profile and refreshed quality-semantics review; complete-catchment acquisition and production publication remain open. Plans are archived under `docs/plans/completed/`.
 
 ### Objective
 
@@ -150,7 +150,7 @@ the UI labels unsupported summaries/trends rather than relaxing the rules.
 
 ## Priority 4 — Core Coordinated Dashboard
 
-**Status:** Complete for the local production-shaped milestone; public observation delivery and licensed third-party basemap use remain later release gates.
+**Status:** Complete for the local production-shaped milestone; public deployment and licensed third-party basemap use remain later release gates.
 
 ### Objective
 
@@ -215,11 +215,12 @@ was visually inspected at 1440×900, 1024×768, and 390×844 with no horizontal
 overflow. The local asset is 10,473,514 bytes; the static bundle remains small
 relative to that payload. The current local runtime uses a 2.0.0 shell plus
 parameter partitions, verified MapLibre geometry, and filtered export; public
-observation delivery remains outside the release gate.
+observation delivery has an evidence-backed CC BY route but still requires
+freshness/removal operations and deployment checks.
 
 ## Priority 5 — Transparency, Export, Responsiveness, and Accessibility
 
-**Status:** Complete for the local functional MVP; public observation delivery remains a release gate.
+**Status:** Complete for the local functional MVP; public deployment remains a release gate with an evidence-backed data licence and operational freshness requirements.
 
 ### Objective
 
@@ -299,20 +300,25 @@ public distribution approval, not more local feature scope.
 
 ### Release-readiness outcome
 
-Official ECan terms and the exact source inventory are documented in
-`docs/RELEASE_READINESS.md`. Attribution/source links and freshness/build
-metadata are present in the local application, and
-`tools/check_release_readiness.py` verifies that local generated outputs are
-not tracked. The general ECan terms are not sufficient evidence that the exact
-legacy Hilltop observation route and exact ArcGIS catchment layer may be
-publicly redistributed as normalized assets or filtered CSV. The next release
-decision is therefore owner-facing written confirmation or a source change;
-local dashboard development remains unblocked.
+The exact ECan water-quality Terms of Use linked from the official publication
+page were retrieved and preserved on 2026-09-14. They license the water-quality
+work for reuse under CC BY 4.0 with attribution and accompanying terms. The
+surface-water site and Major Catchment Boundary ArcGIS item metadata separately
+record CC BY 3.0 New Zealand. `docs/RELEASE_READINESS.md` and
+`docs/release/ecan-source-licence-evidence.json` distinguish these verified
+facts from the project freshness/removal safeguards. The adapter remains on
+the public Hilltop route because the website export is selected-sample oriented,
+not a documented replacement for bulk history. Public deployment is still not
+performed, but a fresh generated asset can pass
+`python3 tools/check_release_readiness.py --require-public-release` when the
+current-source, attribution, terms-hash, and no-tracked-output checks pass.
 
 ### Acceptance criteria
 
 - Owner-facing visual decisions are recorded before public release.
-- Observation and geometry assets are distributed only under confirmed terms.
+- Observation and geometry assets are distributed only under the confirmed
+  source terms, with attribution, accompanying terms, provenance, and
+  current-or-remove safeguards.
 - Freshness and attribution information is visible and reproducible.
 - Complete coverage and deployment gates are evidenced separately from local
   development verification.

@@ -218,7 +218,7 @@ def prepare_assets(
         "analyticalVersion": normalized["analytical_version"],
         "studyAreaId": manifest["study_area_id"],
         "studyAreaName": "Ashburton–Hakatere catchment",
-        "sourceTermsStatus": "local_processing_only_release_gate",
+        "sourceTermsStatus": "public_cc_by_attribution_freshness",
         "qualityPolicy": manifest.get("quality_policy"),
         "sourceRetrievedAt": manifest.get("source_retrieved_at"),
         "buildId": manifest.get("build_id"),

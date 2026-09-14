@@ -1,0 +1,70 @@
+{
+  "evidenceVersion": "1.0.0",
+  "reviewedAt": "2026-09-14",
+  "releaseDecision": "permitted_with_attribution_freshness_safeguards",
+  "waterQualityTerms": {
+    "canonicalPageUrl": "https://www.ecan.govt.nz/data/water-quality-data",
+    "linkedTermsUrl": "https://www.ecan.govt.nz/data/document/download?uri=3957205",
+    "retrievalUrl": "https://api.ecan.govt.nz/TrimPublicAPI/documents/download/3957205",
+    "retrievedAt": "2026-09-14T16:00:26Z",
+    "sha256": "87b0c0408c5e6dce82b0cf036acdcf8ffc78e7d31e45db2a1a60f15255ebe705",
+    "filename": "TermsofUseWaterQualityDataPublicWebsite.PDF",
+    "documentDate": "August 2018",
+    "mediaType": "application/pdf",
+    "licence": "Creative Commons Attribution 4.0 International (CC BY 4.0)",
+    "rightsHolder": "Canterbury Regional Council (Environment Canterbury)",
+    "attributionText": "This work uses material sourced from Water Quality Data, which is licensed under a Creative Commons Attribution 4.0 International licence by Environment Canterbury.",
+    "redistributionPosition": "The dataset-specific terms expressly license the water-quality work for reuse under CC BY 4.0. CC BY permits sharing and adaptation with attribution. The terms require a copy of the terms to accompany information made available to third parties.",
+    "freshnessPosition": "The water-quality PDF does not specify a numeric freshness interval. The official publication page warns that publication may lag sampling by up to three months for quality checks, and the general ECan Open Data Agreement requires public electronic information to be kept current or removed. The project therefore applies a 120-day freshness gate and a remove-or-refresh release procedure.",
+    "exceptionsAndCautions": [
+      "Provisional information has not yet been checked using the Council's Quality Assurance audit procedures, may change after review, and is not citable until reviewed and approved.",
+      "Information is supplied for measured result values for monitoring sites; monitoring and laboratory metadata may be provided upon request.",
+      "The terms state that Environment Canterbury does not warrant the information is current, complete, or accurate and is not liable for loss or damage arising from use or reliance.",
+      "The terms contain no express prohibition on derived assets, public visualisation, or CSV redistribution beyond the CC BY attribution and accompanying-terms requirements."
+    ]
+  },
+  "officialWorkflow": {
+    "searchPageUrl": "https://www.ecan.govt.nz/data/water-quality-data",
+    "siteDetailsPattern": "https://www.ecan.govt.nz/data/water-quality-data/wqdetails?SiteID={siteId}",
+    "documentedCapabilities": [
+      "site or well ID search",
+      "sampling-detail and result display",
+      "selected-sample print",
+      "selected-sample data export"
+    ],
+    "observationService": "http://wateruse.ecan.govt.nz/wqlawa.hts",
+    "observationServiceEvidence": "The public Hilltop SiteList, MeasurementList, and GetData responses are live and expose the same site IDs, measurement names, timestamps, result text, units, and detection-limit metadata shown by the official details pages. A representative SQ35873 Total Nitrogen response matched the indexed official result for 29 January 2026 (0.142 g/m3).",
+    "networkTraceLimit": "The ECan web host returned an Incapsula challenge to direct automated browser and HTTP retrieval during this review, so the page's internal export request URL could not be captured. The indexed official details pages and live Hilltop response establish page capability and material result equivalence, but not the undocumented internal button endpoint.",
+    "migrationDecision": "Retain the established Hilltop adapter. It is the public ECan water-quality service that supplies the same published observations, while the official website's selected-sample export is not a documented bulk-history replacement."
+  },
+  "spatialSources": [
+    {
+      "role": "surface-water monitoring sites",
+      "itemUrl": "https://www.arcgis.com/sharing/rest/content/items/6e62f7f10cd5433c98e5e330b4ed3b7d?f=pjson",
+      "serviceUrl": "https://gis.ecan.govt.nz/arcgis/rest/services/Public/WaterQualityandMonitoring/MapServer/0",
+      "itemId": "6e62f7f10cd5433c98e5e330b4ed3b7d",
+      "licence": "Creative Commons Attribution 3.0 New Zealand",
+      "rightsHolder": "Environment Canterbury",
+      "metadataBasis": "ArcGIS item licenseInfo and accessInformation fields"
+    },
+    {
+      "role": "Major Catchment Boundaries",
+      "itemUrl": "https://www.arcgis.com/sharing/rest/content/items/11b4857f314d4360b271ad9f9f9bdc2f?f=pjson",
+      "serviceUrl": "https://gis.ecan.govt.nz/arcgis/rest/services/Public/Hydrology/MapServer/0",
+      "itemId": "11b4857f314d4360b271ad9f9f9bdc2f",
+      "licence": "Creative Commons Attribution 3.0 New Zealand",
+      "rightsHolder": "Environment Canterbury",
+      "metadataBasis": "ArcGIS item licenseInfo and accessInformation fields; service copyright also names Land Information New Zealand and Environment Canterbury"
+    }
+  ],
+  "releaseScope": {
+    "publicVisualisation": "permitted_with_attribution_and_current_or_remove_safeguard",
+    "hostedNormalizedObservationAssets": "permitted_with_attribution_and_current_or_remove_safeguard",
+    "filteredCsvExport": "permitted_with_attribution_and_terms_link; export carries source and licence metadata",
+    "derivedAndNormalizedAssets": "project-derived adaptations remain subject to the upstream attribution, terms-accompanying, freshness, and no-branding safeguards",
+    "branding": "Do not use Environment Canterbury, Metro, or Metroinfo logos or branding without prior agreement.",
+    "advertising": "No advertising is introduced in the application.",
+    "rawResponses": "Remain ignored and are not committed.",
+    "deployment": "Not performed in this milestone."
+  }
+}
