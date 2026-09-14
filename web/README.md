@@ -47,7 +47,8 @@ suite starts Vite, verifies the real shell and initial partition requests,
 checks coordinated controls, MapLibre selection, export, fallback/error state,
 keyboard access, and no-data/censored/indeterminate behavior, runs axe-core,
 checks map-context fallback and desktop body overflow, and captures ignored
-full-page review screenshots at 1440×900, 1536×864, 1024×768, and 390×844
+full-page review screenshots at 1440×900, 1536×864, 1920×1080, 1024×768, and
+390×844
 viewport sizes. Playwright Chromium is downloaded to the normal user
 cache; browser binaries, screenshots, traces, and reports are ignored and
 must not be committed.

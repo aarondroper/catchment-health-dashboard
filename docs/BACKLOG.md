@@ -257,7 +257,10 @@ Twelve frontend unit tests and seventeen Playwright/Chromium browser tests pass,
 including real-data loading, coordinated parameter/window/station/map flows,
 censored and indeterminate states, export, fallback/error behavior, keyboard
 access, axe checks, performance timing, and responsive overflow checks. Full-
-page screenshots were inspected at 1440×900, 1536×864, 1024×768, and 390×844. The shell
+page screenshots were inspected at 1440×900, 1536×864, 1920×1080, 1024×768,
+and 390×844. The map/history workspace was subsequently corrected so the
+measured history plotting region fills the responsive chart frame: 724×150px at
+1440×900, 812×136px at 1536×864, and 1,195×219px at 1920×1080. The shell
 is about 1.26 MB raw/82 kB gzip; shell plus initial E. coli detail is about
 1.41 MB raw/103 kB gzip; all partitions are about 1.71 MB raw/207 kB gzip.
 

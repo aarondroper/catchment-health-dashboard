@@ -58,7 +58,7 @@ Do not infer these components from the intended design.
 | Local analytical query | DuckDB | Optional development decision based on data volume and transformations |
 | Frontend | React + TypeScript + Vite | Coordinated dashboard views and ignored application asset loading implemented; public delivery is terms-supported but not deployed |
 | Mapping | MapLibre GL JS with local GeoJSON boundary and station layers | Real ECan polygon, WGS84 stations, fit-to-bounds, selected/available states, map selection, keyboard-equivalent station control, OpenFreeMap Positron context, attribution, and local fallback implemented |
-| Charts | Typed inline SVG plus HTML table | Observed-history chart/table and coordinated filtering implemented; richer charting remains optional |
+| Charts | Typed inline SVG plus HTML table | Observed-history chart/table and coordinated filtering implemented; SVG dimensions follow the measured panel and preserve a textual/keyboard inspection route; richer charting remains optional |
 | Runtime assets | Versioned JSON shell plus parameter-partitioned detail JSON | Runtime contract `2.0.0` implemented with lookup-backed observations, local geometry, manifest checksums, and lazy parameter loading; generated assets require freshness/release checks before hosting |
 | Runtime database | None by default | PostGIS/backend requires demonstrated need and architecture review |
 | Hosting | Static/free or extremely low-cost service | Provider unresolved |

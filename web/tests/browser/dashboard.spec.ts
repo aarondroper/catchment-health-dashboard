@@ -48,7 +48,7 @@ test("lands on a representative coverage-led default", async ({ page }) => {
   await expect(page.getByRole("combobox", { name: "Monitoring site" })).toHaveValue("SQ35874");
   await expect(page.getByText("Selected scope", { exact: true })).toBeVisible();
   await expect(page.locator(".scope-metric strong")).toHaveText("0.82 mg/L");
-  await expect(page.getByText(/Linear scale; all eligible numeric values are shown/)).toBeVisible();
+  await expect(page.getByText(/Dated observations; the connecting line is a visual guide/)).toBeVisible();
 });
 
 test("fits the primary dashboard in desktop viewports without body scrolling", async ({ page }) => {
@@ -58,6 +58,16 @@ test("fits the primary dashboard in desktop viewports without body scrolling", a
     const dimensions = await page.evaluate(() => ({ scrollHeight: document.documentElement.scrollHeight, clientHeight: document.documentElement.clientHeight, scrollWidth: document.documentElement.scrollWidth, clientWidth: document.documentElement.clientWidth }));
     expect(dimensions.scrollHeight - dimensions.clientHeight).toBeLessThanOrEqual(1);
     expect(dimensions.scrollWidth - dimensions.clientWidth).toBeLessThanOrEqual(1);
+    const chartBox = await page.locator('[data-testid="history-chart"]').boundingBox();
+    const plotBox = await page.locator('[data-testid="history-plot"]').boundingBox();
+    const chartPanelBox = await page.locator('.chart-panel').boundingBox();
+    const mapPanelBox = await page.locator('.map-panel').boundingBox();
+    expect(chartBox).not.toBeNull();
+    expect(plotBox).not.toBeNull();
+    expect(chartBox!.height).toBeGreaterThan(150);
+    expect(plotBox!.width).toBeGreaterThan(chartBox!.width * 0.8);
+    expect(plotBox!.height).toBeGreaterThan(chartBox!.height * 0.65);
+    console.log(`history-chart-layout ${JSON.stringify({ width, height, mapPanel: mapPanelBox, chartPanel: chartPanelBox, chart: chartBox, plot: plotBox })}`);
   }
 });
 
@@ -221,7 +231,7 @@ test("measures real asset and basemap resources without visitor ECan calls", asy
 });
 
 test("captures owner-review viewports without horizontal overflow", async ({ page }) => {
-  for (const [width, height, name] of [[1440, 900, "desktop"], [1536, 864, "wide"], [1024, 768, "compact"], [390, 844, "mobile"]] as const) {
+  for (const [width, height, name] of [[1440, 900, "desktop"], [1536, 864, "wide"], [1920, 1080, "ultrawide"], [1024, 768, "compact"], [390, 844, "mobile"]] as const) {
     await page.setViewportSize({ width, height });
     await openDashboard(page);
     const overflow = await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth);
