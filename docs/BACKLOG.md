@@ -322,6 +322,16 @@ record/quality tooltips and responsive date ticks, and allocating more usable
 space to site comparison. The complete observation dialog, trend caveat,
 short-height comparison fallback, and all data-state distinctions remain.
 
+The 2026-09-15 visual-system pass added locally bundled Source Sans 3 (400–700),
+shared color/spacing/surface/control tokens, restrained panel chrome, grouped
+right-rail surfaces, and direct user-facing headings without routine eyebrow
+duplication. It preserved the accepted shell, chart dimensions, map behavior,
+export, analytical semantics, and release safeguards. Typecheck, unit tests,
+production build, and the complete 19-test Playwright/axe suite passed against
+the real prepared asset; screenshots at all five supported viewports were
+inspected. The next frontier remains owner-facing review and publication
+authorization, not additional analytical scope.
+
 ### Release-readiness outcome
 
 The exact ECan water-quality Terms of Use linked from the official publication

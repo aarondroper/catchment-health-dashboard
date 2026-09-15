@@ -24,7 +24,6 @@ export function ObservationTable({ observations, unit }: ObservationTableProps) 
     <section className="panel observation-panel" aria-labelledby="observation-title">
       <div className="panel-heading">
         <div>
-          <p className="eyebrow">Record inspection</p>
           <h2 id="observation-title">Recorded observations</h2>
           <p className="panel-intro">Concise results are shown here; expand a row or use CSV export for source detail.</p>
         </div>

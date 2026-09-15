@@ -67,3 +67,10 @@ from Natural Earth 1:110m Admin 0 – Countries, which is public domain:
 <https://www.naturalearthdata.com/downloads/110m-cultural-vectors/> and
 <https://www.naturalearthdata.com/about/terms-of-use/>. Update the source note
 and licence if that geometry is replaced.
+
+The interface uses Source Sans 3 from the checked-in
+`@fontsource/source-sans-3` package. Font files are bundled locally; no runtime
+font request or provider dependency is required. Shared visual tokens and
+component styling live in `src/styles.css`, so future refinements should
+preserve the restrained panel, control, chart, and status hierarchy before
+adding new component-specific chrome.

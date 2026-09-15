@@ -11,6 +11,18 @@ async function openDashboard(page: Page) {
   expect((await assetResponse).status()).toBe(200);
   await expect(page.getByRole("heading", { name: "Controls" })).toBeVisible();
   await expect(page.getByRole("button", { name: "Data notes", exact: true })).toBeVisible();
+  const typography = await page.evaluate(async () => {
+    await document.fonts.ready;
+    return {
+      family: getComputedStyle(document.body).fontFamily,
+      sourceSansLoaded: document.fonts.check('400 14px "Source Sans 3"'),
+      fontResources: performance.getEntriesByType("resource").filter((entry) => entry.name.includes("source-sans-3-latin") && entry.name.endsWith(".woff2")).length,
+    };
+  });
+  expect(typography.family).toContain("Source Sans 3");
+  expect(typography.sourceSansLoaded).toBe(true);
+  expect(typography.fontResources).toBeGreaterThanOrEqual(4);
+  await expect(page.locator(".eyebrow")).toHaveCount(0);
   await expect(page.getByText("Local data loaded")).toHaveCount(0);
   await expect(page.getByText("Data notes & provenance")).toHaveCount(0);
   await expect(page.getByText("Development sample")).toHaveCount(0);
