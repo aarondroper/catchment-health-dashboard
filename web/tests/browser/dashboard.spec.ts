@@ -5,7 +5,7 @@ import { readFile } from "node:fs/promises";
 const assetPath = "/data/ashburton/dashboard.json";
 const basemapStyle = "https://tiles.openfreemap.org/styles/positron";
 
-async function openDashboard(page: Page) {
+async function openDashboard(page: Page): Promise<"openfreemap" | "fallback"> {
   const assetResponse = page.waitForResponse((response) => response.url().endsWith(assetPath));
   await page.goto("/");
   expect((await assetResponse).status()).toBe(200);
@@ -28,9 +28,39 @@ async function openDashboard(page: Page) {
   await expect(page.getByText("Development sample")).toHaveCount(0);
   await expect(page.locator(".maplibregl-canvas")).toHaveCount(1);
   await expect(page.locator(".map-marker")).toHaveCount(19);
-  await expect(page.getByText(/Verified Ashburton River boundary/)).toBeVisible();
+  await expect(page.getByText(/Verified Ashburton River boundary/)).toHaveCount(0);
   await expect(page.getByRole("button", { name: "Reset view" })).toBeVisible();
-  await expect(page.locator(".map-service-state")).toHaveText(/Context basemap loaded|Local map fallback/);
+  const serviceState = page.locator(".map-service-state");
+  await expect(serviceState).toHaveText(/Context basemap loaded|Local map fallback/);
+  const serviceStateVisibility = await serviceState.evaluate((element) => {
+    const style = getComputedStyle(element);
+    const box = element.getBoundingClientRect();
+    return { clipped: style.clipPath.includes("inset"), width: box.width, height: box.height };
+  });
+  expect(serviceStateVisibility.clipped).toBe(true);
+  expect(serviceStateVisibility.width).toBeLessThanOrEqual(1);
+  expect(serviceStateVisibility.height).toBeLessThanOrEqual(1);
+  await expect(page.locator(".maplibregl-ctrl-attrib")).toHaveCount(0);
+  const attribution = page.locator("[data-testid=map-attribution]");
+  await expect(attribution).toHaveCount(1);
+  await expect(attribution).not.toHaveAttribute("open", "");
+  const mapControlBoxes = await page.evaluate(() => {
+    const rect = (selector: string) => {
+      const element = document.querySelector<HTMLElement>(selector);
+      if (!element) return null;
+      const box = element.getBoundingClientRect();
+      return { left: box.left, right: box.right, top: box.top, bottom: box.bottom };
+    };
+    return { reset: rect(".map-reset"), navigation: rect(".maplibregl-ctrl-top-right"), legend: rect(".map-legend"), attribution: rect("[data-testid=map-attribution]") };
+  });
+  expect(mapControlBoxes.reset).not.toBeNull();
+  expect(mapControlBoxes.navigation).not.toBeNull();
+  expect(mapControlBoxes.legend).not.toBeNull();
+  expect(mapControlBoxes.attribution).not.toBeNull();
+  const overlaps = (first: NonNullable<typeof mapControlBoxes.reset>, second: NonNullable<typeof mapControlBoxes.reset>) => first.left < second.right && first.right > second.left && first.top < second.bottom && first.bottom > second.top;
+  expect(overlaps(mapControlBoxes.reset!, mapControlBoxes.navigation!)).toBe(false);
+  expect(overlaps(mapControlBoxes.reset!, mapControlBoxes.legend!)).toBe(false);
+  expect(overlaps(mapControlBoxes.legend!, mapControlBoxes.navigation!)).toBe(false);
   if ((page.viewportSize()?.width ?? 1440) > 760) await expect(page.locator('[data-testid="nz-inset-map"]')).toBeVisible();
   await expect(page.locator('[data-testid="nz-catchment-marker"]')).toHaveCount(1);
   await expect(page.locator(".nz-inset-label")).toContainText("Ashburton");
@@ -51,6 +81,7 @@ async function openDashboard(page: Page) {
     expect(labelBox!.x).toBeGreaterThanOrEqual(insetBox!.x);
     expect(labelBox!.x + labelBox!.width).toBeLessThanOrEqual(insetBox!.x + insetBox!.width + 1);
   }
+  return (await serviceState.textContent())?.includes("Context basemap loaded") ? "openfreemap" : "fallback";
 }
 
 async function chartLayout(page: Page) {
@@ -385,6 +416,45 @@ test("uses local geometry when the contextual basemap fails", async ({ page }) =
   await expect(page.locator(".map-service-state")).toHaveText("Local map fallback");
   await expect(page.locator(".map-marker")).toHaveCount(19);
   await expect(page.locator(".map-boundary-fallback")).toHaveCount(1);
+  await expect(page.locator(".maplibregl-ctrl-attrib")).toHaveCount(0);
+  const attribution = page.locator("[data-testid=map-attribution]");
+  await expect(attribution).not.toHaveAttribute("open", "");
+  await attribution.locator("summary").click();
+  await expect(attribution).toHaveAttribute("open", "");
+  await expect(attribution).toContainText("Local context fallback; no remote basemap was loaded.");
+  await expect(attribution.getByRole("link", { name: "OpenFreeMap" })).toHaveCount(0);
+  await expect(attribution.getByRole("link", { name: "Environment Canterbury monitoring sites" })).toBeVisible();
+});
+
+test("provides one keyboard-operable, complete collapsed attribution control", async ({ page }) => {
+  for (const [width, height] of [[1440, 900], [1536, 864], [1920, 1080], [1024, 768], [390, 844]] as const) {
+    await page.setViewportSize({ width, height });
+    const context = await openDashboard(page);
+    const attribution = page.locator("[data-testid=map-attribution]");
+    const summary = attribution.locator("summary");
+    await expect(summary).toHaveText("Map sources");
+    await summary.focus();
+    await page.keyboard.press("Enter");
+    await expect(attribution).toHaveAttribute("open", "");
+    if (context === "openfreemap") {
+      await expect(attribution.getByRole("link", { name: "OpenFreeMap" })).toBeVisible();
+      await expect(attribution.getByRole("link", { name: "OpenMapTiles" })).toBeVisible();
+      await expect(attribution.getByRole("link", { name: /OpenStreetMap contributors/ })).toBeVisible();
+    } else {
+      await expect(attribution).toContainText("Local context fallback; no remote basemap was loaded.");
+      await expect(attribution.getByRole("link", { name: "OpenFreeMap" })).toHaveCount(0);
+    }
+    await expect(attribution.getByRole("link", { name: "Environment Canterbury monitoring sites" })).toBeVisible();
+    await expect(attribution.getByRole("link", { name: "Major Catchment Boundaries" })).toBeVisible();
+    const panel = attribution.locator(".map-attribution-content");
+    const frameBox = await page.locator(".map-frame").boundingBox();
+    const panelBox = await panel.boundingBox();
+    expect(frameBox).not.toBeNull();
+    expect(panelBox).not.toBeNull();
+    expect(panelBox!.x).toBeGreaterThanOrEqual(frameBox!.x);
+    expect(panelBox!.x + panelBox!.width).toBeLessThanOrEqual(frameBox!.x + frameBox!.width + 1);
+    expect(panelBox!.y).toBeGreaterThanOrEqual(frameBox!.y);
+  }
 });
 
 test("has no serious accessibility violations in the real-data view", async ({ page }) => {
