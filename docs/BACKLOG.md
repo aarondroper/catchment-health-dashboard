@@ -174,7 +174,7 @@ across the map, series/table, summaries, coverage, comparison, and quality
 context. The refreshed v4 runtime contains 11,230 observations, 11,078
 eligible observations, 19 stations, 1,930 summaries, and 324 trend records;
 9 primary-window trends are determinate. Typecheck, production build, and the
-17-test browser suite pass. Browser verification confirmed the real asset,
+19-test browser suite pass. Browser verification confirmed the real asset,
 coordinated controls, no-data/censored/indeterminate states, OpenFreeMap
 attribution and fail-closed local geometry fallback, responsive overflow, and
 the absence of serious/critical accessibility violations at 1440×900,
@@ -253,7 +253,7 @@ The local dashboard uses the versioned 2.0.0 runtime shell and parameter
 partitions, preserves source and analytical meaning through typed decoding, and
 exports the active station/all-site context as deterministic UTF-8 CSV. The
 local MapLibre view displays the audited ECan polygon and 19 in-bound sites.
-Twelve frontend unit tests and eighteen Playwright/Chromium browser tests pass,
+Twelve frontend unit tests and nineteen Playwright/Chromium browser tests pass,
 including real-data loading, coordinated parameter/window/station/map flows,
 censored and indeterminate states, export, fallback/error behavior, keyboard
 access, axe checks, performance timing, and responsive overflow checks. Full-
@@ -263,6 +263,9 @@ measured history plotting region fills the responsive chart frame: 724×150px at
 1440×900, 812×136px at 1536×864, and 1,195×219px at 1920×1080. The shell
 is about 1.26 MB raw/82 kB gzip; shell plus initial E. coli detail is about
 1.41 MB raw/103 kB gzip; all partitions are about 1.71 MB raw/207 kB gzip.
+The later simplification pass retained those dimensions and added the
+accessible export scope dialog, replaceable control glyphs, title-case control
+labels, a tabular sampled-history row, and the static New Zealand locator.
 
 ## Priority 5.5 — Owner-Facing Review and Public-Release Readiness
 
@@ -300,14 +303,19 @@ median/IQR interval plot with exact values behind an accessible disclosure;
 at short desktop heights it uses a labelled lowest/selected/highest ranked
 summary rather than a miniature unreadable plot. The map status reports a
 settled remote context or local fallback rather than remaining on a stale
-loading label. Four frontend unit tests and eighteen browser tests pass, and
+loading label. Twelve frontend unit tests and nineteen browser tests pass, and
 screenshots at 1440×900, 1536×864, 1920×1080, 1024×768, and 390×844 were
 inspected. The map-centric shell now
 fits without body scrolling at 1440×900, 1536×864, and 1920×1080, uses
 OpenFreeMap Positron when its vector-source lifecycle completes, and fails
 closed to the verified local geometry otherwise. The remaining work is
 owner-facing review plus external publication authorization and deployment
-operations, not more local feature scope.
+operations, not more local feature scope. The follow-up simplification pass
+removed duplicate status/link language, consolidated the controls heading,
+added replaceable control glyphs, moved export scope into an accessible dialog,
+made sampled history a summary row, and replaced the left-rail map-status card
+with a static New Zealand locator. The same 19-test browser gate passed after
+the change and the primary chart dimensions were unchanged.
 
 ### Release-readiness outcome
 

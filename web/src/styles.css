@@ -30,11 +30,7 @@ h3 { font-size: .8rem; margin-bottom: 6px; }
 .catchment-name span { color: #9aafb8; padding: 0 4px; }
 .eyebrow { color: #267d79; font-size: .58rem; font-weight: 800; letter-spacing: .12em; margin: 0 0 5px; text-transform: uppercase; }
 .panel-intro, .rail-note, .technical-note { color: #526777; font-size: .68rem; line-height: 1.35; margin: 5px 0 0; }
-.data-status, .status-chip, .unit-label { align-items: center; background: #e3f3ef; border: 1px solid #b9ded4; border-radius: 999px; color: #17645f; display: inline-flex; font-size: .63rem; font-weight: 750; gap: 6px; padding: 5px 8px; white-space: nowrap; }
-.data-status-fixture { background: #fff8e7; border-color: #f0d9a5; color: #765b1f; }
-.data-status-loading { color: #526777; }
-.build-dot { background: #31a28e; border-radius: 50%; height: 6px; width: 6px; }
-.data-status-fixture .build-dot { background: #c18a2e; }
+.status-chip, .unit-label { align-items: center; background: #e3f3ef; border: 1px solid #b9ded4; border-radius: 999px; color: #17645f; display: inline-flex; font-size: .63rem; font-weight: 750; gap: 6px; padding: 5px 8px; white-space: nowrap; }
 .header-link, .text-button { background: none; border: 0; color: #17645f; font-size: .67rem; font-weight: 750; padding: 4px 0; text-decoration: none; }
 .header-link:hover, .text-button:hover { color: #102a43; text-decoration: underline; }
 .notice { border-radius: 7px; flex: 0 0 auto; font-size: .72rem; line-height: 1.35; margin: 7px 0 0; padding: 7px 10px; }
@@ -46,12 +42,17 @@ h3 { font-size: .8rem; margin-bottom: 6px; }
 .rail-section, .rail-panel { padding: 12px; }
 .rail-heading { border-bottom: 1px solid #e6eef0; margin-bottom: 12px; padding-bottom: 10px; }
 .rail-controls { display: grid; gap: 10px; }
-.rail-controls label, .rail-actions label { color: #526777; display: grid; font-size: .6rem; font-weight: 800; gap: 4px; text-transform: uppercase; }
+.rail-controls label, .rail-actions label { color: #526777; display: grid; font-size: .6rem; font-weight: 750; gap: 4px; }
 select { background: #f7fafb; border: 1px solid #cddde2; border-radius: 6px; color: #102a43; min-width: 0; padding: 7px 8px; text-transform: none; }
 select:focus-visible, button:focus-visible, summary:focus-visible, [tabindex="0"]:focus-visible, .chart-point:focus-visible { outline: 3px solid #102a43; outline-offset: 2px; }
-.rail-actions { border-top: 1px solid #e6eef0; display: grid; gap: 8px; grid-template-columns: 1fr auto; margin-top: 2px; padding-top: 10px; }
+.select-with-icon { min-width: 0; position: relative; }
+.select-with-icon select { padding-left: 29px; width: 100%; }
+.control-icon { fill: none; height: 15px; pointer-events: none; stroke: currentColor; stroke-linecap: round; stroke-linejoin: round; stroke-width: 1.7; width: 15px; }
+.select-with-icon .control-icon { color: #267d79; left: 8px; position: absolute; top: 50%; transform: translateY(-50%); z-index: 1; }
+.rail-actions { border-top: 1px solid #e6eef0; display: grid; gap: 8px; grid-template-columns: 1fr; margin-top: 2px; padding-top: 10px; }
 .rail-actions .export-status { grid-column: 1 / -1; }
-.export-button { background: #17645f; border: 1px solid #17645f; border-radius: 6px; color: #fff; cursor: pointer; font-size: .68rem; font-weight: 800; padding: 7px 9px; white-space: nowrap; }
+.export-button { align-items: center; background: #17645f; border: 1px solid #17645f; border-radius: 6px; color: #fff; cursor: pointer; display: inline-flex; font-size: .68rem; font-weight: 800; gap: 6px; justify-content: center; padding: 7px 9px; white-space: nowrap; }
+.export-button .control-icon { height: 14px; width: 14px; }
 .export-button:hover { background: #124f4b; }
 .export-button:disabled { cursor: wait; opacity: .6; }
 .export-status { color: #526777; font-size: .62rem; min-height: 1em; }
@@ -61,12 +62,13 @@ select:focus-visible, button:focus-visible, summary:focus-visible, [tabindex="0"
 .glance-list dt, .scope-grid span { color: #526777; font-size: .64rem; }
 .glance-list dd, .scope-grid strong { font-size: .76rem; font-weight: 800; margin: 0; }
 .rail-note { font-size: .62rem; }
-.rail-status { margin-top: auto; }
-.basemap-status { align-items: center; display: flex; font-size: .69rem; font-weight: 750; gap: 7px; }
-.status-dot { background: #c18a2e; border-radius: 50%; display: inline-block; height: 7px; width: 7px; }
-.status-dot-openfreemap { background: #31a28e; }
-.status-dot-fallback { background: #768d99; }
-.rail-status .text-button { margin-top: 8px; }
+.context-inset { margin-top: auto; }
+.context-inset h2 { font-size: .9rem; margin-bottom: 8px; }
+.nz-inset-map { background: #f4f8f8; border: 1px solid #d5e1e5; border-radius: 7px; display: block; height: 120px; width: 100%; }
+.nz-island { fill: #d8e8e7; stroke: #6d9098; stroke-linejoin: round; stroke-width: .75; }
+.nz-inset-leader { fill: none; stroke: #17645f; stroke-width: 1.1; }
+.nz-catchment-marker { fill: #d7684c; stroke: #fff; stroke-width: 1.5; }
+.nz-inset-label { fill: #102a43; font-size: 8px; font-weight: 750; }
 .primary-column { display: grid; gap: 10px; grid-template-rows: minmax(0, 1.62fr) minmax(250px, 1fr); }
 .insights-rail { display: grid; gap: 10px; grid-template-rows: auto auto minmax(0, 1fr) auto; overflow-y: auto; }
 .panel { padding: 12px; }
@@ -215,6 +217,8 @@ select:focus-visible, button:focus-visible, summary:focus-visible, [tabindex="0"
 .surface-dialog-header { align-items: center; border-bottom: 1px solid #e6eef0; display: flex; flex: 0 0 auto; justify-content: space-between; padding: 12px 14px; }
 .surface-dialog-header h2 { font-size: 1rem; }
 .surface-dialog-body { min-height: 0; overflow: auto; padding: 14px; }
+.export-dialog-content { display: grid; gap: 12px; max-width: 420px; }
+.export-dialog-content label { color: #526777; display: grid; font-size: .68rem; font-weight: 750; gap: 4px; }
 .icon-button { background: #f4f7f9; border: 1px solid #d5e1e5; border-radius: 50%; color: #102a43; font-size: 1.25rem; height: 30px; line-height: 1; width: 30px; }
 .notes-grid { display: grid; gap: 20px; grid-template-columns: repeat(3, 1fr); }
 .notes-grid p { color: #526777; font-size: .72rem; line-height: 1.5; }
@@ -264,7 +268,7 @@ a { color: #17645f; }
   .rail-controls { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .rail-heading, .rail-actions { grid-column: 1 / -1; }
   .rail-actions { grid-template-columns: 1fr auto; }
-  .glance-section, .rail-status { display: none; }
+  .glance-section, .context-inset { display: none; }
   .primary-column { gap: 8px; }
   .map-panel { min-height: 365px; }
   .map-panel-header h2 { font-size: .9rem; }

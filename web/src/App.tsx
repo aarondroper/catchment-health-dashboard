@@ -1,8 +1,10 @@
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState, type ReactNode, type SelectHTMLAttributes } from "react";
+import { ControlIcon, type ControlIconName } from "./components/ControlIcon";
 import { MapPanel, type MapDisplayMode, type MapDisplayRow } from "./components/MapPanel";
 import { SeriesChart } from "./components/SeriesChart";
 import { ObservationTable } from "./components/ObservationTable";
 import { ComparisonPanel } from "./components/ComparisonPanel";
+import { NewZealandInset } from "./components/NewZealandInset";
 import { analyticalFixture } from "./data/analyticalFixture";
 import { loadAnalyticalAsset, loadObservationPartition } from "./data/loadAsset";
 import { buildObservationCsv, downloadObservationCsv, exportFilename } from "./data/exportCsv";
@@ -62,7 +64,11 @@ function formatRecentResult(result: string | null, value: number | null, censori
   return censoring ? "Censored" : "Missing";
 }
 
-type DetailSurface = "observations" | "notes" | null;
+type DetailSurface = "observations" | "notes" | "export" | null;
+
+function SelectControl({ icon, children, ...props }: { icon: ControlIconName; children: ReactNode } & SelectHTMLAttributes<HTMLSelectElement>) {
+  return <div className="select-with-icon"><ControlIcon name={icon} /><select {...props}>{children}</select></div>;
+}
 
 function DataNotes({ asset, parameter, window, qualityCounts }: { asset: AnalyticalAsset; parameter: ParameterOption; window: AnalyticalWindow; qualityCounts: Record<string, number> }) {
   return <div className="notes-grid">
@@ -72,7 +78,7 @@ function DataNotes({ asset, parameter, window, qualityCounts }: { asset: Analyti
   </div>;
 }
 
-function SurfaceDialog({ title, onClose, children, closeRef }: { title: string; onClose: () => void; children: React.ReactNode; closeRef: React.RefObject<HTMLButtonElement | null> }) {
+function SurfaceDialog({ title, onClose, children, closeRef }: { title: string; onClose: () => void; children: ReactNode; closeRef: React.RefObject<HTMLButtonElement | null> }) {
   return <div className="surface-backdrop" role="presentation" onMouseDown={(event) => { if (event.target === event.currentTarget) onClose(); }}><section className="surface-dialog" role="dialog" aria-modal="true" aria-labelledby="surface-title"><div className="surface-dialog-header"><div><p className="eyebrow">Details</p><h2 id="surface-title">{title}</h2></div><button ref={closeRef} className="icon-button" type="button" onClick={onClose} aria-label={`Close ${title}`}>×</button></div><div className="surface-dialog-body">{children}</div></section></div>;
 }
 
@@ -91,7 +97,7 @@ export function App() {
   const [exportScope, setExportScope] = useState<"station" | "all_sites">("station");
   const [exportStatus, setExportStatus] = useState("");
   const [detailSurface, setDetailSurface] = useState<DetailSurface>(null);
-  const [basemapStatus, setBasemapStatus] = useState<"loading" | "openfreemap" | "fallback">("loading");
+  const [, setBasemapStatus] = useState<"loading" | "openfreemap" | "fallback">("loading");
   const dialogCloseRef = useRef<HTMLButtonElement>(null);
 
   useEffect(() => {
@@ -179,13 +185,12 @@ export function App() {
     setExportStatus(`${exportObservations.length.toLocaleString()} record${exportObservations.length === 1 ? "" : "s"} exported`);
   }
 
-  const statusText = assetMode === "real" ? "Local data loaded" : assetMode === "loading" ? "Loading local data…" : "Development sample";
   const recentObservations = [...selectedObservations].sort((a, b) => b.observedAt.localeCompare(a.observedAt)).slice(0, 5);
 
   return <main className="app-shell">
     <header className="app-header">
       <div className="header-identity"><span className="brand-mark" aria-hidden="true"><i /><i /></span><div><p className="product-name">Catchment Health Dashboard</p><p className="catchment-name">Ashburton–Hakatere <span>·</span> freshwater monitoring</p></div></div>
-      <div className="header-actions"><span className={`data-status data-status-${assetMode}`} aria-label="Data loading status"><span className="build-dot" aria-hidden="true" />{statusText}</span><button className="header-link" type="button" onClick={() => setDetailSurface("notes")}>Data notes</button></div>
+      <div className="header-actions"><button className="header-link" type="button" onClick={() => setDetailSurface("notes")}>Data notes</button></div>
     </header>
 
     {assetError && <p className="notice notice-warning" role="status">Local analytical data is unavailable; this view is showing a development sample. Prepare the local asset first. ({assetError})</p>}
@@ -193,9 +198,9 @@ export function App() {
 
     <div className="dashboard-workspace">
       <aside className="control-rail" aria-label="Dashboard controls and catchment context">
-        <section className="rail-section rail-controls" aria-labelledby="controls-title"><div className="rail-heading"><p className="eyebrow">Explore</p><h1 id="controls-title">Monitoring view</h1></div><label>Parameter<select aria-label="Parameter" value={parameter.parameterId} onChange={(event) => setParameterId(event.target.value)}>{asset.parameters.map((item) => <option key={item.parameterId} value={item.parameterId}>{item.displayName}</option>)}</select></label><label>Monitoring period<select aria-label="Time period" value={window} onChange={(event) => setWindow(event.target.value as AnalyticalWindow)}>{windows.map((item) => <option key={item.value} value={item.value}>{item.label}</option>)}</select></label><label>Monitoring site<select aria-label="Monitoring site" value={station?.stationId ?? ""} onChange={(event) => setStationId(event.target.value)}>{asset.stations.map((item) => <option key={item.stationId} value={item.stationId}>{stationOptionLabel(item)}</option>)}</select></label><label>Map display<select aria-label="Map display" value={mapDisplayMode} onChange={(event) => setMapDisplayMode(event.target.value as MapDisplayMode)}><option value="availability">Data availability</option><option value="median">Selected-window median</option><option value="trend">Supported trend direction</option></select></label><div className="rail-actions"><label>Export scope<select aria-label="Export scope" value={exportScope} onChange={(event) => setExportScope(event.target.value as "station" | "all_sites")}><option value="station">Selected site</option><option value="all_sites">All applicable sites</option></select></label><button className="export-button" type="button" onClick={handleExport} disabled={observationsLoading}>Export CSV</button><span className="export-status" role="status" aria-live="polite">{observationsLoading ? "Loading detail…" : exportStatus}</span></div></section>
-        <section className="rail-section glance-section" aria-labelledby="glance-title"><p className="eyebrow">Catchment at a glance</p><h2 id="glance-title">Ashburton–Hakatere</h2><dl className="glance-list"><div><dt>Reconciled sites</dt><dd>{asset.stations.length}</dd></div><div><dt>Sites with {parameter.displayName}</dt><dd>{parameterSiteCount}</dd></div><div><dt>Core parameters</dt><dd>6</dd></div><div><dt>Recorded observations</dt><dd>{asset.counts.normalized_observations?.toLocaleString() ?? "—"}</dd></div></dl><p className="rail-note">{asset.counts.normalized_observations?.toLocaleString() ?? "—"} published rows · sampled history 2007–2025.</p></section>
-        <section className="rail-section rail-status" aria-label="Map legend and source status"><p className="eyebrow">Map context</p><div className="basemap-status"><span className={`status-dot status-dot-${basemapStatus}`} />{basemapStatus === "openfreemap" ? "Context basemap loaded" : basemapStatus === "fallback" ? "Local map fallback" : "Loading map context"}</div><p className="rail-note">{basemapStatus === "fallback" ? "The verified catchment boundary and stations remain usable; contextual tiles were unavailable." : "OpenFreeMap vector context · attribution shown on map."}</p><button type="button" className="text-button" onClick={() => setDetailSurface("notes")}>About data, methods, and licences →</button></section>
+        <section className="rail-section rail-controls" aria-labelledby="controls-title"><div className="rail-heading"><h1 id="controls-title">Controls</h1></div><label>Parameter<SelectControl icon="parameter" aria-label="Parameter" value={parameter.parameterId} onChange={(event) => setParameterId(event.target.value)}>{asset.parameters.map((item) => <option key={item.parameterId} value={item.parameterId}>{item.displayName}</option>)}</SelectControl></label><label>Monitoring period<SelectControl icon="period" aria-label="Time period" value={window} onChange={(event) => setWindow(event.target.value as AnalyticalWindow)}>{windows.map((item) => <option key={item.value} value={item.value}>{item.label}</option>)}</SelectControl></label><label>Monitoring site<SelectControl icon="site" aria-label="Monitoring site" value={station?.stationId ?? ""} onChange={(event) => setStationId(event.target.value)}>{asset.stations.map((item) => <option key={item.stationId} value={item.stationId}>{stationOptionLabel(item)}</option>)}</SelectControl></label><label>Map display<SelectControl icon="map" aria-label="Map display" value={mapDisplayMode} onChange={(event) => setMapDisplayMode(event.target.value as MapDisplayMode)}><option value="availability">Data availability</option><option value="median">Selected-window median</option><option value="trend">Supported trend direction</option></SelectControl></label><div className="rail-actions"><button className="export-button" type="button" onClick={() => setDetailSurface("export")} disabled={observationsLoading}><ControlIcon name="download" />Export data (CSV)</button><span className="export-status" role="status" aria-live="polite">{observationsLoading ? "Loading detail…" : exportStatus}</span></div></section>
+        <section className="rail-section glance-section" aria-labelledby="glance-title"><h2 id="glance-title">Catchment at a glance</h2><dl className="glance-list"><div><dt>Reconciled sites</dt><dd>{asset.stations.length}</dd></div><div><dt>Sites with {parameter.displayName}</dt><dd>{parameterSiteCount}</dd></div><div><dt>Parameters covered</dt><dd>6</dd></div><div><dt>Recorded observations</dt><dd>{asset.counts.normalized_observations?.toLocaleString() ?? "—"}</dd></div><div><dt>Sampled history</dt><dd>2007–2025</dd></div></dl></section>
+        <section className="rail-section context-inset" aria-labelledby="context-title"><h2 id="context-title">Geographic context</h2><NewZealandInset /></section>
       </aside>
 
       <section className="primary-column" aria-label="Map and selected-site history">
@@ -211,9 +216,10 @@ export function App() {
       </aside>
     </div>
 
-    <div className="workspace-footer"><span>Sampled monitoring · current view <strong>{windowLabel(window)}</strong> · retrieved {asset.sourceRetrievedAt?.slice(0, 10) ?? "fixture"}</span><button className="text-button" type="button" onClick={() => setDetailSurface("notes")}>Data notes &amp; provenance</button></div>
+    <div className="workspace-footer"><span>Sampled monitoring · current view <strong>{windowLabel(window)}</strong> · retrieved {asset.sourceRetrievedAt?.slice(0, 10) ?? "fixture"}</span></div>
 
     {detailSurface === "observations" && <SurfaceDialog title="Recorded observations" closeRef={dialogCloseRef} onClose={() => setDetailSurface(null)}><ObservationTable observations={selectedObservations} unit={parameter.unit} /></SurfaceDialog>}
     {detailSurface === "notes" && <SurfaceDialog title="Data notes and provenance" closeRef={dialogCloseRef} onClose={() => setDetailSurface(null)}><DataNotes asset={asset} parameter={parameter} window={window} qualityCounts={qualityCounts} /></SurfaceDialog>}
+    {detailSurface === "export" && <SurfaceDialog title="Export data (CSV)" closeRef={dialogCloseRef} onClose={() => setDetailSurface(null)}><div className="export-dialog-content"><p className="state-copy">Choose which records to export from the current {parameter.displayName} · {windowLabel(window)} view.</p><label>Export scope<select aria-label="Export scope" value={exportScope} onChange={(event) => setExportScope(event.target.value as "station" | "all_sites")}><option value="station">Selected site · {stationName(station)}</option><option value="all_sites">All applicable sites</option></select></label><button className="export-button" type="button" onClick={() => { handleExport(); setDetailSurface(null); }} disabled={observationsLoading}><ControlIcon name="download" />Download CSV</button><p className="technical-note">The export preserves reported text, units, censoring, quality disposition, eligibility, exclusions, and source identifiers. UTF-8 CSV metadata includes the applicable attribution.</p></div></SurfaceDialog>}
   </main>;
 }

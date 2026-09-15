@@ -9,15 +9,18 @@ async function openDashboard(page: Page) {
   const assetResponse = page.waitForResponse((response) => response.url().endsWith(assetPath));
   await page.goto("/");
   expect((await assetResponse).status()).toBe(200);
-  await expect(page.getByRole("heading", { name: "Monitoring view" })).toBeVisible();
-  await expect(page.getByText("Local data loaded")).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Controls" })).toBeVisible();
+  await expect(page.getByRole("button", { name: "Data notes", exact: true })).toBeVisible();
+  await expect(page.getByText("Local data loaded")).toHaveCount(0);
+  await expect(page.getByText("Data notes & provenance")).toHaveCount(0);
   await expect(page.getByText("Development sample")).toHaveCount(0);
   await expect(page.locator(".maplibregl-canvas")).toHaveCount(1);
   await expect(page.locator(".map-marker")).toHaveCount(19);
   await expect(page.getByText(/Verified Ashburton River boundary/)).toBeVisible();
   await expect(page.getByRole("button", { name: "Reset view" })).toBeVisible();
   await expect(page.locator(".map-service-state")).toHaveText(/Context basemap loaded|Local map fallback/);
-  await expect(page.locator(".basemap-status")).toHaveText(/Context basemap loaded|Local map fallback/);
+  if ((page.viewportSize()?.width ?? 1440) > 760) await expect(page.locator('[data-testid="nz-inset-map"]')).toBeVisible();
+  await expect(page.locator('[data-testid="nz-catchment-marker"]')).toHaveCount(1);
 }
 
 test("loads real data, contextual basemap, and production-only visitor requests", async ({ page }) => {
@@ -50,6 +53,19 @@ test("lands on a representative coverage-led default", async ({ page }) => {
   await expect(page.getByText("Selected scope", { exact: true })).toBeVisible();
   await expect(page.locator(".scope-metric strong")).toHaveText("0.82 mg/L");
   await expect(page.getByText(/Dated observations; the connecting line is a visual guide/)).toBeVisible();
+});
+
+test("uses restrained control icons and a tabular catchment summary", async ({ page }) => {
+  await openDashboard(page);
+  await expect(page.locator(".select-with-icon .control-icon")).toHaveCount(4);
+  const controlLabels = page.locator(".rail-controls > label");
+  await expect(controlLabels.nth(0)).toContainText("Parameter");
+  await expect(controlLabels.nth(1)).toContainText("Monitoring period");
+  await expect(controlLabels.nth(2)).toContainText("Monitoring site");
+  await expect(controlLabels.nth(3)).toContainText("Map display");
+  await expect(page.getByText("Sampled history", { exact: true })).toBeVisible();
+  await expect(page.getByText("2007–2025", { exact: true })).toBeVisible();
+  await expect(page.getByText(/published rows/)).toHaveCount(0);
 });
 
 test("fits the primary dashboard in desktop viewports without body scrolling", async ({ page }) => {
@@ -146,14 +162,17 @@ test("reports fixture fallback when the local asset fails", async ({ page }) => 
   await page.route(`**${assetPath}`, (route) => route.fulfill({ status: 404, body: "missing" }));
   await page.goto("/");
   await expect(page.getByText(/Local analytical data is unavailable/)).toBeVisible();
-  await expect(page.getByLabel("Data loading status")).toHaveText(/Development sample/);
+  await expect(page.getByText(/Local analytical data is unavailable/).first()).toContainText(/development sample/i);
 });
 
 test("exports selected and all-site filtered records as deterministic UTF-8 CSV", async ({ page }) => {
   await openDashboard(page);
-  const scope = page.getByRole("combobox", { name: "Export scope" });
+  await page.getByRole("button", { name: "Export data (CSV)" }).click();
+  const dialog = page.getByRole("dialog", { name: "Export data (CSV)" });
+  await expect(dialog).toBeVisible();
+  const scope = dialog.getByRole("combobox", { name: "Export scope" });
   const downloadPromise = page.waitForEvent("download");
-  await page.getByRole("button", { name: "Export CSV" }).click();
+  await dialog.getByRole("button", { name: "Download CSV" }).click();
   const selectedDownload = await downloadPromise;
   expect(selectedDownload.suggestedFilename()).toMatch(/ashburton-hakatere-catchment_total-nitrogen_primary-2016-2025_station-sq35874/);
   const selectedPath = await selectedDownload.path();
@@ -161,9 +180,12 @@ test("exports selected and all-site filtered records as deterministic UTF-8 CSV"
   expect(selectedCsv).toContain("station_name,source_station_id,parameter,timestamp");
   expect(selectedCsv).toContain("quality_representation");
   const selectedRows = selectedCsv.trimEnd().split("\r\n").length;
-  await scope.selectOption("all_sites");
+  await page.getByRole("button", { name: "Export data (CSV)" }).click();
+  const allDialog = page.getByRole("dialog", { name: "Export data (CSV)" });
+  const allScope = allDialog.getByRole("combobox", { name: "Export scope" });
+  await allScope.selectOption("all_sites");
   const allDownloadPromise = page.waitForEvent("download");
-  await page.getByRole("button", { name: "Export CSV" }).click();
+  await allDialog.getByRole("button", { name: "Download CSV" }).click();
   const allDownload = await allDownloadPromise;
   expect(allDownload.suggestedFilename()).toContain("_all-sites.csv");
   const allPath = await allDownload.path();
@@ -175,8 +197,10 @@ test("exports selected and all-site filtered records as deterministic UTF-8 CSV"
 test("exports a deliberate header-only file for a no-data station", async ({ page }) => {
   await openDashboard(page);
   await page.locator(".map-marker-unavailable").first().click();
+  await page.getByRole("button", { name: "Export data (CSV)" }).click();
+  const dialog = page.getByRole("dialog", { name: "Export data (CSV)" });
   const downloadPromise = page.waitForEvent("download");
-  await page.getByRole("button", { name: "Export CSV" }).click();
+  await dialog.getByRole("button", { name: "Download CSV" }).click();
   const download = await downloadPromise;
   const path = await download.path();
   const csv = await readFile(path!, "utf8");
@@ -219,7 +243,6 @@ test("uses local geometry when the contextual basemap fails", async ({ page }) =
   await expect(page.locator(".map-service-state")).toHaveText("Local map fallback");
   await expect(page.locator(".map-marker")).toHaveCount(19);
   await expect(page.locator(".map-boundary-fallback")).toHaveCount(1);
-  await expect(page.getByText(/verified catchment boundary/i)).toBeVisible();
 });
 
 test("has no serious accessibility violations in the real-data view", async ({ page }) => {

@@ -58,3 +58,12 @@ reuse basis, separately from the CC BY 3.0 NZ spatial-source licences. Public
 hosting still requires the reproducible release command, freshness/remove
 operation, attribution, accompanying terms, and owner authorization. Generated
 observation assets remain ignored in this repository.
+
+The dashboard's small control glyphs are replaceable inline SVGs in
+`src/components/ControlIcon.tsx`; keep their 24×24 viewBox and shared class
+contract when replacing the placeholder paths. The compact New Zealand locator
+is in `src/components/NewZealandInset.tsx`. Its simplified outline is derived
+from Natural Earth 1:110m Admin 0 – Countries, which is public domain:
+<https://www.naturalearthdata.com/downloads/110m-cultural-vectors/> and
+<https://www.naturalearthdata.com/about/terms-of-use/>. Update the source note
+and licence if that geometry is replaced.
