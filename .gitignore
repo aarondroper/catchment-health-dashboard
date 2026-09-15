@@ -1,5 +1,6 @@
 __pycache__/
 *.py[cod]
+*:Zone.Identifier
 .venv/
 node_modules/
 .vite/
