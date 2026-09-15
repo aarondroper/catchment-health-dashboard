@@ -17,10 +17,12 @@ async function openDashboard(page: Page): Promise<"openfreemap" | "fallback"> {
   await expect(logo).toHaveAttribute("aria-hidden", "true");
   await expect(logo).toHaveAttribute("src", /app-logo/);
   await expect(logo).toHaveCSS("object-fit", "contain");
+  await expect(logo).toHaveCSS("padding", "0px");
   const logoBox = await logo.boundingBox();
   expect(logoBox).not.toBeNull();
-  expect(logoBox!.width).toBe(25);
-  expect(logoBox!.height).toBe(25);
+  const expectedLogoSize = (page.viewportSize()?.width ?? 1440) <= 1180 ? 41 : 48;
+  expect(logoBox!.width).toBe(expectedLogoSize);
+  expect(logoBox!.height).toBe(expectedLogoSize);
   const typography = await page.evaluate(async () => {
     await document.fonts.ready;
     return {
