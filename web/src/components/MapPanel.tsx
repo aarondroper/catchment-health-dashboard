@@ -1,6 +1,7 @@
 import type { GeoJSONSource, Map as MapLibreMapType, Marker, StyleSpecification } from "maplibre-gl";
 import { useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
+import maplibreWorkerUrl from "maplibre-gl/dist/maplibre-gl-worker.mjs?worker&url";
 import "maplibre-gl/dist/maplibre-gl.css";
 import type { CatchmentGeometry, Station } from "../contracts";
 
@@ -184,8 +185,9 @@ export function MapPanel({ stations, selectedStationId, selectedStationName, cat
     let remoteReadyTimeout: ReturnType<typeof globalThis.setTimeout> | undefined;
     let remoteStyleLoaded = false;
     const reportBasemapStatus = (status: "loading" | "openfreemap" | "fallback") => { setContextStatus(status); onBasemapStatus(status); };
-    import("maplibre-gl").then(({ Map: MapLibreMap, Marker: MarkerConstructor, NavigationControl }) => {
+    import("maplibre-gl").then(({ Map: MapLibreMap, Marker: MarkerConstructor, NavigationControl, setWorkerUrl }) => {
       if (disposed || !containerRef.current) return;
+      setWorkerUrl(maplibreWorkerUrl);
       markerConstructorRef.current = MarkerConstructor;
       const map = new MapLibreMap({ container: containerRef.current, style: LOCAL_STYLE, center: [171.75, -43.9], zoom: 7, attributionControl: false });
       const reportRemoteReady = () => {

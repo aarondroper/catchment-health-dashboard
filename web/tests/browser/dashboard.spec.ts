@@ -158,23 +158,38 @@ test("loads real data, contextual basemap, and production-only visitor requests"
 
 test("hosted smoke test requires the real OpenFreeMap context basemap", async ({ page }) => {
   test.skip(!process.env.PLAYWRIGHT_BASE_URL, "Hosted-only smoke test");
+  const remoteRequests: string[] = [];
   const remoteFailures: string[] = [];
   const remoteHttpFailures: string[] = [];
   const consoleErrors: string[] = [];
   const pageErrors: string[] = [];
-  page.on("requestfailed", (request) => {
+  const workerUrls: string[] = [];
+  page.context().on("request", (request) => {
+    if (request.url().startsWith("https://tiles.openfreemap.org/")) remoteRequests.push(request.url());
+  });
+  page.context().on("requestfailed", (request) => {
     if (request.url().startsWith("https://tiles.openfreemap.org/")) remoteFailures.push(`${request.method()} ${request.url()}: ${request.failure()?.errorText ?? "failed"}`);
   });
-  page.on("response", (response) => {
+  page.context().on("response", (response) => {
     if (response.url().startsWith("https://tiles.openfreemap.org/") && response.status() >= 400) remoteHttpFailures.push(`${response.status()} ${response.url()}`);
   });
   page.on("console", (message) => {
     if (message.type() === "error" && /openfree|maplibre|csp|cors|blocked/i.test(message.text())) consoleErrors.push(message.text());
   });
   page.on("pageerror", (error) => pageErrors.push(error.message));
+  page.on("worker", (worker) => workerUrls.push(worker.url()));
   await openDashboard(page, { requireRemoteBasemap: true });
+  expect(workerUrls.some((url) => /\/assets\/maplibre-gl-worker-[A-Za-z0-9_-]{8,}\.js$/.test(url))).toBe(true);
+  const workerUrl = workerUrls.find((url) => /\/assets\/maplibre-gl-worker-[A-Za-z0-9_-]{8,}\.js$/.test(url));
+  expect(workerUrl).toBeDefined();
+  const workerResponse = await page.request.get(workerUrl!);
+  expect(workerResponse.status()).toBe(200);
+  expect(workerResponse.headers()["content-type"]).toMatch(/javascript/);
+  expect((await workerResponse.text()).toLowerCase()).not.toContain("<!doctype html");
   expect(remoteFailures).toEqual([]);
   expect(remoteHttpFailures).toEqual([]);
+  expect(remoteRequests.some((url) => /\/planet\/[^/]+\/\d+\/\d+\/\d+\.pbf$/.test(url))).toBe(true);
+  expect(remoteRequests.some((url) => url.includes("/fonts/") && url.endsWith(".pbf"))).toBe(true);
   expect(consoleErrors).toEqual([]);
   expect(pageErrors).toEqual([]);
 });
@@ -361,15 +376,16 @@ test("coordinates parameter, time period, and map display changes", async ({ pag
 test("coordinates station control and map selection, including no-data state", async ({ page }) => {
   await openDashboard(page);
   const station = page.getByRole("combobox", { name: "Monitoring site" });
-  const emptyPin = page.locator(".map-marker-unavailable").first();
-  await emptyPin.click();
+  // SQ00120 is one of the reconciled metadata-only sites in the real asset.
+  const selectedId = "SQ00120";
+  const emptyPin = page.locator(`.map-marker-unavailable[data-station-id="${selectedId}"]`);
+  await expect(emptyPin).toBeVisible();
+  await emptyPin.dispatchEvent("click");
   await expect(page.getByText("No observations are available for this parameter and station in the selected period.")).toBeVisible();
   await expect(page.locator(".trend-panel")).toHaveAttribute("data-trend-status", "unavailable");
   await expect(page.locator(".trend-panel")).toContainText("No observations are available for this selection.");
-  const selectedId = await emptyPin.getAttribute("data-station-id");
-  expect(selectedId).toBeTruthy();
   await expect(station).toHaveValue(selectedId!);
-  await expect(emptyPin).toHaveAttribute("aria-pressed", "true");
+  await expect(page.locator(`.map-marker[data-station-id="${selectedId}"]`)).toHaveAttribute("aria-pressed", "true");
 });
 
 test("keeps censored observations and indeterminate reasons explicit in the detail surface", async ({ page }) => {
@@ -457,7 +473,8 @@ test("exports selected and all-site filtered records as deterministic UTF-8 CSV"
 
 test("exports a deliberate header-only file for a no-data station", async ({ page }) => {
   await openDashboard(page);
-  await page.locator(".map-marker-unavailable").first().click();
+  const selectedId = "SQ00120";
+  await page.locator(`.map-marker-unavailable[data-station-id="${selectedId}"]`).dispatchEvent("click");
   await page.getByRole("button", { name: "Export data (CSV)" }).click();
   const dialog = page.getByRole("dialog", { name: "Export data (CSV)" });
   const downloadPromise = page.waitForEvent("download");

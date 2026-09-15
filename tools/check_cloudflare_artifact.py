@@ -7,6 +7,7 @@ import argparse
 import hashlib
 import json
 from pathlib import Path
+import re
 import sys
 from typing import Any
 
@@ -14,6 +15,7 @@ ROOT = Path(__file__).resolve().parents[1]
 EXPECTED_CONTRACT = "2.0.0"
 PUBLIC_TERMS_STATUS = "public_cc_by_attribution_freshness"
 RUNTIME_RELATIVE_PATH = Path("data/ashburton/dashboard.json")
+WORKER_REFERENCE_PATTERN = re.compile(r"(maplibre-gl-worker-[A-Za-z0-9_-]{8,}\.js)")
 
 
 def _read_json(path: Path) -> dict[str, Any]:
@@ -94,6 +96,20 @@ def validate_artifact(dist: Path) -> dict[str, Any]:
 
     if any(path.suffix == ".map" for path in dist.rglob("*")):
         raise ValueError("source maps are not permitted in the deployable artifact")
+    worker_references = set()
+    for path in dist.rglob("*.js"):
+        worker_references.update(WORKER_REFERENCE_PATTERN.findall(path.read_text(encoding="utf-8", errors="replace")))
+    if len(worker_references) != 1:
+        raise ValueError(f"expected one content-hashed MapLibre worker reference, found {sorted(worker_references)}")
+    worker_name = next(iter(worker_references))
+    worker_path = dist / "assets" / worker_name
+    if not worker_path.is_file():
+        raise ValueError(f"referenced MapLibre worker is missing: assets/{worker_name}")
+    worker_text = worker_path.read_text(encoding="utf-8", errors="replace")
+    if "<!doctype html" in worker_text.lower() or "<html" in worker_text.lower():
+        raise ValueError(f"MapLibre worker is HTML rather than JavaScript: assets/{worker_name}")
+    if "MapLibre GL JS" not in worker_text:
+        raise ValueError(f"MapLibre worker does not contain the expected JavaScript payload: assets/{worker_name}")
     for path in dist.rglob("*"):
         if path.is_file() and path.suffix in {".html", ".js", ".css", ".json", ".txt"}:
             text = path.read_text(encoding="utf-8", errors="replace")
@@ -106,6 +122,7 @@ def validate_artifact(dist: Path) -> dict[str, Any]:
         "buildId": runtime["buildId"],
         "sourceRetrievedAt": runtime["sourceRetrievedAt"],
         "partitions": checked_partitions,
+        "worker": f"assets/{worker_name}",
         "bytes": sum(path.stat().st_size for path in dist.rglob("*") if path.is_file()),
     }
 

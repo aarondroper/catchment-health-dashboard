@@ -11,7 +11,11 @@ class CloudflareArtifactTests(unittest.TestCase):
     def _write_artifact(self, root: Path) -> Path:
         dist = root / "dist"
         dist.mkdir()
-        (dist / "index.html").write_text("<html></html>\n", encoding="utf-8")
+        (dist / "index.html").write_text("<html><script type=module src=/assets/index-test.js></script></html>\n", encoding="utf-8")
+        assets = dist / "assets"
+        assets.mkdir()
+        (assets / "index-test.js").write_text('const worker = "/assets/maplibre-gl-worker-abc12345.js";\n', encoding="utf-8")
+        (assets / "maplibre-gl-worker-abc12345.js").write_text("/* MapLibre GL JS worker */\nself.onmessage = () => {};\n", encoding="utf-8")
         (dist / "_headers").write_text("/assets/*\n  Cache-Control: immutable\n", encoding="utf-8")
         partition_dir = dist / "data" / "ashburton" / "observations"
         partition_dir.mkdir(parents=True)
@@ -59,4 +63,18 @@ class CloudflareArtifactTests(unittest.TestCase):
             payload["sourceTermsStatus"] = "local_processing_only_release_gate"
             runtime.write_text(json.dumps(payload) + "\n", encoding="utf-8")
             with self.assertRaisesRegex(ValueError, "not public-release eligible"):
+                validate_artifact(dist)
+
+    def test_rejects_missing_maplibre_worker(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            dist = self._write_artifact(Path(temporary))
+            (dist / "assets/maplibre-gl-worker-abc12345.js").unlink()
+            with self.assertRaisesRegex(ValueError, "referenced MapLibre worker is missing"):
+                validate_artifact(dist)
+
+    def test_rejects_html_maplibre_worker(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            dist = self._write_artifact(Path(temporary))
+            (dist / "assets/maplibre-gl-worker-abc12345.js").write_text("<!doctype html><html></html>\n", encoding="utf-8")
+            with self.assertRaisesRegex(ValueError, "HTML rather than JavaScript"):
                 validate_artifact(dist)
