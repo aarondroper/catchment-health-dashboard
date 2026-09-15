@@ -53,6 +53,7 @@ async function openDashboard(page: Page): Promise<"openfreemap" | "fallback"> {
   expect(serviceStateVisibility.width).toBeLessThanOrEqual(1);
   expect(serviceStateVisibility.height).toBeLessThanOrEqual(1);
   await expect(page.locator(".maplibregl-ctrl-attrib")).toHaveCount(0);
+  await expect(page.locator(".map-header-meta .status-chip")).toHaveCount(0);
   const attribution = page.locator("[data-testid=map-attribution]");
   await expect(attribution).toHaveCount(1);
   const attributionTrigger = attribution.getByRole("button", { name: "Map source attribution" });
@@ -277,6 +278,7 @@ test("keeps chart tooltips in a viewport overlay at edge points and clears stale
 test("presents comparison values as a sorted interval plot and keeps exact inspection later", async ({ page }) => {
   await page.setViewportSize({ width: 1920, height: 1080 });
   await openDashboard(page);
+  await expect(page.locator(".comparison-panel")).toHaveAttribute("data-supported-site-count", "14");
   await expect(page.locator(".comparison-plot")).toBeVisible();
   await expect(page.locator(".comparison-row").first()).toBeVisible();
   await expect(page.locator(".comparison-row-selected")).toHaveCount(1);
@@ -292,11 +294,21 @@ test("uses a readable ranked comparison at compact desktop height", async ({ pag
   await openDashboard(page);
   await expect(page.locator(".comparison-plot")).toBeHidden();
   await expect(page.locator(".comparison-compact")).toBeVisible();
+  await expect(page.locator(".comparison-panel")).toHaveAttribute("data-supported-site-count", "14");
   await expect(page.getByText(/Compact ranked view · 3 of .* supported sites/)).toBeVisible();
   await expect(page.locator(".comparison-compact-row:visible")).toHaveCount(3);
   await expect(page.locator(".comparison-compact-row-selected")).toBeVisible();
   await page.locator(".comparison-details summary").click();
   await expect(page.locator(".comparison-details .comparison-table")).toBeVisible();
+});
+
+test("explains a legitimate sparse comparison state without the old long qualification", async ({ page }) => {
+  await openDashboard(page);
+  await page.getByRole("combobox", { name: "Parameter" }).selectOption("dissolved_reactive_phosphorus");
+  const comparison = page.locator(".comparison-panel");
+  await expect(comparison).toHaveAttribute("data-supported-site-count", "0");
+  await expect(comparison).toContainText("Not enough comparable sites for this selection.");
+  await expect(comparison).not.toContainText("Only one or no monitoring sites");
 });
 
 test("coordinates parameter, time period, and map display changes", async ({ page }) => {
@@ -321,6 +333,8 @@ test("coordinates station control and map selection, including no-data state", a
   const emptyPin = page.locator(".map-marker-unavailable").first();
   await emptyPin.click();
   await expect(page.getByText("No observations are available for this parameter and station in the selected period.")).toBeVisible();
+  await expect(page.locator(".trend-panel")).toHaveAttribute("data-trend-status", "unavailable");
+  await expect(page.locator(".trend-panel")).toContainText("No observations are available for this selection.");
   const selectedId = await emptyPin.getAttribute("data-station-id");
   expect(selectedId).toBeTruthy();
   await expect(station).toHaveValue(selectedId!);
@@ -331,7 +345,8 @@ test("keeps censored observations and indeterminate reasons explicit in the deta
   await openDashboard(page);
   await page.getByRole("combobox", { name: "Parameter" }).selectOption("e_coli");
   await page.getByRole("combobox", { name: "Monitoring site" }).selectOption("SQ20104");
-  await expect(page.getByText(/Indeterminate ·/)).toBeVisible();
+  await expect(page.locator(".trend-panel")).toHaveAttribute("data-trend-reason", "censored_values_present_censor_aware_trend_not_implemented");
+  await expect(page.getByText("Trend unavailable: censored observations require a censor-aware method.", { exact: true })).toBeVisible();
   await page.getByRole("button", { name: "View all →" }).click();
   await expect(page.getByRole("dialog", { name: "Recorded observations" })).toContainText("Censored");
   await expect(page.getByRole("dialog")).toContainText("Censored — reporting limit retained");
@@ -341,9 +356,36 @@ test("shows a supported neutral trend without health-signalling colour", async (
   await openDashboard(page);
   await page.getByRole("combobox", { name: "Parameter" }).selectOption("turbidity");
   await page.getByRole("combobox", { name: "Monitoring site" }).selectOption("SQ35874");
-  await expect(page.getByText("decreasing", { exact: true })).toBeVisible();
-  await expect(page.getByText(/Directional evidence is not a health/)).toBeVisible();
+  await expect(page.getByText("Decreasing", { exact: true })).toBeVisible();
+  await expect(page.getByText(/Directional evidence is not a health/)).toHaveCount(0);
   await expect(page.locator(".trend-direction")).toHaveCSS("color", "rgb(16, 42, 67)");
+  await page.getByRole("button", { name: "Data notes", exact: true }).click();
+  await expect(page.getByRole("dialog", { name: "Data notes and provenance" })).toContainText("not a health, improvement, deterioration, causal, or compliance conclusion");
+});
+
+test("matches the real trend and comparison audit matrix through parameter and period changes", async ({ page }) => {
+  await page.setViewportSize({ width: 1440, height: 900 });
+  await openDashboard(page);
+  const asset = await (await page.request.get(assetPath)).json();
+  const parameter = page.getByRole("combobox", { name: "Parameter" });
+  const period = page.getByRole("combobox", { name: "Time period" });
+  const station = page.getByRole("combobox", { name: "Monitoring site" });
+  const comparison = page.locator(".comparison-panel");
+  const trend = page.locator(".trend-panel");
+  for (const parameterOption of asset.parameters) {
+    for (const window of ["primary_2016_2025", "recent_2020_2025", "history_2007_2025"]) {
+      await parameter.selectOption(parameterOption.parameterId);
+      await period.selectOption(window);
+      const expectedSummaries = asset.summaries.filter((row: { parameterId: string; period: string; status: string; value: number | null; q1: number | null; q3: number | null }) => row.parameterId === parameterOption.parameterId && row.period === window && row.status === "reported" && row.value !== null && row.q1 !== null && row.q3 !== null);
+      await expect(comparison).toHaveAttribute("data-supported-site-count", String(expectedSummaries.length));
+      const expectedTrend = asset.trends.find((row: { parameterId: string; period: string }) => row.parameterId === parameterOption.parameterId && row.period === window);
+      if (expectedTrend) {
+        await station.selectOption(expectedTrend.stationId);
+        await expect(trend).toHaveAttribute("data-trend-status", expectedTrend.status);
+        await expect(trend).toHaveAttribute("data-trend-reason", expectedTrend.indeterminateReason ?? "none");
+      }
+    }
+  }
 });
 
 test("reports fixture fallback when the local asset fails", async ({ page }) => {

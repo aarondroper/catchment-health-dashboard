@@ -338,7 +338,6 @@ export function MapPanel({ stations, selectedStationId, selectedStationName, cat
           <p className="panel-intro">Selected site: {selectedStationName}</p>
         </div>
         <div className="map-header-meta">
-          <span className="status-chip">{stations.length} sites</span>
           <span className="map-mode-label">{displayModeLabel(displayMode, unit)}</span>
         </div>
       </div>

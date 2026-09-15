@@ -38,7 +38,7 @@ export function ComparisonPanel({ rows, stations, parameterName, unit, periodLab
     ]).values()].sort((a, b) => a.value - b.value);
 
   return (
-    <section className="panel comparison-panel" aria-labelledby="comparison-title" aria-describedby="comparison-description">
+    <section className="panel comparison-panel" aria-labelledby="comparison-title" aria-describedby="comparison-description" data-supported-site-count={comparableRows.length} data-comparison-state={comparableRows.length > 1 ? "reported" : "unavailable"}>
       <div className="panel-heading">
         <div><h2 id="comparison-title">Site comparison</h2></div>
         <span className="unit-label">{unit ?? "unit pending"}</span>
@@ -77,7 +77,7 @@ export function ComparisonPanel({ rows, stations, parameterName, unit, periodLab
         </div>
         <div className="comparison-legend"><span><i className="comparison-legend-line" /> Middle half (IQR)</span><span><i className="comparison-legend-dot" /> Median</span><span>Selected station outlined</span></div>
         <details className="comparison-details"><summary>Inspect exact site values</summary><div className="comparison-table-wrap" tabIndex={0} role="region" aria-label="Exact cross-site values"><table className="observation-table comparison-table"><caption>Supported site summaries in {periodLabel}; other sites remain represented on the map.</caption><thead><tr><th scope="col">Monitoring site</th><th scope="col">Median ({unit ?? "unit"})</th><th scope="col">Middle half ({unit ?? "unit"})</th><th scope="col">Eligible records</th></tr></thead><tbody>{comparableRows.map((row) => <tr key={row.stationId}><td>{stationLabel(stations.find((station) => station.stationId === row.stationId))}{row.stationId === selectedStationId ? " · selected" : ""}</td><td>{formatValue(row.value, unit)}</td><td>{formatValue(row.q1, unit)}–{formatValue(row.q3, unit)}</td><td>{row.eligibleNumericCount}</td></tr>)}</tbody></table></div></details>
-      </> : <p className="state-copy">Only one or no monitoring sites has a supported summary for this parameter and period. A cross-site comparison is not presented as a catchment-wide result.</p>}
+      </> : <p className="state-copy">Not enough comparable sites for this selection.</p>}
     </section>
   );
 }
