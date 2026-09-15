@@ -45,8 +45,11 @@ def main() -> int:
     coverage = work / "coverage-reconciliation.json"
     runtime = ROOT / "web/public/data/ashburton/dashboard.json"
     partition_dir = ROOT / "web/public/data/ashburton/observations"
-    if partition_dir.exists():
-        shutil.rmtree(partition_dir)
+    staged_runtime_root = work / "runtime"
+    staged_runtime = staged_runtime_root / "dashboard.json"
+    staged_partition_dir = staged_runtime_root / "observations"
+    if staged_runtime_root.exists():
+        shutil.rmtree(staged_runtime_root)
 
     acquire = [sys.executable, "tools/acquire_observations.py", "--output", str(profile), "--max-sites", "19", "--all-in-bound-sites", "--include-observations", "--from-date", "2007-01-01", "--to-date", "2025-12-31"]
     for parameter in SOURCE_PARAMETERS:
@@ -55,17 +58,25 @@ def main() -> int:
     run([sys.executable, "tools/audit_catchment_sites.py", "--output", str(site_audit)])
     run([sys.executable, "tools/reconcile_catchment_coverage.py", "--profile", str(profile), "--site-audit", str(site_audit), "--output", str(coverage)])
     run([sys.executable, "tools/build_analytical_assets.py", "--profile", str(profile), "--output-dir", str(analytical)])
-    run([sys.executable, "tools/prepare_dashboard_assets.py", "--analytical-dir", str(analytical), "--site-audit", str(site_audit), "--boundary", str(site_audit), "--output", str(runtime)])
+    run([sys.executable, "tools/prepare_dashboard_assets.py", "--analytical-dir", str(analytical), "--site-audit", str(site_audit), "--boundary", str(site_audit), "--output", str(staged_runtime)])
 
     coverage_payload = json.loads(coverage.read_text(encoding="utf-8"))
     if coverage_payload["inventory"]["exactStationIdMatches"] != 19 or coverage_payload["inventory"]["hilltopCoordinateBearingSitesInBoundary"] != 19 or coverage_payload["categories"]["unresolvedMatches"]:
         raise RuntimeError("release stopped: source inventory reconciliation is incomplete or unresolved")
+    run([sys.executable, "tools/check_release_readiness.py", "--asset", str(staged_runtime), "--require-public-release"])
+    if partition_dir.exists():
+        shutil.rmtree(partition_dir)
+    partition_dir.parent.mkdir(parents=True, exist_ok=True)
+    shutil.copytree(staged_partition_dir, partition_dir)
+    runtime.parent.mkdir(parents=True, exist_ok=True)
+    shutil.copy2(staged_runtime, runtime)
     run([sys.executable, "tools/check_release_readiness.py", "--asset", str(runtime), "--require-public-release"])
     if not args.skip_npm_install:
         run(["npm", "ci"], cwd=ROOT / "web")
     run(["npm", "run", "typecheck"], cwd=ROOT / "web")
     run(["npm", "run", "test:unit"], cwd=ROOT / "web")
     run(["npm", "run", "build"], cwd=ROOT / "web")
+    run([sys.executable, "tools/check_cloudflare_artifact.py", "--dist", "web/dist"])
 
     asset_files = sorted(path for path in (ROOT / "web/dist").rglob("*") if path.is_file())
     manifest = {

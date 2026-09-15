@@ -76,7 +76,10 @@ python3 tools/release_build.py
 
 It fails closed for stale, malformed, incomplete, unlicensed, or accidentally
 tracked generated inputs. Public deployment is not configured or performed
-by this repository.
+by this repository. Cloudflare Pages preparation uses a direct Wrangler
+deployment of the locally validated `web/dist/` artifact; see
+[`docs/RELEASE.md`](docs/RELEASE.md). A Git-connected Pages build is not
+appropriate because the real analytical assets are intentionally ignored.
 
 ## Sources, attribution, and licences
 

@@ -57,6 +57,12 @@ retrieval date, checksums, and 120-day current-or-remove behavior. A public
 host must serve the SPA fallback, correct MIME types, compressed assets, and
 revalidation for runtime data; visitors must not need live ECan access.
 
+For a Cloudflare Pages artifact review, run
+`python3 tools/check_cloudflare_artifact.py --dist web/dist` after the release
+build. Do not use a Git-connected Pages build because the real analytical
+assets are ignored. The direct artifact workflow and hosted browser command
+are documented in [`RELEASE.md`](RELEASE.md).
+
 Keep source-preserving processing and frontend decoding changes covered by
 contract, unit, and browser tests. Use screenshots only as local review
 artifacts; the repository tracks one representative image in `docs/assets/`.

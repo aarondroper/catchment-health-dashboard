@@ -20,6 +20,65 @@ inputs, missing licence evidence, required attribution/terms omissions, or
 tracked generated outputs. Raw responses and generated observation assets are
 not committed.
 
+The release command stages the runtime shell and parameter partitions under
+the ignored release work directory before replacing `web/public/data/`. A
+source timeout therefore cannot clear the last eligible local asset or leave a
+partially prepared deployment directory. After the frontend build,
+`tools/check_cloudflare_artifact.py` verifies the real public runtime shell,
+all declared partitions, checksums, freshness metadata, source terms, and the
+tracked Cloudflare cache policy.
+
+## Cloudflare Pages deployment model
+
+Use a direct Wrangler artifact deployment, not a Git-connected Cloudflare
+build. Cloudflare documents Direct Upload for prebuilt asset directories and
+notes that Git integration cannot later be changed to Direct Upload; see the
+[Direct Upload documentation](https://developers.cloudflare.com/pages/get-started/direct-upload/).
+The generated observation assets are intentionally ignored, so a connected
+build could otherwise produce a fixture-only dashboard without obvious
+failure. The release command prepares the complete static artifact locally and
+the artifact checker fails closed before upload.
+
+From the repository root, after installing the prerequisites:
+
+```bash
+python3 tools/release_build.py
+python3 tools/check_cloudflare_artifact.py --dist web/dist
+```
+
+Authenticate Wrangler outside the repository, either with `npx wrangler login`
+or an externally supplied `CLOUDFLARE_API_TOKEN`. Then set the Pages project
+name in the shell and deploy the already-validated directory:
+
+```bash
+export CLOUDFLARE_PAGES_PROJECT='your-pages-project-name'
+npx wrangler pages deploy web/dist --project-name "$CLOUDFLARE_PAGES_PROJECT"
+```
+
+No account ID, token, project name, Wrangler configuration, generated build,
+or analytical asset is stored in the repository. The owner must create/select
+the Pages project and provide authentication; token-based automation may also
+need `CLOUDFLARE_ACCOUNT_ID` supplied in the shell. Cloudflare Pages supplies
+the SPA fallback for this static application; the tracked `web/public/_headers`
+file applies immutable caching to hashed application assets and revalidation
+to `/data/ashburton/*` runtime data. Visitors make no live calls to ECan.
+
+After deployment, run the existing browser suite against the hosted URL from
+`web/`:
+
+```bash
+PLAYWRIGHT_BASE_URL='https://your-pages-project.pages.dev' npm run test:browser
+```
+
+This checks real runtime loading, attribution, fallback behavior, coordinated
+interactions, accessibility, export, console/network errors, and responsive
+overflow without starting a local server. A hosted smoke test does not replace
+the 120-day current-or-remove operation: expired assets must be removed or
+replaced by a fresh release. Cloudflare's `_headers` support is documented at
+<https://developers.cloudflare.com/pages/configuration/headers/>, and its
+single-page application fallback is described at
+<https://developers.cloudflare.com/pages/configuration/serving-pages/>.
+
 ## Public-use safeguards
 
 Water Quality Data is supported for attributed public reuse under ECan's
