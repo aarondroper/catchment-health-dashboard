@@ -18,7 +18,6 @@ import xml.etree.ElementTree as ET
 from collections import Counter
 from dataclasses import asdict, dataclass
 from datetime import datetime, timezone
-from pathlib import Path
 from typing import Any, Callable, Iterable
 
 from .contracts import CONTRACT_VERSION, ObservationRecord, SourceRef

@@ -6,7 +6,7 @@ import { ObservationTable } from "./components/ObservationTable";
 import { ComparisonPanel } from "./components/ComparisonPanel";
 import { NewZealandInset } from "./components/NewZealandInset";
 import appLogo from "./assets/app-logo.svg";
-import { trendDisplay } from "./data/display";
+import { formatCount, formatDate, formatNumber, formatNumberWithUnit, trendDisplay } from "./data/display";
 import { analyticalFixture } from "./data/analyticalFixture";
 import { loadAnalyticalAsset, loadObservationPartition } from "./data/loadAsset";
 import { buildObservationCsv, downloadObservationCsv, exportFilename } from "./data/exportCsv";
@@ -46,7 +46,13 @@ function statusLabel(status: "reported" | "indeterminate" | "unavailable" | "loa
 }
 
 function displayNumber(value: number | null, unit: string | null): string {
-  return value === null ? "Not reported" : `${value.toLocaleString(undefined, { maximumFractionDigits: 4 })} ${unit ?? ""}`.trim();
+  return value === null ? "Not reported" : formatNumberWithUnit(value, unit);
+}
+
+function formatRecentResult(result: string | null, value: number | null, censoring: string | null): string {
+  if (result) return result;
+  if (value !== null) return formatNumber(value);
+  return censoring ? "Censored" : "Missing";
 }
 
 function preferredParameter(asset: AnalyticalAsset): ParameterOption {
@@ -59,12 +65,6 @@ function preferredStation(asset: AnalyticalAsset, parameterId: string): Station 
   const preferred = asset.stations.find((item) => item.stationId === DEFAULT_STATION_ID);
   if (preferred && asset.coverage.some((row) => row.station_id === preferred.stationId && row.parameter_id === parameterId && row.window === "primary_2016_2025" && row.raw_count > 0)) return preferred;
   return asset.stations.find((item) => asset.coverage.some((row) => row.station_id === item.stationId && row.parameter_id === parameterId && row.window === "primary_2016_2025" && row.raw_count > 0)) ?? asset.stations[0];
-}
-
-function formatRecentResult(result: string | null, value: number | null, censoring: string | null): string {
-  if (result) return result;
-  if (value !== null) return value.toLocaleString(undefined, { maximumFractionDigits: 4 });
-  return censoring ? "Censored" : "Missing";
 }
 
 type DetailSurface = "observations" | "notes" | "export" | null;
@@ -186,7 +186,7 @@ export function App() {
     const csv = buildObservationCsv(exportObservations, asset.stations, parameter);
     const filename = exportFilename(asset.studyAreaName, parameter, window, exportScope, station?.stationId);
     downloadObservationCsv(csv, filename);
-    setExportStatus(`${exportObservations.length.toLocaleString()} record${exportObservations.length === 1 ? "" : "s"} exported`);
+    setExportStatus(`${formatCount(exportObservations.length)} record${exportObservations.length === 1 ? "" : "s"} exported`);
   }
 
   const recentObservations = [...selectedObservations].sort((a, b) => b.observedAt.localeCompare(a.observedAt)).slice(0, 5);
@@ -203,7 +203,7 @@ export function App() {
     <div className="dashboard-workspace">
       <aside className="control-rail" aria-label="Dashboard controls and catchment context">
         <section className="rail-section rail-controls" aria-labelledby="controls-title"><div className="rail-heading"><h1 id="controls-title">Controls</h1></div><label>Parameter<SelectControl icon="parameter" aria-label="Parameter" value={parameter.parameterId} onChange={(event) => setParameterId(event.target.value)}>{asset.parameters.map((item) => <option key={item.parameterId} value={item.parameterId}>{item.displayName}</option>)}</SelectControl></label><label>Monitoring period<SelectControl icon="period" aria-label="Time period" value={window} onChange={(event) => setWindow(event.target.value as AnalyticalWindow)}>{windows.map((item) => <option key={item.value} value={item.value}>{item.label}</option>)}</SelectControl></label><label>Monitoring site<SelectControl icon="site" aria-label="Monitoring site" value={station?.stationId ?? ""} onChange={(event) => setStationId(event.target.value)}>{asset.stations.map((item) => <option key={item.stationId} value={item.stationId}>{stationOptionLabel(item)}</option>)}</SelectControl></label><label>Map display<SelectControl icon="map" aria-label="Map display" value={mapDisplayMode} onChange={(event) => setMapDisplayMode(event.target.value as MapDisplayMode)}><option value="availability">Data availability</option><option value="median">Selected-window median</option><option value="trend">Supported trend direction</option></SelectControl></label><div className="rail-actions"><button className="export-button" type="button" onClick={() => setDetailSurface("export")} disabled={observationsLoading}><ControlIcon name="download" />Export data (CSV)</button><span className="export-status" role="status" aria-live="polite">{observationsLoading ? "Loading detail…" : exportStatus}</span></div></section>
-        <section className="rail-section glance-section" aria-labelledby="glance-title"><h2 id="glance-title">Catchment at a glance</h2><dl className="glance-list"><div><dt>Reconciled sites</dt><dd>{asset.stations.length}</dd></div><div><dt>Sites with {parameter.displayName}</dt><dd>{parameterSiteCount}</dd></div><div><dt>Parameters covered</dt><dd>6</dd></div><div><dt>Recorded observations</dt><dd>{asset.counts.normalized_observations?.toLocaleString() ?? "—"}</dd></div><div><dt>Sampled history</dt><dd>2007–2025</dd></div></dl></section>
+        <section className="rail-section glance-section" aria-labelledby="glance-title"><h2 id="glance-title">Catchment at a glance</h2><dl className="glance-list"><div><dt>Reconciled sites</dt><dd>{asset.stations.length}</dd></div><div><dt>Sites with {parameter.displayName}</dt><dd>{parameterSiteCount}</dd></div><div><dt>Parameters covered</dt><dd>6</dd></div><div><dt>Recorded observations</dt><dd>{asset.counts.normalized_observations === undefined ? "—" : formatCount(asset.counts.normalized_observations)}</dd></div><div><dt>Sampled history</dt><dd>2007–2025</dd></div></dl></section>
         <section className="rail-section context-inset" aria-labelledby="context-title"><h2 id="context-title">Geographic context</h2><NewZealandInset /></section>
       </aside>
 
@@ -216,11 +216,11 @@ export function App() {
         <section className="rail-panel selected-scope" aria-labelledby="scope-title"><div className="panel-heading"><div><h2 id="scope-title">Selected site</h2><p className="panel-intro">{stationName(station)} · {parameter.displayName} · {windowLabel(window)}</p></div></div><div className="scope-metric"><span>Median</span><strong>{displayNumber(summary?.status === "reported" ? summary.value : null, summary?.unit ?? parameter.unit)}</strong><small>{summary?.status === "reported" ? `Middle half ${displayNumber(summary.q1, summary.unit)}–${displayNumber(summary.q3, summary.unit)}` : `Unavailable · ${reasonLabel(summary?.indeterminateReason ?? null)}`}</small></div><div className="scope-grid"><div><span>Records</span><strong>{coverage?.raw_count ?? 0}</strong></div><div><span>Eligible</span><strong>{coverage?.eligible_count ?? 0}</strong></div><div><span>Sampled years</span><strong>{coverage?.sampled_calendar_year_count ?? 0}</strong></div></div></section>
         <section className="rail-panel trend-panel" aria-labelledby="trend-title" data-trend-status={trendView.status} data-trend-reason={trendView.reasonCode ?? "none"}><div className="panel-heading"><div><h2 id="trend-title">Trend</h2></div><span className="status-chip trend-status status-neutral">{statusLabel(trendView.status)}</span></div><p className="trend-direction">{trendView.result}</p><p className="panel-intro">{trendView.explanation}</p></section>
         <ComparisonPanel rows={comparison} stations={asset.stations} parameterName={parameter.displayName} unit={parameter.unit} periodLabel={windowLabel(window)} selectedStationId={station?.stationId ?? ""} />
-        <section className="rail-panel recent-panel" aria-labelledby="recent-title"><div className="panel-heading"><div><h2 id="recent-title">Recent observations</h2></div><button className="text-button" type="button" onClick={() => setDetailSurface("observations")}>View all →</button></div>{recentObservations.length > 0 ? <div className="recent-list">{recentObservations.map((observation) => <div className="recent-row" key={observation.observationId}><time dateTime={observation.observedAt}>{observation.observedAt.slice(0, 10)}</time><strong>{formatRecentResult(observation.resultText, observation.value, observation.censoring)}</strong><span className={observation.valueKind === "censored" ? "record-tag record-tag-censored" : "record-tag"}>{observation.valueKind === "censored" ? "censored" : observation.analysisEligible ? "observed" : "excluded"}</span></div>)}</div> : <p className="state-copy">No observations for this selection.</p>}</section>
+        <section className="rail-panel recent-panel" aria-labelledby="recent-title"><div className="panel-heading"><div><h2 id="recent-title">Recent observations</h2></div><button className="text-button" type="button" onClick={() => setDetailSurface("observations")}>View all →</button></div>{recentObservations.length > 0 ? <div className="recent-list">{recentObservations.map((observation) => <div className="recent-row" key={observation.observationId}><time dateTime={observation.observedAt}>{formatDate(observation.observedAt)}</time><strong>{formatRecentResult(observation.resultText, observation.value, observation.censoring)}</strong><span className={observation.valueKind === "censored" ? "record-tag record-tag-censored" : "record-tag"}>{observation.valueKind === "censored" ? "censored" : observation.analysisEligible ? "observed" : "excluded"}</span></div>)}</div> : <p className="state-copy">No observations for this selection.</p>}</section>
       </aside>
     </div>
 
-    <div className="workspace-footer"><span>Sampled monitoring · current view <strong>{windowLabel(window)}</strong> · retrieved {asset.sourceRetrievedAt?.slice(0, 10) ?? "fixture"}</span></div>
+    <div className="workspace-footer"><span>Sampled monitoring · current view <strong>{windowLabel(window)}</strong> · retrieved {asset.sourceRetrievedAt ? formatDate(asset.sourceRetrievedAt) : "fixture"}</span></div>
 
     {detailSurface === "observations" && <SurfaceDialog title="Recorded observations" closeRef={dialogCloseRef} onClose={() => setDetailSurface(null)}><ObservationTable observations={selectedObservations} unit={parameter.unit} /></SurfaceDialog>}
     {detailSurface === "notes" && <SurfaceDialog title="Data notes and provenance" closeRef={dialogCloseRef} onClose={() => setDetailSurface(null)}><DataNotes asset={asset} parameter={parameter} window={window} qualityCounts={qualityCounts} /></SurfaceDialog>}

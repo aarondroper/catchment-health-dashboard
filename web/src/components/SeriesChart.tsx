@@ -1,6 +1,7 @@
 import { createPortal } from "react-dom";
 import { useCallback, useEffect, useLayoutEffect, useRef, useState } from "react";
 import type { Observation } from "../contracts";
+import { formatDate, formatNumber } from "../data/display";
 
 type SeriesChartProps = {
   observations: readonly Observation[];
@@ -11,7 +12,7 @@ type SeriesChartProps = {
 };
 
 function chartNumber(value: number): string {
-  return value.toLocaleString(undefined, { maximumFractionDigits: Math.abs(value) >= 100 ? 0 : Math.abs(value) >= 1 ? 2 : 3 });
+  return formatNumber(value, Math.abs(value) >= 100 ? 0 : Math.abs(value) >= 1 ? 2 : 3);
 }
 
 function recordStateLabel(observation: Observation): string {
@@ -177,13 +178,13 @@ export function SeriesChart({ observations, unit, stationName, parameterName, lo
           const value = observation.value ?? 0;
           const x = xFor(observation, index);
           const y = yFor(value);
-          return <circle key={observation.observationId} cx={x} cy={y} r="5" className="chart-point" role="button" tabIndex={0} aria-describedby={activePoint?.id === observation.observationId && tooltipCoordinates ? "chart-tooltip" : undefined} aria-label={`${observation.observedAt.slice(0, 10)} ${chartNumber(value)} ${unit ?? ""}; ${recordStateLabel(observation)}; ${qualityLabel(observation)}`} onMouseEnter={(event) => setActivePoint({ id: observation.observationId, element: event.currentTarget })} onMouseLeave={() => setActivePoint((current) => current?.id === observation.observationId ? null : current)} onFocus={(event) => setActivePoint({ id: observation.observationId, element: event.currentTarget })} onBlur={() => setActivePoint((current) => current?.id === observation.observationId ? null : current)} />;
+          return <circle key={observation.observationId} cx={x} cy={y} r="5" className="chart-point" role="button" tabIndex={0} aria-describedby={activePoint?.id === observation.observationId && tooltipCoordinates ? "chart-tooltip" : undefined} aria-label={`${formatDate(observation.observedAt)} ${chartNumber(value)} ${unit ?? ""}; ${recordStateLabel(observation)}; ${qualityLabel(observation)}`} onMouseEnter={(event) => setActivePoint({ id: observation.observationId, element: event.currentTarget })} onMouseLeave={() => setActivePoint((current) => current?.id === observation.observationId ? null : current)} onFocus={(event) => setActivePoint({ id: observation.observationId, element: event.currentTarget })} onBlur={() => setActivePoint((current) => current?.id === observation.observationId ? null : current)} />;
         })}
         {dateTicks.map((tick) => <text key={tick.label} x={tick.x} y={chartSize.height - 10} textAnchor="middle" className="chart-label">{tick.label}</text>)}
         <text x={plotLeft} y="16" className="chart-unit-label">{unit ?? "Value"} · linear scale</text>
         </svg>
       </div>}
-      {activeObservation && activePoint && createPortal(<div ref={tooltipRef} className="chart-tooltip" data-testid="chart-tooltip" role="tooltip" id="chart-tooltip" style={{ left: tooltipCoordinates?.left ?? 0, top: tooltipCoordinates?.top ?? 0, visibility: tooltipCoordinates ? "visible" : "hidden" }}><strong>{activeObservation.observedAt.slice(0, 10)}</strong><span>{chartNumber(activeObservation.value ?? 0)} {unit ?? ""}</span><span>{recordStateLabel(activeObservation)}</span><span>{qualityLabel(activeObservation)}</span></div>, document.body)}
+      {activeObservation && activePoint && createPortal(<div ref={tooltipRef} className="chart-tooltip" data-testid="chart-tooltip" role="tooltip" id="chart-tooltip" style={{ left: tooltipCoordinates?.left ?? 0, top: tooltipCoordinates?.top ?? 0, visibility: tooltipCoordinates ? "visible" : "hidden" }}><strong>{formatDate(activeObservation.observedAt)}</strong><span>{chartNumber(activeObservation.value ?? 0)} {unit ?? ""}</span><span>{recordStateLabel(activeObservation)}</span><span>{qualityLabel(activeObservation)}</span></div>, document.body)}
       <div className="chart-legend" aria-label="Chart record legend"><span><i className="legend-dot legend-dot-active" /> Eligible numeric</span><span><i className="legend-marker-censored" /> {censoredCount} censored retained in table</span><span>{nonNumericCount} missing or excluded</span></div>
       <p id="chart-accessibility" className="visually-hidden">Exact observation values and source quality details are available in the Recorded observations dialog opened by View all in Recent observations. The chart shows discrete sampled records; the connecting line is a visual guide.</p>
     </section>

@@ -10,5 +10,18 @@ requires-python = ">=3.12"
 license = { file = "LICENSE" }
 dependencies = []
 
+[project.optional-dependencies]
+lint = ["ruff>=0.8,<1"]
+
 [tool.setuptools.packages.find]
 include = ["catchment_dashboard*"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py312"
+
+[tool.ruff.lint]
+select = ["E4", "E7", "E9", "F"]
+
+[tool.ruff.lint.per-file-ignores]
+"tools/*.py" = ["E402"]

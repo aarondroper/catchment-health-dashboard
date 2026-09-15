@@ -1,4 +1,5 @@
 import type { AnalyticalSummary, Station } from "../contracts";
+import { formatNumberWithUnit } from "../data/display";
 
 type ComparisonPanelProps = {
   rows: readonly AnalyticalSummary[];
@@ -12,10 +13,6 @@ type ComparisonPanelProps = {
 function stationLabel(station: Station | undefined): string {
   if (!station) return "Unknown station";
   return station.name === station.stationId ? station.stationId : station.name;
-}
-
-function formatValue(value: number, unit: string | null): string {
-  return `${value.toLocaleString(undefined, { maximumFractionDigits: 4 })} ${unit ?? ""}`.trim();
 }
 
 export function ComparisonPanel({ rows, stations, parameterName, unit, periodLabel, selectedStationId }: ComparisonPanelProps) {
@@ -49,7 +46,7 @@ export function ComparisonPanel({ rows, stations, parameterName, unit, periodLab
           <svg className="comparison-plot" viewBox={`0 0 ${plotWidth + 220} ${plotHeight}`} preserveAspectRatio="xMinYMin meet">
             <title id="comparison-plot-title">{parameterName} site median and middle-half comparison</title>
             <desc id="comparison-plot-desc">{comparableRows.length} supported sites, sorted by median. The dot is the median and the line is the middle half from the first to third quartile. The selected site is outlined.</desc>
-            {[0, 0.25, 0.5, 0.75, 1].map((fraction) => <g key={fraction}><line x1={xFor(maximum * fraction)} x2={xFor(maximum * fraction)} y1="24" y2={plotHeight - 22} className="comparison-gridline" /><text x={xFor(maximum * fraction)} y="15" textAnchor={fraction === 0 ? "start" : fraction === 1 ? "end" : "middle"} className="comparison-axis-label">{formatValue(maximum * fraction, unit)}</text></g>)}
+            {[0, 0.25, 0.5, 0.75, 1].map((fraction) => <g key={fraction}><line x1={xFor(maximum * fraction)} x2={xFor(maximum * fraction)} y1="24" y2={plotHeight - 22} className="comparison-gridline" /><text x={xFor(maximum * fraction)} y="15" textAnchor={fraction === 0 ? "start" : fraction === 1 ? "end" : "middle"} className="comparison-axis-label">{formatNumberWithUnit(maximum * fraction, unit)}</text></g>)}
             {comparableRows.map((row, index) => {
               const y = 42 + index * rowHeight;
               const isSelected = row.stationId === selectedStationId;
@@ -59,7 +56,7 @@ export function ComparisonPanel({ rows, stations, parameterName, unit, periodLab
                 <line x1={xFor(row.q1)} x2={xFor(row.q1)} y1={y - 6} y2={y + 6} className="comparison-cap" />
                 <line x1={xFor(row.q3)} x2={xFor(row.q3)} y1={y - 6} y2={y + 6} className="comparison-cap" />
                 <circle cx={xFor(row.value)} cy={y} r={isSelected ? 6 : 5} className="comparison-median" />
-                <title>{`${stationLabel(stations.find((station) => station.stationId === row.stationId))}: median ${formatValue(row.value, unit)}, middle half ${formatValue(row.q1, unit)} to ${formatValue(row.q3, unit)}${isSelected ? "; selected station" : ""}`}</title>
+                <title>{`${stationLabel(stations.find((station) => station.stationId === row.stationId))}: median ${formatNumberWithUnit(row.value, unit)}, middle half ${formatNumberWithUnit(row.q1, unit)} to ${formatNumberWithUnit(row.q3, unit)}${isSelected ? "; selected station" : ""}`}</title>
               </g>;
             })}
           </svg>
@@ -70,13 +67,13 @@ export function ComparisonPanel({ rows, stations, parameterName, unit, periodLab
             const isSelected = row.stationId === selectedStationId;
             return <div className={isSelected ? "comparison-compact-row comparison-compact-row-selected" : "comparison-compact-row"} key={row.stationId}>
               <span>{stationLabel(stations.find((station) => station.stationId === row.stationId))}{isSelected ? " · selected" : ""}</span>
-              <span>{formatValue(row.value, unit)} · IQR {formatValue(row.q1, unit)}–{formatValue(row.q3, unit)}</span>
+              <span>{formatNumberWithUnit(row.value, unit)} · IQR {formatNumberWithUnit(row.q1, unit)}–{formatNumberWithUnit(row.q3, unit)}</span>
             </div>;
           })}
           <p className="comparison-compact-note">Sorted by median. Inspect exact site values for the complete comparison.</p>
         </div>
         <div className="comparison-legend"><span><i className="comparison-legend-line" /> Middle half (IQR)</span><span><i className="comparison-legend-dot" /> Median</span><span>Selected station outlined</span></div>
-        <details className="comparison-details"><summary>Inspect exact site values</summary><div className="comparison-table-wrap" tabIndex={0} role="region" aria-label="Exact cross-site values"><table className="observation-table comparison-table"><caption>Supported site summaries in {periodLabel}; other sites remain represented on the map.</caption><thead><tr><th scope="col">Monitoring site</th><th scope="col">Median ({unit ?? "unit"})</th><th scope="col">Middle half ({unit ?? "unit"})</th><th scope="col">Eligible records</th></tr></thead><tbody>{comparableRows.map((row) => <tr key={row.stationId}><td>{stationLabel(stations.find((station) => station.stationId === row.stationId))}{row.stationId === selectedStationId ? " · selected" : ""}</td><td>{formatValue(row.value, unit)}</td><td>{formatValue(row.q1, unit)}–{formatValue(row.q3, unit)}</td><td>{row.eligibleNumericCount}</td></tr>)}</tbody></table></div></details>
+        <details className="comparison-details"><summary>Inspect exact site values</summary><div className="comparison-table-wrap" tabIndex={0} role="region" aria-label="Exact cross-site values"><table className="observation-table comparison-table"><caption>Supported site summaries in {periodLabel}; other sites remain represented on the map.</caption><thead><tr><th scope="col">Monitoring site</th><th scope="col">Median ({unit ?? "unit"})</th><th scope="col">Middle half ({unit ?? "unit"})</th><th scope="col">Eligible records</th></tr></thead><tbody>{comparableRows.map((row) => <tr key={row.stationId}><td>{stationLabel(stations.find((station) => station.stationId === row.stationId))}{row.stationId === selectedStationId ? " · selected" : ""}</td><td>{formatNumberWithUnit(row.value, unit)}</td><td>{formatNumberWithUnit(row.q1, unit)}–{formatNumberWithUnit(row.q3, unit)}</td><td>{row.eligibleNumericCount}</td></tr>)}</tbody></table></div></details>
       </> : <p className="state-copy">Not enough comparable sites for this selection.</p>}
     </section>
   );

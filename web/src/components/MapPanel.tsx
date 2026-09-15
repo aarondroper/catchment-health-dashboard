@@ -4,6 +4,7 @@ import { createPortal } from "react-dom";
 import maplibreWorkerUrl from "maplibre-gl/dist/maplibre-gl-worker.mjs?worker&url";
 import "maplibre-gl/dist/maplibre-gl.css";
 import type { CatchmentGeometry, Station } from "../contracts";
+import { formatCount, formatNumber, formatNumberWithUnit } from "../data/display";
 
 export type MapDisplayMode = "availability" | "median" | "trend";
 export type MapDisplayRow = {
@@ -95,9 +96,9 @@ function displayModeLabel(mode: MapDisplayMode, unit: string | null): string {
 }
 
 function displayValue(row: MapDisplayRow, mode: MapDisplayMode, unit: string | null): string {
-  if (mode === "median") return row.median === null ? "No supported median" : `${row.median.toLocaleString(undefined, { maximumFractionDigits: 3 })} ${unit ?? ""}`.trim();
+  if (mode === "median") return row.median === null ? "No supported median" : formatNumberWithUnit(row.median, unit, 3);
   if (mode === "trend") return row.trendDirection === "indeterminate" ? "Trend indeterminate" : row.trendDirection;
-  return row.available ? `${row.coverageCount.toLocaleString()} recorded rows` : "No selected-parameter data";
+  return row.available ? `${formatCount(row.coverageCount)} recorded rows` : "No selected-parameter data";
 }
 
 function MapAttributionControl({ remoteContext, contextLabel }: { remoteContext: boolean; contextLabel: string }) {
@@ -184,6 +185,9 @@ export function MapPanel({ stations, selectedStationId, selectedStationName, cat
     onBasemapStatus("loading");
     let remoteReadyTimeout: ReturnType<typeof globalThis.setTimeout> | undefined;
     let remoteStyleLoaded = false;
+    let styleController: AbortController | undefined;
+    let styleTimeout: ReturnType<typeof globalThis.setTimeout> | undefined;
+    let resizeObserver: ResizeObserver | undefined;
     const reportBasemapStatus = (status: "loading" | "openfreemap" | "fallback") => { setContextStatus(status); onBasemapStatus(status); };
     import("maplibre-gl").then(({ Map: MapLibreMap, Marker: MarkerConstructor, NavigationControl, setWorkerUrl }) => {
       if (disposed || !containerRef.current) return;
@@ -210,9 +214,10 @@ export function MapPanel({ stations, selectedStationId, selectedStationName, cat
       const requestRemoteStyle = () => {
         if (remoteFetchStartedRef.current || usingRemoteStyleRef.current) return;
         remoteFetchStartedRef.current = true;
-        const styleController = new AbortController();
-        const styleTimeout = globalThis.setTimeout(() => styleController.abort(), REMOTE_STYLE_FETCH_TIMEOUT_MS);
-        fetch(OPENFREEMAP_STYLE, { signal: styleController.signal })
+        styleController = new AbortController();
+        styleTimeout = globalThis.setTimeout(() => styleController?.abort(), REMOTE_STYLE_FETCH_TIMEOUT_MS);
+        const controller = styleController;
+        fetch(OPENFREEMAP_STYLE, { signal: controller.signal })
           .then((response) => { if (!response.ok) throw new Error(`OpenFreeMap style request failed (${response.status})`); return response.json() as Promise<StyleSpecification>; })
           .then((style) => {
             if (disposed || fallbackAppliedRef.current) return;
@@ -224,7 +229,7 @@ export function MapPanel({ stations, selectedStationId, selectedStationName, cat
             }, REMOTE_STYLE_LOAD_TIMEOUT_MS);
           })
           .catch(() => { if (!disposed) applyLocalFallback(); })
-          .finally(() => globalThis.clearTimeout(styleTimeout));
+          .finally(() => { if (styleTimeout !== undefined) globalThis.clearTimeout(styleTimeout); styleTimeout = undefined; styleController = undefined; });
       };
       const addDataLayers = () => {
         if (disposed) return;
@@ -276,12 +281,17 @@ export function MapPanel({ stations, selectedStationId, selectedStationName, cat
         setMapReady(true);
         addDataLayers();
       });
-      const resizeObserver = new ResizeObserver(() => map.resize());
-      resizeObserver.observe(containerRef.current);
-      return () => resizeObserver.disconnect();
+      if (typeof ResizeObserver !== "undefined" && containerRef.current) {
+        resizeObserver = new ResizeObserver(() => { if (!disposed) map.resize(); });
+        resizeObserver.observe(containerRef.current);
+      }
     }).catch(() => { if (!disposed) reportBasemapStatus("fallback"); });
     return () => {
       disposed = true;
+      resizeObserver?.disconnect();
+      resizeObserver = undefined;
+      styleController?.abort();
+      if (styleTimeout !== undefined) globalThis.clearTimeout(styleTimeout);
       markersRef.current.forEach((marker) => marker.remove());
       markersRef.current = [];
       mapRef.current?.remove();
@@ -315,7 +325,7 @@ export function MapPanel({ stations, selectedStationId, selectedStationName, cat
       element.title = `${label}: ${displayValue(row, displayMode, unit)}`;
       element.setAttribute("aria-label", `${label}, ${displayValue(row, displayMode, unit)}`);
       element.setAttribute("aria-pressed", String(selected));
-      element.innerHTML = `<span class="map-marker-glyph" aria-hidden="true"></span>${displayMode === "median" && row.median !== null ? `<span class="map-marker-value" aria-hidden="true">${row.median.toLocaleString(undefined, { maximumFractionDigits: 2 })}</span>` : displayMode === "trend" && row.trendDirection !== "indeterminate" ? `<span class="map-marker-direction" aria-hidden="true">${row.trendDirection === "increasing" ? "↗" : "↘"}</span>` : ""}`;
+      element.innerHTML = `<span class="map-marker-glyph" aria-hidden="true"></span>${displayMode === "median" && row.median !== null ? `<span class="map-marker-value" aria-hidden="true">${formatNumber(row.median, 2)}</span>` : displayMode === "trend" && row.trendDirection !== "indeterminate" ? `<span class="map-marker-direction" aria-hidden="true">${row.trendDirection === "increasing" ? "↗" : "↘"}</span>` : ""}`;
       element.addEventListener("click", () => onSelectRef.current(station.stationId));
       return new MarkerConstructor({ element, anchor: "center", offset: markerOffset(station, index, stations) }).setLngLat([station.longitude, station.latitude]).addTo(map);
     });

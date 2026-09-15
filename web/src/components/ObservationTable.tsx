@@ -1,4 +1,5 @@
 import type { Observation } from "../contracts";
+import { formatCount, formatDate } from "../data/display";
 
 type ObservationTableProps = {
   observations: readonly Observation[];
@@ -31,12 +32,12 @@ export function ObservationTable({ observations, unit }: ObservationTableProps) 
       </div>
       <div className="observation-table-wrap" tabIndex={0} role="region" aria-label="Selected observation detail">
         <table className="observation-table compact-observation-table">
-          <caption>Recorded observations for the selected station · {observations.length.toLocaleString()} rows · reported result unit: {unit ?? "not supplied"}</caption>
+          <caption>Recorded observations for the selected station · {formatCount(observations.length)} rows · reported result unit: {unit ?? "not supplied"}</caption>
           <thead><tr><th scope="col">Date</th><th scope="col">Reported result</th><th scope="col">Quality/status</th><th scope="col">Record state</th></tr></thead>
           <tbody>
             {observations.map((observation) => (
               <tr key={observation.observationId}>
-                <td>{observation.observedAt.slice(0, 10)}</td>
+                <td>{formatDate(observation.observedAt)}</td>
                 <td>{observation.resultText ?? observation.value ?? "Missing"}</td>
                 <td>{qualityLabel(observation)}</td>
                 <td><details><summary>{observationStatus(observation)}</summary><div className="row-details"><span>Original: {observation.originalValue ?? observation.resultText ?? "missing"} {observation.originalUnit ?? ""}</span><span>Reporting limit: {observation.censorLimit ?? "not supplied"}</span><span>Source ID: <code>{observation.sourceRecordId}</code></span><span>Retrieved: {observation.sourceRetrievedAt}</span></div></details></td>

@@ -1,5 +1,22 @@
 import type { AnalyticalTrend } from "../contracts";
 
+export function formatNumber(value: number, maximumFractionDigits = 4): string {
+  return value.toLocaleString(undefined, { maximumFractionDigits });
+}
+
+export function formatNumberWithUnit(value: number, unit: string | null, maximumFractionDigits = 4): string {
+  return `${formatNumber(value, maximumFractionDigits)} ${unit ?? ""}`.trim();
+}
+
+export function formatCount(value: number): string {
+  return value.toLocaleString();
+}
+
+/** Preserve the source timestamp's displayed calendar date without timezone conversion. */
+export function formatDate(value: string): string {
+  return value.slice(0, 10);
+}
+
 export type TrendDisplayStatus = "reported" | "indeterminate" | "unavailable" | "loading";
 
 export type TrendDisplay = {
