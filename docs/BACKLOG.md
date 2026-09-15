@@ -332,6 +332,16 @@ the real prepared asset; screenshots at all five supported viewports were
 inspected. The next frontier remains owner-facing review and publication
 authorization, not additional analytical scope.
 
+The follow-up chart bug-fix pass corrected the conditional-frame measurement
+lifecycle so each replacement chart frame receives a live ResizeObserver and
+retains its full responsive width through station, parameter, period, map-mode,
+rapid-transition, and resize changes. It moved chart tooltips to a viewport-
+aware body overlay with deliberate z-layering, edge flip/clamping, keyboard
+focus parity, Escape/selection cleanup, and no pointer interception. The
+complete browser suite now contains 21 tests and passes with real assets,
+including edge-tooltip, accessibility, overflow, console/network, and five
+viewport screenshot checks.
+
 ### Release-readiness outcome
 
 The exact ECan water-quality Terms of Use linked from the official publication

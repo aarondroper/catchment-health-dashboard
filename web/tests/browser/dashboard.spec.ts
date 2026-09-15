@@ -53,6 +53,31 @@ async function openDashboard(page: Page) {
   }
 }
 
+async function chartLayout(page: Page) {
+  return page.evaluate(() => {
+    const frame = document.querySelector<HTMLElement>(".series-chart-frame");
+    const chart = document.querySelector<SVGSVGElement>('[data-testid="history-chart"]');
+    const plot = document.querySelector<SVGRectElement>('[data-testid="history-plot"]');
+    if (!frame || !chart || !plot) return null;
+    const frameBox = frame.getBoundingClientRect();
+    const chartBox = chart.getBoundingClientRect();
+    return {
+      frameWidth: frameBox.width,
+      chartWidth: chartBox.width,
+      svgWidth: Number(chart.getAttribute("width")),
+      plotWidth: Number(plot.getAttribute("width")),
+    };
+  });
+}
+
+async function waitForFullWidthChart(page: Page) {
+  await expect.poll(async () => {
+    const layout = await chartLayout(page);
+    return Boolean(layout && layout.svgWidth >= layout.frameWidth - 3 && layout.plotWidth >= layout.frameWidth * 0.8);
+  }, { timeout: 10_000 }).toBe(true);
+  return (await chartLayout(page))!;
+}
+
 test("loads real data, contextual basemap, and production-only visitor requests", async ({ page }) => {
   const consoleErrors: string[] = [];
   const consoleWarnings: string[] = [];
@@ -125,6 +150,82 @@ test("fits the primary dashboard in desktop viewports without body scrolling", a
     expect(plotBox!.height).toBeGreaterThan(chartBox!.height * 0.65);
     console.log(`history-chart-layout ${JSON.stringify({ width, height, mapPanel: mapPanelBox, chartPanel: chartPanelBox, chart: chartBox, plot: plotBox })}`);
   }
+});
+
+test("keeps the history plot measured to its current frame through coordinated changes", async ({ page }) => {
+  await page.setViewportSize({ width: 1440, height: 900 });
+  await openDashboard(page);
+  const measurements: Array<{ state: string; layout: Awaited<ReturnType<typeof chartLayout>> }> = [];
+  measurements.push({ state: "initial", layout: await waitForFullWidthChart(page) });
+
+  await page.getByRole("combobox", { name: "Monitoring site" }).selectOption("SQ20104");
+  measurements.push({ state: "station control", layout: await waitForFullWidthChart(page) });
+
+  const mapStation = page.locator(".map-marker-available:not(.map-marker-selected)").first();
+  await mapStation.click({ force: true });
+  await expect(page.getByRole("combobox", { name: "Monitoring site" })).not.toHaveValue("SQ20104");
+  measurements.push({ state: "map station", layout: await waitForFullWidthChart(page) });
+
+  await page.getByRole("combobox", { name: "Parameter" }).selectOption("nitrate_n_nitrite_n");
+  await expect(page.locator(".chart-context")).toContainText("Nitrate-N Nitrite-N");
+  measurements.push({ state: "parameter", layout: await waitForFullWidthChart(page) });
+
+  await page.getByRole("combobox", { name: "Time period" }).selectOption("recent_2020_2025");
+  measurements.push({ state: "period", layout: await waitForFullWidthChart(page) });
+
+  await page.getByRole("combobox", { name: "Map display" }).selectOption("availability");
+  measurements.push({ state: "map display", layout: await waitForFullWidthChart(page) });
+
+  await page.getByRole("combobox", { name: "Parameter" }).selectOption("total_phosphorus");
+  await page.getByRole("combobox", { name: "Parameter" }).selectOption("turbidity");
+  await page.getByRole("combobox", { name: "Parameter" }).selectOption("total_nitrogen");
+  await expect(page.locator(".chart-context")).toContainText("Total Nitrogen");
+  measurements.push({ state: "rapid transitions", layout: await waitForFullWidthChart(page) });
+
+  await page.setViewportSize({ width: 1536, height: 864 });
+  measurements.push({ state: "resized", layout: await waitForFullWidthChart(page) });
+  console.log(`history-chart-width-regression ${JSON.stringify(measurements)}`);
+});
+
+test("keeps chart tooltips in a viewport overlay at edge points and clears stale state", async ({ page }) => {
+  await page.setViewportSize({ width: 1440, height: 900 });
+  await openDashboard(page);
+  const points = page.locator(".chart-point");
+  await expect(points.first()).toBeVisible();
+  const pointBoxes = await points.evaluateAll((elements) => elements.map((element) => {
+    const box = element.getBoundingClientRect();
+    return { x: box.x, y: box.y, right: box.right, bottom: box.bottom };
+  }));
+  const edgeIndices = [...new Set([
+    pointBoxes.reduce((best, point, index, all) => point.x < all[best].x ? index : best, 0),
+    pointBoxes.reduce((best, point, index, all) => point.right > all[best].right ? index : best, 0),
+    pointBoxes.reduce((best, point, index, all) => point.y < all[best].y ? index : best, 0),
+    pointBoxes.reduce((best, point, index, all) => point.bottom > all[best].bottom ? index : best, 0),
+  ])];
+  for (const index of edgeIndices) {
+    await points.nth(index).hover();
+    const tooltip = page.getByRole("tooltip");
+    await expect(tooltip).toBeVisible();
+    const box = await tooltip.boundingBox();
+    expect(box).not.toBeNull();
+    expect(box!.x).toBeGreaterThanOrEqual(0);
+    expect(box!.y).toBeGreaterThanOrEqual(0);
+    expect(box!.x + box!.width).toBeLessThanOrEqual(1440);
+    expect(box!.y + box!.height).toBeLessThanOrEqual(900);
+    expect(await tooltip.evaluate((element) => ({ parent: element.parentElement?.tagName, position: getComputedStyle(element).position }))).toEqual({ parent: "BODY", position: "fixed" });
+    if (index === edgeIndices[0]) await page.screenshot({ path: "screenshots/ashburton-tooltip-edge.png" });
+  }
+
+  await points.first().hover();
+  await expect(page.getByRole("tooltip")).toBeVisible();
+  await page.getByRole("combobox", { name: "Parameter" }).selectOption("nitrate_n_nitrite_n");
+  await expect(page.getByRole("tooltip")).toHaveCount(0);
+  await expect(page.locator(".chart-context")).toContainText("Nitrate-N Nitrite-N");
+  await waitForFullWidthChart(page);
+  await page.locator(".chart-point").first().focus();
+  await expect(page.getByRole("tooltip")).toBeVisible();
+  await page.keyboard.press("Escape");
+  await expect(page.getByRole("tooltip")).toHaveCount(0);
 });
 
 test("presents comparison values as a sorted interval plot and keeps exact inspection later", async ({ page }) => {

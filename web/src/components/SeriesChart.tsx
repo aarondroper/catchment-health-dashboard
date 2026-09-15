@@ -1,4 +1,5 @@
-import { useEffect, useRef, useState } from "react";
+import { createPortal } from "react-dom";
+import { useCallback, useEffect, useLayoutEffect, useRef, useState } from "react";
 import type { Observation } from "../contracts";
 
 type SeriesChartProps = {
@@ -30,10 +31,38 @@ function chartDate(time: number): string {
   return new Date(time).toISOString().slice(0, 7);
 }
 
+type ActivePoint = {
+  id: string;
+  element: SVGCircleElement;
+};
+
+type TooltipPosition = {
+  left: number;
+  top: number;
+};
+
+function tooltipPosition(anchor: DOMRect, tooltip: DOMRect, viewportWidth: number, viewportHeight: number): TooltipPosition {
+  const margin = 8;
+  const gap = 10;
+  const maxLeft = Math.max(margin, viewportWidth - tooltip.width - margin);
+  const centeredLeft = anchor.left + (anchor.width / 2) - (tooltip.width / 2);
+  const left = Math.min(maxLeft, Math.max(margin, centeredLeft));
+  const above = anchor.top - tooltip.height - gap;
+  const below = anchor.bottom + gap;
+  const top = above >= margin
+    ? above
+    : below + tooltip.height <= viewportHeight - margin
+      ? below
+      : Math.min(Math.max(margin, above), Math.max(margin, viewportHeight - tooltip.height - margin));
+  return { left, top };
+}
+
 /** Accessible SVG series; the observation dialog remains the authoritative detail route. */
 export function SeriesChart({ observations, unit, stationName, parameterName, loading = false }: SeriesChartProps) {
-  const [activePointId, setActivePointId] = useState<string | null>(null);
-  const chartFrameRef = useRef<HTMLDivElement | null>(null);
+  const [activePoint, setActivePoint] = useState<ActivePoint | null>(null);
+  const [tooltipCoordinates, setTooltipCoordinates] = useState<TooltipPosition | null>(null);
+  const tooltipRef = useRef<HTMLDivElement | null>(null);
+  const [chartFrameElement, setChartFrameElement] = useState<HTMLDivElement | null>(null);
   const [chartSize, setChartSize] = useState({ width: 620, height: 270 });
   const numeric = observations.filter((observation) => observation.value !== null && observation.analysisEligible);
   const censoredCount = observations.filter((observation) => observation.valueKind === "censored").length;
@@ -65,17 +94,15 @@ export function SeriesChart({ observations, unit, stationName, parameterName, lo
     const time = minTime + (maxTime - minTime) * fraction;
     return { x: plotLeft + fraction * plotWidth, label: chartDate(time) };
   }) : [];
-  const activeIndex = activePointId ? numeric.findIndex((observation) => observation.observationId === activePointId) : -1;
+  const activeIndex = activePoint ? numeric.findIndex((observation) => observation.observationId === activePoint.id) : -1;
   const activeObservation = activeIndex >= 0 ? numeric[activeIndex] : undefined;
-  const activeX = activeObservation ? xFor(activeObservation, activeIndex) : 0;
-  const activeY = activeObservation ? yFor(activeObservation.value ?? 0) : 0;
-  const tooltipPosition = activeObservation ? {
-    left: `${Math.min(90, Math.max(10, (activeX / chartSize.width) * 100))}%`,
-    top: `${Math.max(35, (activeY / chartSize.height) * 100)}%`,
-  } : undefined;
 
-  useEffect(() => {
-    const frame = chartFrameRef.current;
+  const setChartFrameRef = useCallback((node: HTMLDivElement | null) => {
+    setChartFrameElement(node);
+  }, []);
+
+  useLayoutEffect(() => {
+    const frame = chartFrameElement;
     if (!frame) return;
     const measure = () => {
       const bounds = frame.getBoundingClientRect();
@@ -87,7 +114,40 @@ export function SeriesChart({ observations, unit, stationName, parameterName, lo
     const observer = new ResizeObserver(measure);
     observer.observe(frame);
     return () => observer.disconnect();
-  }, []);
+  }, [chartFrameElement]);
+
+  useEffect(() => {
+    setActivePoint(null);
+    setTooltipCoordinates(null);
+  }, [observations, stationName, parameterName]);
+
+  useEffect(() => {
+    if (!activePoint || !activeObservation) {
+      setTooltipCoordinates(null);
+      return;
+    }
+    const updatePosition = () => {
+      const tooltip = tooltipRef.current;
+      if (!tooltip || !activePoint.element.isConnected) return;
+      setTooltipCoordinates(tooltipPosition(activePoint.element.getBoundingClientRect(), tooltip.getBoundingClientRect(), globalThis.innerWidth, globalThis.innerHeight));
+    };
+    updatePosition();
+    globalThis.window.addEventListener("resize", updatePosition);
+    globalThis.window.addEventListener("scroll", updatePosition, true);
+    return () => {
+      globalThis.window.removeEventListener("resize", updatePosition);
+      globalThis.window.removeEventListener("scroll", updatePosition, true);
+    };
+  }, [activePoint, activeObservation, chartSize]);
+
+  useEffect(() => {
+    if (!activePoint) return;
+    const closeOnEscape = (event: KeyboardEvent) => {
+      if (event.key === "Escape") setActivePoint(null);
+    };
+    globalThis.window.addEventListener("keydown", closeOnEscape);
+    return () => globalThis.window.removeEventListener("keydown", closeOnEscape);
+  }, [activePoint]);
 
   return (
     <section className="panel chart-panel" aria-labelledby="series-title">
@@ -101,8 +161,8 @@ export function SeriesChart({ observations, unit, stationName, parameterName, lo
       {loading && <p className="empty-state" role="status" aria-live="polite">Loading this parameter’s observation detail…</p>}
       {observations.length === 0 && <p className="empty-state" role="status">No observations are available for this parameter and station in the selected period.</p>}
       {observations.length > 0 && numeric.length === 0 && <p className="empty-state" role="status">No eligible numeric observations are available to plot; inspect the retained table for censored or excluded records.</p>}
-      {numeric.length > 0 && <div className="series-chart-frame" ref={chartFrameRef}>
-        <svg className="series-chart" data-testid="history-chart" width={chartSize.width} height={chartSize.height} viewBox={`0 0 ${chartSize.width} ${chartSize.height}`} role="img" aria-labelledby="chart-title" aria-describedby="chart-desc chart-accessibility">
+      {numeric.length > 0 && <div className="series-chart-frame" ref={setChartFrameRef}>
+        <svg className="series-chart" data-testid="history-chart" width={chartSize.width} height={chartSize.height} viewBox={`0 0 ${chartSize.width} ${chartSize.height}`} role="group" aria-labelledby="chart-title" aria-describedby="chart-desc chart-accessibility">
         <title id="chart-title">{parameterName} observations at {stationName}</title>
         <desc id="chart-desc">{numeric.length} eligible numeric observations on a linear scale from {chartNumber(minValue)} to {chartNumber(maxValue)} {unit ?? ""}. Censored, missing, and excluded results remain in the detail table.</desc>
         <rect data-testid="history-plot" className="chart-plot-area" x={plotLeft} y={plotTop} width={plotWidth} height={plotHeight} rx="3" />
@@ -117,13 +177,13 @@ export function SeriesChart({ observations, unit, stationName, parameterName, lo
           const value = observation.value ?? 0;
           const x = xFor(observation, index);
           const y = yFor(value);
-          return <circle key={observation.observationId} cx={x} cy={y} r="5" className="chart-point" onMouseEnter={() => setActivePointId(observation.observationId)} onMouseLeave={() => setActivePointId(null)} />;
+          return <circle key={observation.observationId} cx={x} cy={y} r="5" className="chart-point" role="button" tabIndex={0} aria-describedby={activePoint?.id === observation.observationId && tooltipCoordinates ? "chart-tooltip" : undefined} aria-label={`${observation.observedAt.slice(0, 10)} ${chartNumber(value)} ${unit ?? ""}; ${recordStateLabel(observation)}; ${qualityLabel(observation)}`} onMouseEnter={(event) => setActivePoint({ id: observation.observationId, element: event.currentTarget })} onMouseLeave={() => setActivePoint((current) => current?.id === observation.observationId ? null : current)} onFocus={(event) => setActivePoint({ id: observation.observationId, element: event.currentTarget })} onBlur={() => setActivePoint((current) => current?.id === observation.observationId ? null : current)} />;
         })}
         {dateTicks.map((tick) => <text key={tick.label} x={tick.x} y={chartSize.height - 10} textAnchor="middle" className="chart-label">{tick.label}</text>)}
         <text x={plotLeft} y="16" className="chart-unit-label">{unit ?? "Value"} · linear scale</text>
         </svg>
-        {activeObservation && tooltipPosition && <div className="chart-tooltip" data-testid="chart-tooltip" role="tooltip" style={tooltipPosition}><strong>{activeObservation.observedAt.slice(0, 10)}</strong><span>{chartNumber(activeObservation.value ?? 0)} {unit ?? ""}</span><span>{recordStateLabel(activeObservation)}</span><span>{qualityLabel(activeObservation)}</span></div>}
       </div>}
+      {activeObservation && activePoint && createPortal(<div ref={tooltipRef} className="chart-tooltip" data-testid="chart-tooltip" role="tooltip" id="chart-tooltip" style={{ left: tooltipCoordinates?.left ?? 0, top: tooltipCoordinates?.top ?? 0, visibility: tooltipCoordinates ? "visible" : "hidden" }}><strong>{activeObservation.observedAt.slice(0, 10)}</strong><span>{chartNumber(activeObservation.value ?? 0)} {unit ?? ""}</span><span>{recordStateLabel(activeObservation)}</span><span>{qualityLabel(activeObservation)}</span></div>, document.body)}
       <div className="chart-legend" aria-label="Chart record legend"><span><i className="legend-dot legend-dot-active" /> Eligible numeric</span><span><i className="legend-marker-censored" /> {censoredCount} censored retained in table</span><span>{nonNumericCount} missing or excluded</span></div>
       <p id="chart-accessibility" className="visually-hidden">Exact observation values and source quality details are available in the Recorded observations dialog opened by View all in Recent observations. The chart shows discrete sampled records; the connecting line is a visual guide.</p>
     </section>
