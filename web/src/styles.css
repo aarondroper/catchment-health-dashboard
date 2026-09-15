@@ -68,7 +68,7 @@ select:focus-visible, button:focus-visible, summary:focus-visible, [tabindex="0"
 .nz-island { fill: #d8e8e7; stroke: #6d9098; stroke-linejoin: round; stroke-width: .75; }
 .nz-inset-leader { fill: none; stroke: #17645f; stroke-width: 1.1; }
 .nz-catchment-marker { fill: #d7684c; stroke: #fff; stroke-width: 1.5; }
-.nz-inset-label { fill: #102a43; font-size: 8px; font-weight: 750; }
+.nz-inset-label { fill: #102a43; font-size: 24px; font-weight: 800; paint-order: stroke; stroke: #f4f8f8; stroke-linejoin: round; stroke-width: 5px; }
 .primary-column { display: grid; gap: 10px; grid-template-rows: minmax(0, 1.62fr) minmax(250px, 1fr); }
 .insights-rail { display: grid; gap: 10px; grid-template-rows: auto auto minmax(0, 1fr) auto; overflow-y: auto; }
 .panel { padding: 12px; }

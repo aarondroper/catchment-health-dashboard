@@ -21,6 +21,18 @@ async function openDashboard(page: Page) {
   await expect(page.locator(".map-service-state")).toHaveText(/Context basemap loaded|Local map fallback/);
   if ((page.viewportSize()?.width ?? 1440) > 760) await expect(page.locator('[data-testid="nz-inset-map"]')).toBeVisible();
   await expect(page.locator('[data-testid="nz-catchment-marker"]')).toHaveCount(1);
+  await expect(page.locator(".nz-inset-label")).toContainText("Ashburton");
+  if ((page.viewportSize()?.width ?? 1440) > 760) {
+    const label = page.locator(".nz-inset-label");
+    const inset = page.locator('[data-testid="nz-inset-map"]');
+    await expect(label).toHaveCSS("font-size", "11px");
+    const labelBox = await label.boundingBox();
+    const insetBox = await inset.boundingBox();
+    expect(labelBox).not.toBeNull();
+    expect(insetBox).not.toBeNull();
+    expect(labelBox!.height).toBeGreaterThanOrEqual(14);
+    expect(labelBox!.x + labelBox!.width).toBeLessThanOrEqual(insetBox!.x + insetBox!.width + 1);
+  }
 }
 
 test("loads real data, contextual basemap, and production-only visitor requests", async ({ page }) => {
