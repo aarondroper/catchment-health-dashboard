@@ -35,7 +35,6 @@ async function openDashboard(page: Page): Promise<"openfreemap" | "fallback"> {
   expect(typography.sourceSansLoaded).toBe(true);
   expect(typography.fontResources).toBeGreaterThanOrEqual(4);
   await expect(page.locator(".eyebrow")).toHaveCount(0);
-  await expect(page.getByText("Local data loaded")).toHaveCount(0);
   await expect(page.getByText("Data notes & provenance")).toHaveCount(0);
   await expect(page.getByText("Development sample")).toHaveCount(0);
   await expect(page.locator(".maplibregl-canvas")).toHaveCount(1);

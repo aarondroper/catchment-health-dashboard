@@ -126,20 +126,3 @@ export type CoverageRecord = {
   summary_eligibility: string;
   trend_eligibility: string;
 };
-
-export type FixtureAsset = {
-  contractVersion: string;
-  studyAreaId: string;
-  studyAreaName: string;
-  station: {
-    stationId: string;
-    name: string;
-  };
-  parameter: {
-    parameterId: string;
-    displayName: string;
-    unit: string | null;
-    selectionStatus: string;
-  };
-  observations: readonly Observation[];
-};
