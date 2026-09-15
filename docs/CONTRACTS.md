@@ -86,10 +86,10 @@ the normalized/audit assets remain the authoritative processing-layer records.
 
 The local map geometry is a GeoJSON Feature generated from the verified ECan
 ArcGIS boundary response (`CatchmentGroup=688`, EPSG:4326 output), not a
-schematic approximation. MapLibre uses a local minimal style with no remote
-basemap or tile dependency. Public data delivery is terms-supported but still
-requires freshness/removal operations; any basemap licensing remains a release
-gate.
+schematic approximation. MapLibre uses the local geometry and may load the
+attributed OpenFreeMap Positron context basemap; the local geometry remains the
+fallback when that context is unavailable. Public data delivery is
+terms-supported but still requires freshness/removal operations.
 
 ## Commands
 
@@ -100,4 +100,6 @@ python3 -m unittest discover -s tests -v
 python3 tools/validate_fixture.py tests/fixtures/minimal_asset.json
 ```
 
-The frontend commands are documented in `web/README.md` after the scaffold is installed. Raw/cache directories and generated reports are ignored by `.gitignore`; the checked-in fixture is explicitly synthetic and test-only.
+The frontend commands are documented in `docs/DEVELOPMENT.md` after the
+scaffold is installed. Raw/cache directories and generated reports are ignored
+by `.gitignore`; the checked-in fixture is explicitly synthetic and test-only.

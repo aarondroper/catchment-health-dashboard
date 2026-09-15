@@ -7,6 +7,7 @@ name = "catchment-health-dashboard"
 version = "0.1.0"
 description = "Reproducible contracts and processing foundation for the Catchment Health Dashboard"
 requires-python = ">=3.12"
+license = { file = "LICENSE" }
 dependencies = []
 
 [tool.setuptools.packages.find]

@@ -2,76 +2,56 @@
 
 ![Ashburton–Hakatere monitoring dashboard](docs/assets/dashboard-desktop.png)
 
-This portfolio project presents a restrained, evidence-led view of freshwater
-monitoring in the Ashburton–Hakatere catchment. It is designed like a small
-consulting deliverable: show what was sampled, where, over which period, and
+An evidence-led environmental monitoring dashboard for the Ashburton–Hakatere
+catchment. It helps users see what was sampled, where, over which period, and
 which summaries or neutral trend results are supported—without turning sparse
 observations into a health score or compliance claim.
 
-## What it does
+## What the project demonstrates
 
-- Coordinates a map-centric MapLibre catchment view, station selection,
-  parameter and time-window controls, observed history, distributions,
-  comparison intervals, coverage, recent observations, and secondary detail
-  surfaces. OpenFreeMap Positron provides optional contextual geography with a
-  verified local-geometry fallback and visible attribution.
-- Preserves original result text, units, timestamps, quality representation,
-  censoring, exclusion reasons, source identifiers, and retrieval provenance.
-- Uses six core parameters (E. coli, Nitrate-N Nitrite-N, Dissolved Reactive
-  Phosphorus, Total Nitrogen, Turbidity, and Dissolved Oxygen), with Total
-  Phosphorus and Water Temperature retained as secondary parameters.
-- Exports the currently filtered records as UTF-8 CSV with attribution and
-  provenance. Censored and excluded rows retain their meaning.
+- A map-centric React/TypeScript dashboard with MapLibre, coordinated station,
+  parameter, period, history, comparison, coverage, observation-detail views,
+  and filtered CSV export.
+- Real Environment Canterbury observations reconciled to 19 in-bound station
+  IDs, with 15 stations producing selected-parameter observations and four
+  retained as observation-free or metadata-only scope.
+- Source-preserving normalization: original values, result text, units,
+  timestamps, quality representation, censoring, exclusions, identifiers, and
+  provenance remain inspectable.
+- Median/IQR summaries, conservative trend screening, deterministic versioned
+  assets, and runtime freshness safeguards.
 
-## Analytical and geospatial workflow
+## Data and analytical workflow
 
-Public ECan/Hilltop responses are acquired at build time, checked against the
-ECan Ashburton River major-catchment polygon, normalized into versioned Python
-contracts, summarized, and materialized into a compact JSON shell with
-parameter-partitioned observation detail. The browser does not call ECan during
-visitor interactions. The latest reconciled build contains 11,230 source rows
-from 19 exact station-ID matches; 15 stations return selected-parameter
-observations and four are retained as observation-free or metadata-only scope.
-
+Build-time Python adapters acquire the ECan ArcGIS boundary and station
+inventories plus the public Hilltop water-quality route. Normalization and
+analysis produce a versioned runtime shell and parameter partitions; the
+browser serves those static assets and does not call ECan during interaction.
 The current retained history is 2007–2025, with 2016–2025 as the primary
-window and 2020–2025 as the recent window. Medians and IQRs require at least
-three eligible numeric observations and no eligible censored values. Trends
-use the documented uncensored Theil–Sen/Kendall fallback with minimum data and
-neutral `increasing`, `decreasing`, or `indeterminate` labels.
+window and 2020–2025 as the recent window. Six parameters are core; Total
+Phosphorus and Water Temperature are retained as secondary parameters.
 
-## Sources, licences, and limitations
+Published-unflagged observations are usable exploratory records when the
+published response supplies no quality field; this is not an explicit quality
+verification. Censored observations remain distinguishable and are not
+replaced by half detection limits. Summaries, trends, exclusions, and
+indeterminate reasons follow [`docs/METHODOLOGY.md`](docs/METHODOLOGY.md).
 
-Water Quality Data is reused under ECan's preserved dataset-specific CC BY 4.0
-Terms of Use, with the required attribution and accompanying terms. The
-surface-water monitoring sites and Major Catchment Boundaries carry separately
-recorded CC BY 3.0 NZ licences. The exact terms evidence and hashes are in
-[`docs/RELEASE_READINESS.md`](docs/RELEASE_READINESS.md) and `docs/release/`.
+## Run locally
 
-The reconciliation is complete against the identified source inventories, not
-a claim of complete environmental monitoring. ECan publication delay,
-irregular sampling, censored values, unavailable summaries, conservative trend
-suppression, and the 120-day refresh/remove safeguard remain visible. No
-regulatory threshold, causal explanation, composite score, ECan branding, or
-live public deployment is included.
+Prerequisites are Python 3.12+, Node.js 22+, npm, and network access when
+acquiring a fresh profile.
 
-## Local setup
-
-Prerequisites: Python 3.12+, Node.js 22+, npm, and a network connection to the
-public ECan services for a fresh build.
-
-From the repository root, the reproducible release rehearsal is:
+To prepare real ignored analytical assets and build the application:
 
 ```bash
 python3 tools/release_build.py
 ```
 
-That command acquires and validates public sources, reconciles station
-inventories, generates ignored analytical/runtime assets, runs the public-mode
-release gate, installs the locked frontend dependencies, and creates a static
-production build plus an ignored release manifest. Use
-`--skip-npm-install` when the lockfile installation is already present.
-
-For a prepared local dashboard without a fresh acquisition:
+The command validates licensed sources, reconciles station inventories,
+generates ignored runtime assets, checks public-release conditions, installs
+the locked frontend dependencies, and creates `web/dist/`. A prepared local
+frontend can then be run with:
 
 ```bash
 cd web
@@ -79,33 +59,43 @@ npm ci
 npm run dev
 ```
 
-Open `http://localhost:5173/`. The UI must report “Local data loaded”; a
-development sample warning means the ignored runtime asset was not prepared or
-was blocked by freshness validation.
+Open `http://localhost:5173/`. Generated analytical assets are intentionally
+ignored; a fresh clone must prepare them locally. The frontend retains an
+explicit synthetic fallback for development, but it is not a substitute for
+preparing the real asset when reviewing the application.
 
-## Validation
+## Validate and rehearse release
+
+Contributor commands and their purpose are in
+[`docs/DEVELOPMENT.md`](docs/DEVELOPMENT.md). The complete static release
+rehearsal is:
 
 ```bash
-python3 -m unittest discover -s tests -v
-python3 tools/validate_fixture.py tests/fixtures/minimal_asset.json
-python3 -m py_compile catchment_dashboard/*.py tools/*.py tests/*.py
-cd web
-npm run typecheck
-npm run test:unit
-npm run build
-npm run test:browser
+python3 tools/release_build.py
 ```
 
-Browser verification uses local Chromium and checks real-data loading,
-coordinated controls, MapLibre selection and map-display modes, contextual
-basemap attribution/fallback, accessibility, desktop overflow, console and
-network failures, export semantics, and representative responsive viewports.
+It fails closed for stale, malformed, incomplete, unlicensed, or accidentally
+tracked generated inputs. Public deployment is not configured or performed
+by this repository.
 
-## Release boundary
+## Sources, attribution, and licences
 
-No public GitHub repository, live demo, or deployment is created by this
-repository workflow. Before publication, run the release rehearsal from a
-clean checkout, inspect the generated manifest and attribution/terms, confirm
-the 120-day freshness/removal operation, and obtain owner authorization for
-the external publication and deployment steps. Source code licensing and the
-separately governed source/derived-data licences must not be conflated.
+Water Quality Data is reused under Environment Canterbury's preserved,
+dataset-specific CC BY 4.0 Terms of Use. The surface-water monitoring sites
+and Major Catchment Boundaries have separately recorded CC BY 3.0 New Zealand
+licences. OpenFreeMap, OpenMapTiles, OpenStreetMap, and Natural Earth retain
+their own terms and attribution. Evidence and current source details are in
+[`docs/DATA_SOURCES.md`](docs/DATA_SOURCES.md) and [`docs/RELEASE.md`](docs/RELEASE.md).
+
+MIT applies only to original project source code; it does not relicense ECan
+observations or spatial layers, map content, fonts, third-party dependencies,
+or other external assets. See [`LICENSE`](LICENSE).
+
+## Limitations
+
+This is a monitoring-history view, not a claim of complete environmental
+coverage or current catchment-wide condition. Sampling is irregular, source
+publication can lag collection, and some summaries or trends are unavailable
+under the conservative eligibility and censoring rules. No regulatory
+thresholds, causal conclusions, composite score, ECan branding, or live demo
+URL is implied.
