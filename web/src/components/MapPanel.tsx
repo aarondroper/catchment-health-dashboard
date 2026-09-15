@@ -14,6 +14,9 @@ export type MapDisplayRow = {
   coverageCount: number;
 };
 
+const REMOTE_STYLE_FETCH_TIMEOUT_MS = 10_000;
+const REMOTE_STYLE_LOAD_TIMEOUT_MS = 10_000;
+
 type MapPanelProps = {
   stations: readonly Station[];
   selectedStationId: string;
@@ -179,30 +182,25 @@ export function MapPanel({ stations, selectedStationId, selectedStationName, cat
     setContextStatus("loading");
     onBasemapStatus("loading");
     let remoteReadyTimeout: ReturnType<typeof globalThis.setTimeout> | undefined;
-    let startupFallbackTimeout: ReturnType<typeof globalThis.setTimeout> | undefined;
+    let remoteStyleLoaded = false;
     const reportBasemapStatus = (status: "loading" | "openfreemap" | "fallback") => { setContextStatus(status); onBasemapStatus(status); };
     import("maplibre-gl").then(({ Map: MapLibreMap, Marker: MarkerConstructor, NavigationControl }) => {
       if (disposed || !containerRef.current) return;
       markerConstructorRef.current = MarkerConstructor;
       const map = new MapLibreMap({ container: containerRef.current, style: LOCAL_STYLE, center: [171.75, -43.9], zoom: 7, attributionControl: false });
       const reportRemoteReady = () => {
-        if (!disposed && usingRemoteStyleRef.current && map.isStyleLoaded()) {
+        if (!disposed && usingRemoteStyleRef.current && remoteStyleLoaded) {
           if (remoteReadyTimeout !== undefined) globalThis.clearTimeout(remoteReadyTimeout);
           reportBasemapStatus("openfreemap");
         }
       };
       mapRef.current = map;
       map.addControl(new NavigationControl({ showCompass: false }), "top-right");
-      startupFallbackTimeout = globalThis.setTimeout(() => {
-        if (disposed || usingRemoteStyleRef.current || fallbackAppliedRef.current) return;
-        fallbackAppliedRef.current = true;
-        reportBasemapStatus("fallback");
-        map.setStyle(LOCAL_STYLE);
-      }, 3000);
       const applyLocalFallback = () => {
         if (disposed || (fallbackAppliedRef.current && !usingRemoteStyleRef.current)) return;
         fallbackAppliedRef.current = true;
         usingRemoteStyleRef.current = false;
+        remoteStyleLoaded = false;
         if (remoteReadyTimeout !== undefined) globalThis.clearTimeout(remoteReadyTimeout);
         reportBasemapStatus("fallback");
         map.setStyle(LOCAL_STYLE);
@@ -211,18 +209,19 @@ export function MapPanel({ stations, selectedStationId, selectedStationName, cat
         if (remoteFetchStartedRef.current || usingRemoteStyleRef.current) return;
         remoteFetchStartedRef.current = true;
         const styleController = new AbortController();
-        const styleTimeout = globalThis.setTimeout(() => styleController.abort(), 2500);
+        const styleTimeout = globalThis.setTimeout(() => styleController.abort(), REMOTE_STYLE_FETCH_TIMEOUT_MS);
         fetch(OPENFREEMAP_STYLE, { signal: styleController.signal })
           .then((response) => { if (!response.ok) throw new Error(`OpenFreeMap style request failed (${response.status})`); return response.json() as Promise<StyleSpecification>; })
           .then((style) => {
             if (disposed || fallbackAppliedRef.current) return;
             usingRemoteStyleRef.current = true;
+            remoteStyleLoaded = false;
             map.setStyle(style);
             remoteReadyTimeout = globalThis.setTimeout(() => {
-              if (!disposed && usingRemoteStyleRef.current && !map.isStyleLoaded()) applyLocalFallback();
-            }, 4000);
+              if (!disposed && usingRemoteStyleRef.current && !remoteStyleLoaded) applyLocalFallback();
+            }, REMOTE_STYLE_LOAD_TIMEOUT_MS);
           })
-          .catch(() => { if (!disposed) reportBasemapStatus("fallback"); })
+          .catch(() => { if (!disposed) applyLocalFallback(); })
           .finally(() => globalThis.clearTimeout(styleTimeout));
       };
       const addDataLayers = () => {
@@ -254,7 +253,15 @@ export function MapPanel({ stations, selectedStationId, selectedStationName, cat
         }
           setStyleReady(true);
           setMapReady(true);
-          reportBasemapStatus(fallbackAppliedRef.current ? "fallback" : usingRemoteStyleRef.current && map.isStyleLoaded() ? "openfreemap" : "loading");
+          if (usingRemoteStyleRef.current) {
+            // style.load confirms the Positron style is usable; isStyleLoaded also waits
+            // for ordinary tile/glyph work and can remain false without a fatal style error.
+            remoteStyleLoaded = true;
+            if (remoteReadyTimeout !== undefined) globalThis.clearTimeout(remoteReadyTimeout);
+            reportBasemapStatus("openfreemap");
+          } else {
+            reportBasemapStatus(fallbackAppliedRef.current ? "fallback" : "loading");
+          }
           requestRemoteStyle();
         } catch (error) {
           applyLocalFallback();
@@ -267,11 +274,6 @@ export function MapPanel({ stations, selectedStationId, selectedStationName, cat
         setMapReady(true);
         addDataLayers();
       });
-      map.on("error", () => {
-        if (disposed || fallbackAppliedRef.current) return;
-        if (!usingRemoteStyleRef.current) return;
-        applyLocalFallback();
-      });
       const resizeObserver = new ResizeObserver(() => map.resize());
       resizeObserver.observe(containerRef.current);
       return () => resizeObserver.disconnect();
@@ -283,7 +285,6 @@ export function MapPanel({ stations, selectedStationId, selectedStationName, cat
       mapRef.current?.remove();
       mapRef.current = null;
       if (remoteReadyTimeout !== undefined) globalThis.clearTimeout(remoteReadyTimeout);
-      if (startupFallbackTimeout !== undefined) globalThis.clearTimeout(startupFallbackTimeout);
       setMapReady(false);
       setStyleReady(false);
     };
@@ -341,7 +342,7 @@ export function MapPanel({ stations, selectedStationId, selectedStationName, cat
           <span className="map-mode-label">{displayModeLabel(displayMode, unit)}</span>
         </div>
       </div>
-      <div className="map-frame" role="group" aria-label="Ashburton–Hakatere monitoring site map">
+      <div className="map-frame" role="group" aria-label="Ashburton–Hakatere monitoring site map" data-context-basemap={contextStatus}>
         <div className="map-canvas" ref={containerRef} data-testid="catchment-map" />
         {contextStatus === "fallback" && boundaryPath && boundaryBounds && <svg className="map-boundary-fallback" viewBox={`${boundaryBounds[0][0]} ${-boundaryBounds[1][1]} ${boundaryBounds[1][0] - boundaryBounds[0][0]} ${boundaryBounds[1][1] - boundaryBounds[0][1]}`} preserveAspectRatio="none" aria-hidden="true"><path d={boundaryPath} /></svg>}
         <div className="map-overlay">

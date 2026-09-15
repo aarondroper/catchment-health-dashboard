@@ -5,7 +5,7 @@ import { readFile } from "node:fs/promises";
 const assetPath = "/data/ashburton/dashboard.json";
 const basemapStyle = "https://tiles.openfreemap.org/styles/positron";
 
-async function openDashboard(page: Page): Promise<"openfreemap" | "fallback"> {
+async function openDashboard(page: Page, options: { requireRemoteBasemap?: boolean } = {}): Promise<"openfreemap" | "fallback"> {
   const assetResponse = page.waitForResponse((response) => response.url().endsWith(assetPath));
   await page.goto("/");
   expect((await assetResponse).status()).toBe(200);
@@ -43,6 +43,7 @@ async function openDashboard(page: Page): Promise<"openfreemap" | "fallback"> {
   await expect(page.getByRole("button", { name: "Reset view" })).toBeVisible();
   const serviceState = page.locator(".map-service-state");
   await expect(serviceState).toHaveText(/Context basemap loaded|Local map fallback/);
+  await expect(page.locator(".map-frame")).toHaveAttribute("data-context-basemap", /openfreemap|fallback/);
   const serviceStateVisibility = await serviceState.evaluate((element) => {
     const style = getComputedStyle(element);
     const box = element.getBoundingClientRect();
@@ -96,7 +97,15 @@ async function openDashboard(page: Page): Promise<"openfreemap" | "fallback"> {
     expect(labelBox!.x).toBeGreaterThanOrEqual(insetBox!.x);
     expect(labelBox!.x + labelBox!.width).toBeLessThanOrEqual(insetBox!.x + insetBox!.width + 1);
   }
-  return (await serviceState.textContent())?.includes("Context basemap loaded") ? "openfreemap" : "fallback";
+  const context = (await serviceState.textContent())?.includes("Context basemap loaded") ? "openfreemap" : "fallback";
+  await expect(page.locator(".map-frame")).toHaveAttribute("data-context-basemap", context);
+  if (options.requireRemoteBasemap) {
+    expect(context).toBe("openfreemap");
+    const resources = await page.evaluate((styleUrl) => performance.getEntriesByType("resource").map((entry) => entry.name).filter((name) => name.startsWith("https://tiles.openfreemap.org/")), basemapStyle);
+    expect(resources.some((name) => name === styleUrl)).toBe(true);
+    expect(resources.some((name) => name.includes("/planet") || name.includes("/natural_earth/") || name.includes("/sprites/") || name.includes("/fonts/"))).toBe(true);
+  }
+  return context;
 }
 
 async function chartLayout(page: Page) {
@@ -145,6 +154,29 @@ test("loads real data, contextual basemap, and production-only visitor requests"
   expect(pageErrors).toEqual([]);
   expect(failedRequests.filter((request) => !request.includes("openfreemap.org"))).toEqual([]);
   expect(ecanRequests).toEqual([]);
+});
+
+test("hosted smoke test requires the real OpenFreeMap context basemap", async ({ page }) => {
+  test.skip(!process.env.PLAYWRIGHT_BASE_URL, "Hosted-only smoke test");
+  const remoteFailures: string[] = [];
+  const remoteHttpFailures: string[] = [];
+  const consoleErrors: string[] = [];
+  const pageErrors: string[] = [];
+  page.on("requestfailed", (request) => {
+    if (request.url().startsWith("https://tiles.openfreemap.org/")) remoteFailures.push(`${request.method()} ${request.url()}: ${request.failure()?.errorText ?? "failed"}`);
+  });
+  page.on("response", (response) => {
+    if (response.url().startsWith("https://tiles.openfreemap.org/") && response.status() >= 400) remoteHttpFailures.push(`${response.status()} ${response.url()}`);
+  });
+  page.on("console", (message) => {
+    if (message.type() === "error" && /openfree|maplibre|csp|cors|blocked/i.test(message.text())) consoleErrors.push(message.text());
+  });
+  page.on("pageerror", (error) => pageErrors.push(error.message));
+  await openDashboard(page, { requireRemoteBasemap: true });
+  expect(remoteFailures).toEqual([]);
+  expect(remoteHttpFailures).toEqual([]);
+  expect(consoleErrors).toEqual([]);
+  expect(pageErrors).toEqual([]);
 });
 
 test("lands on a representative coverage-led default", async ({ page }) => {
