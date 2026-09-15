@@ -9,6 +9,7 @@ dist/
 data/raw/
 data/cache/
 reports/generated/
+.wrangler/
 web/public/data/
 web/playwright-report/
 web/test-results/

@@ -102,7 +102,7 @@ async function openDashboard(page: Page, options: { requireRemoteBasemap?: boole
   if (options.requireRemoteBasemap) {
     expect(context).toBe("openfreemap");
     const resources = await page.evaluate((styleUrl) => performance.getEntriesByType("resource").map((entry) => entry.name).filter((name) => name.startsWith("https://tiles.openfreemap.org/")), basemapStyle);
-    expect(resources.some((name) => name === styleUrl)).toBe(true);
+    expect(resources.some((name) => name === basemapStyle)).toBe(true);
     expect(resources.some((name) => name.includes("/planet") || name.includes("/natural_earth/") || name.includes("/sprites/") || name.includes("/fonts/"))).toBe(true);
   }
   return context;
