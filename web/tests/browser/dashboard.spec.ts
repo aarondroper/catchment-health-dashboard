@@ -11,6 +11,16 @@ async function openDashboard(page: Page): Promise<"openfreemap" | "fallback"> {
   expect((await assetResponse).status()).toBe(200);
   await expect(page.getByRole("heading", { name: "Controls" })).toBeVisible();
   await expect(page.getByRole("button", { name: "Data notes", exact: true })).toBeVisible();
+  const logo = page.locator("header img.brand-mark");
+  await expect(logo).toHaveCount(1);
+  await expect(logo).toHaveAttribute("alt", "");
+  await expect(logo).toHaveAttribute("aria-hidden", "true");
+  await expect(logo).toHaveAttribute("src", /app-logo/);
+  await expect(logo).toHaveCSS("object-fit", "contain");
+  const logoBox = await logo.boundingBox();
+  expect(logoBox).not.toBeNull();
+  expect(logoBox!.width).toBe(25);
+  expect(logoBox!.height).toBe(25);
   const typography = await page.evaluate(async () => {
     await document.fonts.ready;
     return {

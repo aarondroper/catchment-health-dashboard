@@ -5,6 +5,7 @@ import { SeriesChart } from "./components/SeriesChart";
 import { ObservationTable } from "./components/ObservationTable";
 import { ComparisonPanel } from "./components/ComparisonPanel";
 import { NewZealandInset } from "./components/NewZealandInset";
+import appLogo from "./assets/app-logo.svg";
 import { analyticalFixture } from "./data/analyticalFixture";
 import { loadAnalyticalAsset, loadObservationPartition } from "./data/loadAsset";
 import { buildObservationCsv, downloadObservationCsv, exportFilename } from "./data/exportCsv";
@@ -189,7 +190,7 @@ export function App() {
 
   return <main className="app-shell">
     <header className="app-header">
-      <div className="header-identity"><span className="brand-mark" aria-hidden="true"><i /><i /></span><div><p className="product-name">Catchment Health Dashboard</p><p className="catchment-name">Ashburton–Hakatere <span>·</span> freshwater monitoring</p></div></div>
+      <div className="header-identity"><img className="brand-mark" src={appLogo} alt="" aria-hidden="true" width="25" height="25" /><div><p className="product-name">Catchment Health Dashboard</p><p className="catchment-name">Ashburton–Hakatere <span>·</span> freshwater monitoring</p></div></div>
       <div className="header-actions"><button className="header-link" type="button" onClick={() => setDetailSurface("notes")}>Data notes</button></div>
     </header>
 

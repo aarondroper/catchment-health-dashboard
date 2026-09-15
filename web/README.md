@@ -68,6 +68,13 @@ from Natural Earth 1:110m Admin 0 – Countries, which is public domain:
 <https://www.naturalearthdata.com/about/terms-of-use/>. Update the source note
 and licence if that geometry is replaced.
 
+The header logo is a replaceable placeholder at `src/assets/app-logo.svg`.
+Keep this filename and path unchanged so no React or CSS edits are needed when
+branding is supplied. Preserve the `0 0 32 32` viewBox and a broadly contained
+aspect ratio where possible; the header reserves 25×25 CSS pixels and uses
+`object-fit: contain`. The replacement must be a self-contained SVG with no
+external resources, scripts, embedded raster data, or unnecessary metadata.
+
 The interface uses Source Sans 3 from the checked-in
 `@fontsource/source-sans-3` package. Font files are bundled locally; no runtime
 font request or provider dependency is required. Shared visual tokens and
