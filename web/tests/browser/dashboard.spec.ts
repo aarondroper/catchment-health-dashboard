@@ -43,7 +43,10 @@ async function openDashboard(page: Page): Promise<"openfreemap" | "fallback"> {
   await expect(page.locator(".maplibregl-ctrl-attrib")).toHaveCount(0);
   const attribution = page.locator("[data-testid=map-attribution]");
   await expect(attribution).toHaveCount(1);
-  await expect(attribution).not.toHaveAttribute("open", "");
+  const attributionTrigger = attribution.getByRole("button", { name: "Map source attribution" });
+  await expect(attributionTrigger).toHaveText("i");
+  await expect(attributionTrigger).toHaveAttribute("aria-expanded", "false");
+  await expect(page.getByText("Map sources", { exact: true })).toHaveCount(0);
   const mapControlBoxes = await page.evaluate(() => {
     const rect = (selector: string) => {
       const element = document.querySelector<HTMLElement>(selector);
@@ -51,7 +54,7 @@ async function openDashboard(page: Page): Promise<"openfreemap" | "fallback"> {
       const box = element.getBoundingClientRect();
       return { left: box.left, right: box.right, top: box.top, bottom: box.bottom };
     };
-    return { reset: rect(".map-reset"), navigation: rect(".maplibregl-ctrl-top-right"), legend: rect(".map-legend"), attribution: rect("[data-testid=map-attribution]") };
+    return { reset: rect(".map-reset"), navigation: rect(".maplibregl-ctrl-top-right"), legend: rect(".map-legend"), attribution: rect(".map-attribution-trigger") };
   });
   expect(mapControlBoxes.reset).not.toBeNull();
   expect(mapControlBoxes.navigation).not.toBeNull();
@@ -418,12 +421,14 @@ test("uses local geometry when the contextual basemap fails", async ({ page }) =
   await expect(page.locator(".map-boundary-fallback")).toHaveCount(1);
   await expect(page.locator(".maplibregl-ctrl-attrib")).toHaveCount(0);
   const attribution = page.locator("[data-testid=map-attribution]");
-  await expect(attribution).not.toHaveAttribute("open", "");
-  await attribution.locator("summary").click();
-  await expect(attribution).toHaveAttribute("open", "");
-  await expect(attribution).toContainText("Local context fallback; no remote basemap was loaded.");
-  await expect(attribution.getByRole("link", { name: "OpenFreeMap" })).toHaveCount(0);
-  await expect(attribution.getByRole("link", { name: "Environment Canterbury monitoring sites" })).toBeVisible();
+  const attributionTrigger = attribution.getByRole("button", { name: "Map source attribution" });
+  await expect(attributionTrigger).toHaveAttribute("aria-expanded", "false");
+  await attributionTrigger.click();
+  const attributionPanel = page.locator("[data-testid=map-attribution-panel]");
+  await expect(attributionTrigger).toHaveAttribute("aria-expanded", "true");
+  await expect(attributionPanel).toContainText("Local context fallback; no remote basemap was loaded.");
+  await expect(attributionPanel.getByRole("link", { name: "OpenFreeMap" })).toHaveCount(0);
+  await expect(attributionPanel.getByRole("link", { name: "Environment Canterbury monitoring sites" })).toBeVisible();
 });
 
 test("provides one keyboard-operable, complete collapsed attribution control", async ({ page }) => {
@@ -431,29 +436,37 @@ test("provides one keyboard-operable, complete collapsed attribution control", a
     await page.setViewportSize({ width, height });
     const context = await openDashboard(page);
     const attribution = page.locator("[data-testid=map-attribution]");
-    const summary = attribution.locator("summary");
-    await expect(summary).toHaveText("Map sources");
+    const summary = attribution.getByRole("button", { name: "Map source attribution" });
+    await expect(summary).toHaveText("i");
+    await expect(summary).toHaveAttribute("aria-controls", "map-attribution-panel");
+    await expect(summary).toHaveAttribute("aria-expanded", "false");
     await summary.focus();
     await page.keyboard.press("Enter");
-    await expect(attribution).toHaveAttribute("open", "");
+    const panel = page.locator("[data-testid=map-attribution-panel]");
+    await expect(summary).toHaveAttribute("aria-expanded", "true");
+    await expect(panel).toBeVisible();
     if (context === "openfreemap") {
-      await expect(attribution.getByRole("link", { name: "OpenFreeMap" })).toBeVisible();
-      await expect(attribution.getByRole("link", { name: "OpenMapTiles" })).toBeVisible();
-      await expect(attribution.getByRole("link", { name: /OpenStreetMap contributors/ })).toBeVisible();
+      await expect(panel.getByRole("link", { name: "OpenFreeMap" })).toBeVisible();
+      await expect(panel.getByRole("link", { name: "OpenMapTiles" })).toBeVisible();
+      await expect(panel.getByRole("link", { name: /OpenStreetMap contributors/ })).toBeVisible();
     } else {
-      await expect(attribution).toContainText("Local context fallback; no remote basemap was loaded.");
-      await expect(attribution.getByRole("link", { name: "OpenFreeMap" })).toHaveCount(0);
+      await expect(panel).toContainText("Local context fallback; no remote basemap was loaded.");
+      await expect(panel.getByRole("link", { name: "OpenFreeMap" })).toHaveCount(0);
     }
-    await expect(attribution.getByRole("link", { name: "Environment Canterbury monitoring sites" })).toBeVisible();
-    await expect(attribution.getByRole("link", { name: "Major Catchment Boundaries" })).toBeVisible();
-    const panel = attribution.locator(".map-attribution-content");
-    const frameBox = await page.locator(".map-frame").boundingBox();
+    await expect(panel.getByRole("link", { name: "Environment Canterbury monitoring sites" })).toBeVisible();
+    await expect(panel.getByRole("link", { name: "Major Catchment Boundaries" })).toBeVisible();
     const panelBox = await panel.boundingBox();
-    expect(frameBox).not.toBeNull();
     expect(panelBox).not.toBeNull();
-    expect(panelBox!.x).toBeGreaterThanOrEqual(frameBox!.x);
-    expect(panelBox!.x + panelBox!.width).toBeLessThanOrEqual(frameBox!.x + frameBox!.width + 1);
-    expect(panelBox!.y).toBeGreaterThanOrEqual(frameBox!.y);
+    expect(panelBox!.x).toBeGreaterThanOrEqual(0);
+    expect(panelBox!.y).toBeGreaterThanOrEqual(0);
+    expect(panelBox!.x + panelBox!.width).toBeLessThanOrEqual(width);
+    expect(panelBox!.y + panelBox!.height).toBeLessThanOrEqual(height);
+    const scrollState = await panel.evaluate((element) => ({ scrollWidth: element.scrollWidth, clientWidth: element.clientWidth, scrollHeight: element.scrollHeight, clientHeight: element.clientHeight }));
+    expect(scrollState.scrollWidth).toBeLessThanOrEqual(scrollState.clientWidth + 1);
+    expect(scrollState.scrollHeight).toBeLessThanOrEqual(scrollState.clientHeight + 1);
+    await page.keyboard.press("Escape");
+    await expect(summary).toHaveAttribute("aria-expanded", "false");
+    await expect(summary).toBeFocused();
   }
 });
 

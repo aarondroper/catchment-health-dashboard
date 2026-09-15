@@ -1,5 +1,6 @@
 import type { GeoJSONSource, Map as MapLibreMapType, Marker, StyleSpecification } from "maplibre-gl";
 import { useEffect, useRef, useState } from "react";
+import { createPortal } from "react-dom";
 import "maplibre-gl/dist/maplibre-gl.css";
 import type { CatchmentGeometry, Station } from "../contracts";
 
@@ -93,6 +94,62 @@ function displayValue(row: MapDisplayRow, mode: MapDisplayMode, unit: string | n
   if (mode === "median") return row.median === null ? "No supported median" : `${row.median.toLocaleString(undefined, { maximumFractionDigits: 3 })} ${unit ?? ""}`.trim();
   if (mode === "trend") return row.trendDirection === "indeterminate" ? "Trend indeterminate" : row.trendDirection;
   return row.available ? `${row.coverageCount.toLocaleString()} recorded rows` : "No selected-parameter data";
+}
+
+function MapAttributionControl({ remoteContext, contextLabel }: { remoteContext: boolean; contextLabel: string }) {
+  const triggerRef = useRef<HTMLButtonElement>(null);
+  const panelRef = useRef<HTMLDivElement>(null);
+  const [open, setOpen] = useState(false);
+  const [position, setPosition] = useState({ left: 12, top: 12 });
+
+  useEffect(() => {
+    if (!open) return undefined;
+    const reposition = () => {
+      const trigger = triggerRef.current;
+      const panel = panelRef.current;
+      if (!trigger || !panel) return;
+      const triggerBox = trigger.getBoundingClientRect();
+      const panelBox = panel.getBoundingClientRect();
+      const margin = 12;
+      const left = Math.min(Math.max(margin, triggerBox.right - panelBox.width), window.innerWidth - panelBox.width - margin);
+      const above = triggerBox.top - panelBox.height - 8;
+      const below = triggerBox.bottom + 8;
+      const top = above >= margin ? above : Math.min(below, window.innerHeight - panelBox.height - margin);
+      setPosition({ left, top: Math.max(margin, top) });
+    };
+    const closeFromOutside = (event: PointerEvent) => {
+      const target = event.target as Node;
+      if (!triggerRef.current?.contains(target) && !panelRef.current?.contains(target)) setOpen(false);
+    };
+    const closeFromEscape = (event: KeyboardEvent) => {
+      if (event.key !== "Escape") return;
+      event.preventDefault();
+      setOpen(false);
+      window.requestAnimationFrame(() => triggerRef.current?.focus());
+    };
+    reposition();
+    window.addEventListener("resize", reposition);
+    window.addEventListener("scroll", reposition, true);
+    document.addEventListener("pointerdown", closeFromOutside);
+    document.addEventListener("keydown", closeFromEscape);
+    return () => {
+      window.removeEventListener("resize", reposition);
+      window.removeEventListener("scroll", reposition, true);
+      document.removeEventListener("pointerdown", closeFromOutside);
+      document.removeEventListener("keydown", closeFromEscape);
+    };
+  }, [contextLabel, open, remoteContext]);
+
+  const toggle = () => {
+    setOpen((current) => {
+      if (current) window.requestAnimationFrame(() => triggerRef.current?.focus());
+      return !current;
+    });
+  };
+
+  const panel = open ? createPortal(<div ref={panelRef} id="map-attribution-panel" className="map-attribution-popover" data-testid="map-attribution-panel" role="dialog" aria-labelledby="map-attribution-title" style={{ left: position.left, top: position.top }}><h2 id="map-attribution-title">Map source attribution</h2>{remoteContext ? <p><a href="https://openfreemap.org/" target="_blank" rel="noreferrer">OpenFreeMap</a> · <a href="https://openmaptiles.org/" target="_blank" rel="noreferrer">OpenMapTiles</a> · <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noreferrer">© OpenStreetMap contributors</a></p> : <p>Local context fallback; no remote basemap was loaded.</p>}<p><a href="https://gis.ecan.govt.nz/arcgis/rest/services/Public/WaterQualityandMonitoring/MapServer/0" target="_blank" rel="noreferrer">Environment Canterbury monitoring sites</a> and <a href="https://gis.ecan.govt.nz/arcgis/rest/services/Public/Hydrology/MapServer/0" target="_blank" rel="noreferrer">Major Catchment Boundaries</a> (CC BY 3.0 NZ).</p><p>Context state: {contextLabel}.</p></div>, document.body) : null;
+
+  return <div className="map-attribution-control" data-testid="map-attribution"><button ref={triggerRef} className="map-attribution-trigger" type="button" onClick={toggle} aria-label="Map source attribution" aria-controls="map-attribution-panel" aria-expanded={open} title="Map source attribution">i</button>{panel}</div>;
 }
 
 export function MapPanel({ stations, selectedStationId, selectedStationName, catchmentGeometry, hasData, displayMode, displayRows, unit, onBasemapStatus, onSelectStation }: MapPanelProps) {
@@ -273,9 +330,37 @@ export function MapPanel({ stations, selectedStationId, selectedStationName, cat
   const remoteContext = contextStatus === "openfreemap";
   const contextLabel = remoteContext ? "Context basemap loaded" : contextStatus === "fallback" ? "Local map fallback" : "Loading map context";
 
-  return <section className="map-panel panel" aria-labelledby="map-title">
-    <div className="map-panel-header"><div><h2 id="map-title">Ashburton–Hakatere catchment</h2><p className="panel-intro">Selected site: {selectedStationName}</p></div><div className="map-header-meta"><span className="status-chip">{stations.length} sites</span><span className="map-mode-label">{displayModeLabel(displayMode, unit)}</span></div></div>
-    <div className="map-frame" role="group" aria-label="Ashburton–Hakatere monitoring site map"><div className="map-canvas" ref={containerRef} data-testid="catchment-map" />{contextStatus === "fallback" && boundaryPath && boundaryBounds && <svg className="map-boundary-fallback" viewBox={`${boundaryBounds[0][0]} ${-boundaryBounds[1][1]} ${boundaryBounds[1][0] - boundaryBounds[0][0]} ${boundaryBounds[1][1] - boundaryBounds[0][1]}`} preserveAspectRatio="none" aria-hidden="true"><path d={boundaryPath} /></svg>}<div className="map-overlay"><div className="map-top-left-stack"><button className="map-reset" type="button" onClick={resetMap}>Reset view</button><div className="map-legend"><strong>{displayMode === "availability" ? "Selected scope" : displayMode === "median" ? "Relative median" : "Trend evidence"}</strong><span><i className="legend-dot legend-dot-selected" /> Selected site</span>{displayMode === "availability" && <><span><i className="legend-dot legend-dot-active" /> Data available</span><span><i className="legend-dot legend-dot-empty" /> No selected data</span></>}{displayMode === "median" && <><span><i className="legend-dot legend-dot-low" /> Lower relative values</span><span><i className="legend-dot legend-dot-high" /> Higher relative values</span></>}{displayMode === "trend" && <><span><i className="legend-symbol">↗</i> Increasing</span><span><i className="legend-symbol">↘</i> Decreasing</span><span><i className="legend-symbol">—</i> Indeterminate</span></>}</div></div><details className="map-attribution" data-testid="map-attribution"><summary>Map sources</summary><div className="map-attribution-content">{remoteContext ? <p><a href="https://openfreemap.org/" target="_blank" rel="noreferrer">OpenFreeMap</a> · <a href="https://openmaptiles.org/" target="_blank" rel="noreferrer">OpenMapTiles</a> · <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noreferrer">© OpenStreetMap contributors</a></p> : <p>Local context fallback; no remote basemap was loaded.</p>}<p><a href="https://gis.ecan.govt.nz/arcgis/rest/services/Public/WaterQualityandMonitoring/MapServer/0" target="_blank" rel="noreferrer">Environment Canterbury monitoring sites</a> and <a href="https://gis.ecan.govt.nz/arcgis/rest/services/Public/Hydrology/MapServer/0" target="_blank" rel="noreferrer">Major Catchment Boundaries</a> (CC BY 3.0 NZ).</p><p>Context state: {contextLabel}.</p></div></details><p className="map-note">{displayMode === "median" ? "Median colours are relative to supported summaries in this view; they are not health categories." : displayMode === "trend" ? "Only supported neutral directions are shown; no direction implies improvement or deterioration." : `${stations.length} reconciled monitoring sites · select a marker for station evidence.`}</p></div></div>
-    <p className="map-service-state visually-hidden" role="status" aria-live="polite">{contextLabel}</p>
-  </section>;
+  return (
+    <section className="map-panel panel" aria-labelledby="map-title">
+      <div className="map-panel-header">
+        <div>
+          <h2 id="map-title">Ashburton–Hakatere catchment</h2>
+          <p className="panel-intro">Selected site: {selectedStationName}</p>
+        </div>
+        <div className="map-header-meta">
+          <span className="status-chip">{stations.length} sites</span>
+          <span className="map-mode-label">{displayModeLabel(displayMode, unit)}</span>
+        </div>
+      </div>
+      <div className="map-frame" role="group" aria-label="Ashburton–Hakatere monitoring site map">
+        <div className="map-canvas" ref={containerRef} data-testid="catchment-map" />
+        {contextStatus === "fallback" && boundaryPath && boundaryBounds && <svg className="map-boundary-fallback" viewBox={`${boundaryBounds[0][0]} ${-boundaryBounds[1][1]} ${boundaryBounds[1][0] - boundaryBounds[0][0]} ${boundaryBounds[1][1] - boundaryBounds[0][1]}`} preserveAspectRatio="none" aria-hidden="true"><path d={boundaryPath} /></svg>}
+        <div className="map-overlay">
+          <div className="map-top-left-stack">
+            <button className="map-reset" type="button" onClick={resetMap}>Reset view</button>
+            <div className="map-legend">
+              <strong>{displayMode === "availability" ? "Selected scope" : displayMode === "median" ? "Relative median" : "Trend evidence"}</strong>
+              <span><i className="legend-dot legend-dot-selected" /> Selected site</span>
+              {displayMode === "availability" && <><span><i className="legend-dot legend-dot-active" /> Data available</span><span><i className="legend-dot legend-dot-empty" /> No selected data</span></>}
+              {displayMode === "median" && <><span><i className="legend-dot legend-dot-low" /> Lower relative values</span><span><i className="legend-dot legend-dot-high" /> Higher relative values</span></>}
+              {displayMode === "trend" && <><span><i className="legend-symbol">↗</i> Increasing</span><span><i className="legend-symbol">↘</i> Decreasing</span><span><i className="legend-symbol">—</i> Indeterminate</span></>}
+            </div>
+          </div>
+          <MapAttributionControl remoteContext={remoteContext} contextLabel={contextLabel} />
+          <p className="map-note">{displayMode === "median" ? "Median colours are relative to supported summaries in this view; they are not health categories." : displayMode === "trend" ? "Only supported neutral directions are shown; no direction implies improvement or deterioration." : `${stations.length} reconciled monitoring sites · select a marker for station evidence.`}</p>
+        </div>
+      </div>
+      <p className="map-service-state visually-hidden" role="status" aria-live="polite">{contextLabel}</p>
+    </section>
+  );
 }
