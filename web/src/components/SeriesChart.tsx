@@ -13,9 +13,26 @@ function chartNumber(value: number): string {
   return value.toLocaleString(undefined, { maximumFractionDigits: Math.abs(value) >= 100 ? 0 : Math.abs(value) >= 1 ? 2 : 3 });
 }
 
-/** Accessible SVG series; the later observation panel remains the authoritative detail route. */
+function recordStateLabel(observation: Observation): string {
+  if (observation.valueKind === "censored") return "Censored; reporting limit retained";
+  if (observation.valueKind === "missing") return "Missing; not treated as zero";
+  if (!observation.analysisEligible) return `Excluded; ${observation.exclusionReason ?? "not analytically eligible"}`;
+  return "Observed numeric";
+}
+
+function qualityLabel(observation: Observation): string {
+  if (observation.qualityDisposition === "published_unflagged") return "Published observation; no source quality code supplied";
+  if (observation.qualityFlag) return `Quality code ${observation.qualityFlag}`;
+  return observation.qualityDisposition.replaceAll("_", " ");
+}
+
+function chartDate(time: number): string {
+  return new Date(time).toISOString().slice(0, 7);
+}
+
+/** Accessible SVG series; the observation dialog remains the authoritative detail route. */
 export function SeriesChart({ observations, unit, stationName, parameterName, loading = false }: SeriesChartProps) {
-  const [inspectedPoint, setInspectedPoint] = useState<string | null>(null);
+  const [activePointId, setActivePointId] = useState<string | null>(null);
   const chartFrameRef = useRef<HTMLDivElement | null>(null);
   const [chartSize, setChartSize] = useState({ width: 620, height: 270 });
   const numeric = observations.filter((observation) => observation.value !== null && observation.analysisEligible);
@@ -29,8 +46,8 @@ export function SeriesChart({ observations, unit, stationName, parameterName, lo
   const minValue = Math.min(...values, 0);
   const maxValue = Math.max(...values, 1);
   const valueSpan = Math.max(maxValue - minValue, 1);
-  const plotLeft = Math.max(50, Math.min(72, chartSize.width * 0.08));
-  const plotRight = Math.max(16, Math.min(26, chartSize.width * 0.03));
+  const plotLeft = Math.max(42, Math.min(58, chartSize.width * 0.06));
+  const plotRight = Math.max(14, Math.min(22, chartSize.width * 0.02));
   const plotTop = 22;
   const plotBottom = 28;
   const plotWidth = Math.max(chartSize.width - plotLeft - plotRight, 1);
@@ -42,8 +59,20 @@ export function SeriesChart({ observations, unit, stationName, parameterName, lo
   const yFor = (value: number) => plotTop + plotHeight - ((value - minValue) / valueSpan) * plotHeight;
   const points = numeric.map((observation, index) => `${xFor(observation, index)},${yFor(observation.value ?? 0)}`);
   const tickValues = [0, 1, 2, 3, 4].map((index) => minValue + (valueSpan * index) / 4);
-  const firstDate = observations[0]?.observedAt.slice(0, 10) ?? "";
-  const lastDate = observations.at(-1)?.observedAt.slice(0, 10) ?? "";
+  const dateTickCount = chartSize.width >= 1000 ? 6 : chartSize.width >= 650 ? 5 : 4;
+  const dateTicks = dated.length > 0 ? Array.from({ length: dateTickCount }, (_, index) => {
+    const fraction = index / Math.max(dateTickCount - 1, 1);
+    const time = minTime + (maxTime - minTime) * fraction;
+    return { x: plotLeft + fraction * plotWidth, label: chartDate(time) };
+  }) : [];
+  const activeIndex = activePointId ? numeric.findIndex((observation) => observation.observationId === activePointId) : -1;
+  const activeObservation = activeIndex >= 0 ? numeric[activeIndex] : undefined;
+  const activeX = activeObservation ? xFor(activeObservation, activeIndex) : 0;
+  const activeY = activeObservation ? yFor(activeObservation.value ?? 0) : 0;
+  const tooltipPosition = activeObservation ? {
+    left: `${Math.min(90, Math.max(10, (activeX / chartSize.width) * 100))}%`,
+    top: `${Math.max(35, (activeY / chartSize.height) * 100)}%`,
+  } : undefined;
 
   useEffect(() => {
     const frame = chartFrameRef.current;
@@ -64,17 +93,16 @@ export function SeriesChart({ observations, unit, stationName, parameterName, lo
     <section className="panel chart-panel" aria-labelledby="series-title">
       <div className="panel-heading">
         <div>
-          <p className="eyebrow">Observed history</p>
-          <h2 id="series-title">{stationName}</h2>
+          <h2 id="series-title">Time series</h2>
+          <p className="chart-station">{stationName}</p>
           <p className="panel-intro chart-context">{parameterName} · {observations.length} recorded observations in this period</p>
         </div>
-        <span className="unit-label">{unit ?? "unit pending"}</span>
       </div>
       {loading && <p className="empty-state" role="status" aria-live="polite">Loading this parameter’s observation detail…</p>}
       {observations.length === 0 && <p className="empty-state" role="status">No observations are available for this parameter and station in the selected period.</p>}
       {observations.length > 0 && numeric.length === 0 && <p className="empty-state" role="status">No eligible numeric observations are available to plot; inspect the retained table for censored or excluded records.</p>}
       {numeric.length > 0 && <div className="series-chart-frame" ref={chartFrameRef}>
-        <svg className="series-chart" data-testid="history-chart" width={chartSize.width} height={chartSize.height} viewBox={`0 0 ${chartSize.width} ${chartSize.height}`} role="img" aria-labelledby="chart-title chart-desc">
+        <svg className="series-chart" data-testid="history-chart" width={chartSize.width} height={chartSize.height} viewBox={`0 0 ${chartSize.width} ${chartSize.height}`} role="img" aria-labelledby="chart-title" aria-describedby="chart-desc chart-accessibility">
         <title id="chart-title">{parameterName} observations at {stationName}</title>
         <desc id="chart-desc">{numeric.length} eligible numeric observations on a linear scale from {chartNumber(minValue)} to {chartNumber(maxValue)} {unit ?? ""}. Censored, missing, and excluded results remain in the detail table.</desc>
         <rect data-testid="history-plot" className="chart-plot-area" x={plotLeft} y={plotTop} width={plotWidth} height={plotHeight} rx="3" />
@@ -89,15 +117,15 @@ export function SeriesChart({ observations, unit, stationName, parameterName, lo
           const value = observation.value ?? 0;
           const x = xFor(observation, index);
           const y = yFor(value);
-          return <circle key={observation.observationId} cx={x} cy={y} r="5" className="chart-point"><title>{`${observation.observedAt.slice(0, 10)} · ${chartNumber(value)} ${unit ?? ""}`}</title></circle>;
+          return <circle key={observation.observationId} cx={x} cy={y} r="5" className="chart-point" onMouseEnter={() => setActivePointId(observation.observationId)} onMouseLeave={() => setActivePointId(null)} />;
         })}
-        <text x={plotLeft} y={chartSize.height - 10} className="chart-label">{firstDate}</text>
-        <text x={plotLeft + plotWidth} y={chartSize.height - 10} textAnchor="end" className="chart-label">{lastDate}</text>
+        {dateTicks.map((tick) => <text key={tick.label} x={tick.x} y={chartSize.height - 10} textAnchor="middle" className="chart-label">{tick.label}</text>)}
         <text x={plotLeft} y="16" className="chart-unit-label">{unit ?? "Value"} · linear scale</text>
         </svg>
+        {activeObservation && tooltipPosition && <div className="chart-tooltip" data-testid="chart-tooltip" role="tooltip" style={tooltipPosition}><strong>{activeObservation.observedAt.slice(0, 10)}</strong><span>{chartNumber(activeObservation.value ?? 0)} {unit ?? ""}</span><span>{recordStateLabel(activeObservation)}</span><span>{qualityLabel(activeObservation)}</span></div>}
       </div>}
-      <div className="chart-legend" aria-label="Chart record legend"><span>Dated observations; the connecting line is a visual guide, not continuous monitoring.</span><span><i className="legend-dot legend-dot-active" /> Eligible numeric</span><span><i className="legend-marker-censored" /> {censoredCount} censored retained in table</span><span>{nonNumericCount} missing or excluded</span></div>
-      {numeric.length > 0 && <details className="chart-inspection"><summary>Inspect numeric points with keyboard</summary><div className="point-list">{numeric.map((observation) => <button key={observation.observationId} type="button" onFocus={() => setInspectedPoint(`${observation.observedAt.slice(0, 10)} · ${chartNumber(observation.value ?? 0)} ${unit ?? ""}`)} onClick={() => setInspectedPoint(`${observation.observedAt.slice(0, 10)} · ${chartNumber(observation.value ?? 0)} ${unit ?? ""}`)}>{observation.observedAt.slice(0, 10)} · {chartNumber(observation.value ?? 0)} {unit ?? ""}</button>)}</div>{inspectedPoint && <p className="point-status" role="status" aria-live="polite">Selected point: {inspectedPoint}</p>}</details>}
+      <div className="chart-legend" aria-label="Chart record legend"><span><i className="legend-dot legend-dot-active" /> Eligible numeric</span><span><i className="legend-marker-censored" /> {censoredCount} censored retained in table</span><span>{nonNumericCount} missing or excluded</span></div>
+      <p id="chart-accessibility" className="visually-hidden">Exact observation values and source quality details are available in the Recorded observations dialog opened by View all in Recent observations. The chart shows discrete sampled records; the connecting line is a visual guide.</p>
     </section>
   );
 }

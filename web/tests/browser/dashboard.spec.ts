@@ -50,9 +50,18 @@ test("lands on a representative coverage-led default", async ({ page }) => {
   await openDashboard(page);
   await expect(page.getByRole("combobox", { name: "Parameter" })).toHaveValue("total_nitrogen");
   await expect(page.getByRole("combobox", { name: "Monitoring site" })).toHaveValue("SQ35874");
-  await expect(page.getByText("Selected scope", { exact: true })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Time series", exact: true })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Selected site", exact: true })).toBeVisible();
   await expect(page.locator(".scope-metric strong")).toHaveText("0.82 mg/L");
-  await expect(page.getByText(/Dated observations; the connecting line is a visual guide/)).toBeVisible();
+  await expect(page.getByText(/Dated observations; the connecting line is a visual guide/)).toHaveCount(0);
+  await expect(page.getByText("Inspect numeric points with keyboard", { exact: true })).toHaveCount(0);
+  await expect(page.getByRole("button", { name: "Inspect complete observation detail" })).toHaveCount(0);
+  await expect(page.locator(".chart-point title")).toHaveCount(0);
+  expect(await page.locator('[data-testid="history-chart"] .chart-label').count()).toBeGreaterThanOrEqual(5);
+  const point = page.locator(".chart-point").first();
+  await point.hover();
+  await expect(page.locator('[data-testid="chart-tooltip"]')).toContainText("mg/L");
+  await expect(page.locator('[data-testid="chart-tooltip"]')).toContainText("Published observation");
 });
 
 test("uses restrained control icons and a tabular catchment summary", async ({ page }) => {
@@ -94,7 +103,9 @@ test("presents comparison values as a sorted interval plot and keeps exact inspe
   await expect(page.locator(".comparison-plot")).toBeVisible();
   await expect(page.locator(".comparison-row").first()).toBeVisible();
   await expect(page.locator(".comparison-row-selected")).toHaveCount(1);
-  await expect(page.getByText(/Sites are ordered from lowest to highest median/)).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Site comparison", exact: true })).toBeVisible();
+  await expect(page.locator("#comparison-description")).toHaveText(/Sites are ordered from lowest to highest median/);
+  await expect(page.locator(".comparison-panel .panel-intro")).toHaveCount(0);
   await page.locator(".comparison-details summary").click();
   await expect(page.locator(".comparison-details .comparison-table")).toBeVisible();
 });
@@ -117,7 +128,7 @@ test("coordinates parameter, time period, and map display changes", async ({ pag
   const period = page.getByRole("combobox", { name: "Time period" });
   const mapDisplay = page.getByRole("combobox", { name: "Map display" });
   await parameter.selectOption("nitrate_n_nitrite_n");
-  await expect(page.getByRole("heading", { name: "Nitrate-N Nitrite-N" })).toBeVisible();
+  await expect(page.locator(".chart-context")).toContainText("Nitrate-N Nitrite-N");
   await expect(page.locator(".scope-metric strong")).toHaveText("0.74 mg/L");
   await period.selectOption("recent_2020_2025");
   await expect(page.locator(".scope-metric strong")).toHaveText("0.76 mg/L");

@@ -315,7 +315,12 @@ removed duplicate status/link language, consolidated the controls heading,
 added replaceable control glyphs, moved export scope into an accessible dialog,
 made sampled history a summary row, and replaced the left-rail map-status card
 with a static New Zealand locator. The same 19-test browser gate passed after
-the change and the primary chart dimensions were unchanged.
+the change and the primary chart dimensions were unchanged. A subsequent
+analytical-card refinement retained that composition while consolidating the
+history and right-rail headings, widening the history plot, adding styled
+record/quality tooltips and responsive date ticks, and allocating more usable
+space to site comparison. The complete observation dialog, trend caveat,
+short-height comparison fallback, and all data-state distinctions remain.
 
 ### Release-readiness outcome
 

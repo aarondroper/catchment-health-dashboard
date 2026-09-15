@@ -38,11 +38,12 @@ export function ComparisonPanel({ rows, stations, parameterName, unit, periodLab
     ]).values()].sort((a, b) => a.value - b.value);
 
   return (
-    <section className="panel comparison-panel" aria-labelledby="comparison-title">
+    <section className="panel comparison-panel" aria-labelledby="comparison-title" aria-describedby="comparison-description">
       <div className="panel-heading">
-        <div><p className="eyebrow">Across monitoring sites</p><h2 id="comparison-title">Where site medians sit</h2><p className="panel-intro">Median points and middle-half ranges for {parameterName} in {periodLabel}. Sites are ordered from lowest to highest median.</p></div>
+        <div><h2 id="comparison-title">Site comparison</h2></div>
         <span className="unit-label">{unit ?? "unit pending"}</span>
       </div>
+      <p id="comparison-description" className="visually-hidden">Median points and middle-half ranges for {parameterName} in {periodLabel}. Sites are ordered from lowest to highest median. The dot is the median and the line is the middle half from the first to third quartile.</p>
       {comparableRows.length > 1 ? <>
         <div className="comparison-plot-wrap" tabIndex={0} role="region" aria-label="Cross-site median and middle-half comparison">
           <svg className="comparison-plot" viewBox={`0 0 ${plotWidth + 220} ${plotHeight}`} preserveAspectRatio="xMinYMin meet">
