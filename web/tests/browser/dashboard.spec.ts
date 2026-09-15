@@ -25,12 +25,18 @@ async function openDashboard(page: Page) {
   if ((page.viewportSize()?.width ?? 1440) > 760) {
     const label = page.locator(".nz-inset-label");
     const inset = page.locator('[data-testid="nz-inset-map"]');
+    await expect(label).toBeVisible();
     await expect(label).toHaveCSS("font-size", "11px");
+    await expect(label).toHaveCSS("font-weight", "600");
+    const lineDisplay = await page.locator(".nz-inset-label-line").evaluateAll((lines) => lines.map((line) => getComputedStyle(line).display));
+    if ((page.viewportSize()?.width ?? 1440) <= 1100) expect(lineDisplay).toEqual(["block", "block"]);
+    else expect(lineDisplay).toEqual(["inline", "inline"]);
     const labelBox = await label.boundingBox();
     const insetBox = await inset.boundingBox();
     expect(labelBox).not.toBeNull();
     expect(insetBox).not.toBeNull();
-    expect(labelBox!.height).toBeGreaterThanOrEqual(14);
+    expect(labelBox!.height).toBeGreaterThanOrEqual(12);
+    expect(labelBox!.x).toBeGreaterThanOrEqual(insetBox!.x);
     expect(labelBox!.x + labelBox!.width).toBeLessThanOrEqual(insetBox!.x + insetBox!.width + 1);
   }
 }

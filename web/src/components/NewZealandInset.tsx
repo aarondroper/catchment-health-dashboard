@@ -9,15 +9,14 @@ const NEW_ZEALAND_PATHS = [
 ] as const;
 
 export function NewZealandInset() {
-  return <svg className="nz-inset-map" data-testid="nz-inset-map" role="img" aria-labelledby="nz-inset-title nz-inset-description" viewBox="0 0 230 230">
-    <title id="nz-inset-title">New Zealand geographic context</title>
-    <desc id="nz-inset-description">Simplified New Zealand outline with the Ashburton–Hakatere catchment marked in Canterbury.</desc>
-    {NEW_ZEALAND_PATHS.map((path) => <path className="nz-island" key={path} d={path} />)}
-    <path className="nz-inset-leader" d="M81 167 104 177" />
-    <circle className="nz-catchment-marker" data-testid="nz-catchment-marker" cx="81" cy="167" r="4.5" />
-    <text className="nz-inset-label" x="105" y="175">
-      <tspan x="105" dy="0">Ashburton–</tspan>
-      <tspan x="105" dy="12">Hakatere</tspan>
-    </text>
-  </svg>;
+  return <div className="nz-inset-wrap">
+    <svg className="nz-inset-map" data-testid="nz-inset-map" role="img" aria-labelledby="nz-inset-title nz-inset-description" viewBox="0 0 360 230">
+      <title id="nz-inset-title">New Zealand geographic context</title>
+      <desc id="nz-inset-description">Simplified New Zealand outline with the Ashburton–Hakatere catchment marked in Canterbury and labelled to its right.</desc>
+      {NEW_ZEALAND_PATHS.map((path) => <path className="nz-island" key={path} d={path} />)}
+      <path className="nz-inset-leader" d="M81 167 160 167" />
+      <circle className="nz-catchment-marker" data-testid="nz-catchment-marker" cx="81" cy="167" r="4.5" />
+    </svg>
+    <span className="nz-inset-label" aria-hidden="true"><span className="nz-inset-label-line">Ashburton–</span><span className="nz-inset-label-line">Hakatere</span></span>
+  </div>;
 }

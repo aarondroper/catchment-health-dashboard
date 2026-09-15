@@ -65,10 +65,16 @@ select:focus-visible, button:focus-visible, summary:focus-visible, [tabindex="0"
 .context-inset { margin-top: auto; }
 .context-inset h2 { font-size: .9rem; margin-bottom: 8px; }
 .nz-inset-map { background: #f4f8f8; border: 1px solid #d5e1e5; border-radius: 7px; display: block; height: 120px; width: 100%; }
+.nz-inset-wrap { position: relative; }
 .nz-island { fill: #d8e8e7; stroke: #6d9098; stroke-linejoin: round; stroke-width: .75; }
 .nz-inset-leader { fill: none; stroke: #17645f; stroke-width: 1.1; }
 .nz-catchment-marker { fill: #d7684c; stroke: #fff; stroke-width: 1.5; }
-.nz-inset-label { fill: #102a43; font-size: 24px; font-weight: 800; paint-order: stroke; stroke: #f4f8f8; stroke-linejoin: round; stroke-width: 5px; }
+.nz-inset-label { background: rgba(244, 248, 248, .92); border-radius: 3px; color: #102a43; font-size: 11px; font-weight: 600; left: 30%; line-height: 1.2; padding: 1px 3px; position: absolute; top: 72%; transform: translateY(-50%); white-space: nowrap; }
+.nz-inset-label-line { display: inline; }
+@media (min-width: 761px) and (max-width: 1100px) {
+  .nz-inset-label { line-height: 1.15; white-space: normal; }
+  .nz-inset-label-line { display: block; }
+}
 .primary-column { display: grid; gap: 10px; grid-template-rows: minmax(0, 1.62fr) minmax(250px, 1fr); }
 .insights-rail { display: grid; gap: 10px; grid-template-rows: auto auto minmax(0, 1fr) auto; overflow-y: auto; }
 .panel { padding: 12px; }
