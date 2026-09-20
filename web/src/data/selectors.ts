@@ -10,6 +10,10 @@ const WINDOW_BOUNDS: Record<AnalyticalWindow, readonly [string, string]> = {
   history_2007_2025: ["2007-01-01", "2025-12-31"],
 };
 
+export function windowBounds(window: AnalyticalWindow): readonly [string, string] {
+  return WINDOW_BOUNDS[window];
+}
+
 export function selectParameterWindowObservations(observations: readonly Observation[], window: AnalyticalWindow): readonly Observation[] {
   const [start, end] = WINDOW_BOUNDS[window];
   return observations.filter((row) => row.observedAt.slice(0, 10) >= start && row.observedAt.slice(0, 10) <= end);

@@ -10,7 +10,7 @@ import { formatCount, formatDate, formatNumber, formatNumberWithUnit, trendDispl
 import { analyticalFixture } from "./data/analyticalFixture";
 import { loadAnalyticalAsset, loadObservationPartition } from "./data/loadAsset";
 import { buildObservationCsv, downloadObservationCsv, exportFilename } from "./data/exportCsv";
-import { selectCoverage, selectParameterWindowObservations, selectSummary, selectTrend, selectWindowObservations } from "./data/selectors";
+import { selectCoverage, selectParameterWindowObservations, selectSummary, selectTrend, selectWindowObservations, windowBounds } from "./data/selectors";
 import type { AnalyticalAsset, AnalyticalWindow, ParameterOption, Station } from "./contracts";
 
 const DEFAULT_PARAMETER_ID = "total_nitrogen";
@@ -209,7 +209,7 @@ export function App() {
 
       <section className="primary-column" aria-label="Map and selected-site history">
         <MapPanel stations={asset.stations} selectedStationId={station?.stationId ?? ""} selectedStationName={stationName(station)} catchmentGeometry={asset.catchmentGeometry} hasData={hasData} displayMode={mapDisplayMode} displayRows={mapRows} unit={parameter.unit} onBasemapStatus={setBasemapStatus} onSelectStation={setStationId} />
-        <SeriesChart observations={selectedObservations} unit={parameter.unit} stationName={stationName(station)} parameterName={parameter.displayName} loading={observationsLoading} />
+        <SeriesChart observations={selectedObservations} unit={parameter.unit} stationName={stationName(station)} parameterName={parameter.displayName} periodStart={windowBounds(window)[0]} periodEnd={windowBounds(window)[1]} loading={observationsLoading} />
       </section>
 
       <aside className="insights-rail" aria-label="Selected analytical evidence">

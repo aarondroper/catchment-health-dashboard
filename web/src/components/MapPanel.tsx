@@ -188,6 +188,7 @@ export function MapPanel({ stations, selectedStationId, selectedStationName, cat
     let styleController: AbortController | undefined;
     let styleTimeout: ReturnType<typeof globalThis.setTimeout> | undefined;
     let resizeObserver: ResizeObserver | undefined;
+    let resizeFrame: number | undefined;
     const reportBasemapStatus = (status: "loading" | "openfreemap" | "fallback") => { setContextStatus(status); onBasemapStatus(status); };
     import("maplibre-gl").then(({ Map: MapLibreMap, Marker: MarkerConstructor, NavigationControl, setWorkerUrl }) => {
       if (disposed || !containerRef.current) return;
@@ -202,6 +203,11 @@ export function MapPanel({ stations, selectedStationId, selectedStationName, cat
       };
       mapRef.current = map;
       map.addControl(new NavigationControl({ showCompass: false }), "top-right");
+      const resizeMap = () => {
+        resizeFrame = undefined;
+        if (!disposed) map.resize();
+      };
+      resizeFrame = globalThis.requestAnimationFrame(resizeMap);
       const applyLocalFallback = () => {
         if (disposed || (fallbackAppliedRef.current && !usingRemoteStyleRef.current)) return;
         fallbackAppliedRef.current = true;
@@ -282,7 +288,11 @@ export function MapPanel({ stations, selectedStationId, selectedStationName, cat
         addDataLayers();
       });
       if (typeof ResizeObserver !== "undefined" && containerRef.current) {
-        resizeObserver = new ResizeObserver(() => { if (!disposed) map.resize(); });
+        resizeObserver = new ResizeObserver(() => {
+          if (disposed) return;
+          if (resizeFrame !== undefined) globalThis.cancelAnimationFrame(resizeFrame);
+          resizeFrame = globalThis.requestAnimationFrame(resizeMap);
+        });
         resizeObserver.observe(containerRef.current);
       }
     }).catch(() => { if (!disposed) reportBasemapStatus("fallback"); });
@@ -291,6 +301,7 @@ export function MapPanel({ stations, selectedStationId, selectedStationName, cat
       resizeObserver?.disconnect();
       resizeObserver = undefined;
       styleController?.abort();
+      if (resizeFrame !== undefined) globalThis.cancelAnimationFrame(resizeFrame);
       if (styleTimeout !== undefined) globalThis.clearTimeout(styleTimeout);
       markersRef.current.forEach((marker) => marker.remove());
       markersRef.current = [];

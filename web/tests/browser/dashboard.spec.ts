@@ -280,6 +280,89 @@ test("keeps the history plot measured to its current frame through coordinated c
   console.log(`history-chart-width-regression ${JSON.stringify(measurements)}`);
 });
 
+test("keeps time-series ticks chronological and readable through responsive selection changes", async ({ page }) => {
+  const inspectTicks = () => page.evaluate(() => {
+    const labels = [...document.querySelectorAll<SVGTextElement>('[data-testid="history-chart"] .chart-label')].map((element) => {
+      const box = element.getBoundingClientRect();
+      return { text: element.textContent ?? "", x: box.x, right: box.right };
+    });
+    const chart = document.querySelector<SVGSVGElement>('[data-testid="history-chart"]');
+    return { labels, start: chart?.dataset.periodStart, end: chart?.dataset.periodEnd };
+  });
+  const assertTicks = async (expectedStart: string, expectedEnd: string) => {
+    await expect.poll(async () => (await inspectTicks()).labels.length, { timeout: 10_000 }).toBeGreaterThanOrEqual(3);
+    const ticks = await inspectTicks();
+    expect(ticks.start).toBe(expectedStart);
+    expect(ticks.end).toBe(expectedEnd);
+    expect(ticks.labels.map((label) => label.x)).toEqual([...ticks.labels].sort((first, second) => first.x - second.x).map((label) => label.x));
+    expect(new Set(ticks.labels.map((label) => label.text)).size).toBe(ticks.labels.length);
+    for (let index = 1; index < ticks.labels.length; index += 1) expect(ticks.labels[index - 1].right).toBeLessThanOrEqual(ticks.labels[index].x + 1);
+    if (expectedStart === "2016-01-01") {
+      expect(ticks.labels[0].text).toMatch(/^2016/);
+      expect(ticks.labels.at(-1)?.text).toMatch(/^2025/);
+    }
+  };
+
+  for (const [width, height] of [[390, 844], [414, 896], [1440, 900]] as const) {
+    await page.setViewportSize({ width, height });
+    await openDashboard(page);
+    await assertTicks("2016-01-01", "2025-12-31");
+    await page.getByRole("combobox", { name: "Parameter" }).selectOption("nitrate_n_nitrite_n");
+    await waitForFullWidthChart(page);
+    await assertTicks("2016-01-01", "2025-12-31");
+    await page.getByRole("combobox", { name: "Time period" }).selectOption("recent_2020_2025");
+    await waitForFullWidthChart(page);
+    await assertTicks("2020-01-01", "2025-12-31");
+    await page.getByRole("combobox", { name: "Monitoring site" }).selectOption("SQ20104");
+    await waitForFullWidthChart(page);
+    await assertTicks("2020-01-01", "2025-12-31");
+  }
+});
+
+test("keeps the MapLibre surface usable in the stacked mobile layout", async ({ page }) => {
+  const mapFailures: string[] = [];
+  const mapErrors: string[] = [];
+  page.on("requestfailed", (request) => {
+    if (/maplibre|openfreemap|tiles\.openfreemap|worker/i.test(request.url())) mapFailures.push(`${request.url()} ${request.failure()?.errorText ?? "failed"}`);
+  });
+  page.on("pageerror", (error) => mapErrors.push(error.message));
+  page.on("console", (message) => {
+    if (message.type() === "error" && /maplibre|openfree|worker|glyph|sprite|tile/i.test(message.text())) mapErrors.push(message.text());
+  });
+
+  for (const [width, height] of [[390, 844], [414, 896]] as const) {
+    mapFailures.length = 0;
+    mapErrors.length = 0;
+    await page.setViewportSize({ width, height });
+    await openDashboard(page);
+    const dimensions = await page.evaluate(() => {
+      const read = (selector: string) => {
+        const element = document.querySelector<HTMLElement>(selector);
+        if (!element) return null;
+        const box = element.getBoundingClientRect();
+        return { width: box.width, height: box.height };
+      };
+      return { frame: read(".map-frame"), map: read(".map-canvas"), canvas: read(".maplibregl-canvas"), root: read(".maplibregl-map"), scrollWidth: document.documentElement.scrollWidth, clientWidth: document.documentElement.clientWidth };
+    });
+    expect(dimensions.frame?.height).toBeGreaterThanOrEqual(300);
+    expect(dimensions.map?.height).toBeGreaterThanOrEqual((dimensions.frame?.height ?? 0) - 2);
+    expect(dimensions.canvas?.height).toBeGreaterThanOrEqual((dimensions.frame?.height ?? 0) - 2);
+    expect(dimensions.root?.height).toBeGreaterThanOrEqual((dimensions.frame?.height ?? 0) - 2);
+    expect(dimensions.scrollWidth - dimensions.clientWidth).toBeLessThanOrEqual(1);
+    await expect(page.locator(".map-frame")).toHaveAttribute("data-context-basemap", /openfreemap|fallback/);
+    await expect(page.locator(".map-marker:visible").first()).toBeVisible();
+    await expect(page.getByRole("button", { name: "Reset view" })).toBeVisible();
+    await expect(page.locator(".maplibregl-ctrl-top-right")).toBeVisible();
+    const marker = page.locator(".map-marker:visible").first();
+    const stationId = await marker.getAttribute("data-station-id");
+    expect(stationId).toBeTruthy();
+    await marker.dispatchEvent("click");
+    await expect(page.getByRole("combobox", { name: "Monitoring site" })).toHaveValue(stationId!);
+  }
+  expect(mapFailures).toEqual([]);
+  expect(mapErrors).toEqual([]);
+});
+
 test("keeps chart tooltips in a viewport overlay at edge points and clears stale state", async ({ page }) => {
   await page.setViewportSize({ width: 1440, height: 900 });
   await openDashboard(page);
