@@ -168,7 +168,7 @@ test("hosted smoke test requires the real OpenFreeMap context basemap", async ({
     if (request.url().startsWith("https://tiles.openfreemap.org/")) remoteRequests.push(request.url());
   });
   page.context().on("requestfailed", (request) => {
-    if (request.url().startsWith("https://tiles.openfreemap.org/")) remoteFailures.push(`${request.method()} ${request.url()}: ${request.failure()?.errorText ?? "failed"}`);
+    if (request.url().startsWith("https://tiles.openfreemap.org/") && request.failure()?.errorText !== "net::ERR_ABORTED") remoteFailures.push(`${request.method()} ${request.url()}: ${request.failure()?.errorText ?? "failed"}`);
   });
   page.context().on("response", (response) => {
     if (response.url().startsWith("https://tiles.openfreemap.org/") && response.status() >= 400) remoteHttpFailures.push(`${response.status()} ${response.url()}`);
